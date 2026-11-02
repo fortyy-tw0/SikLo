@@ -114,6 +114,7 @@
 </style>
 <link rel="stylesheet" href="../assets/shared.css">
 <script src="../assets/shared.js"></script>
+<script src="../assets/store.js"></script>
 </head>
 <body>
 <main class="screen">
@@ -195,7 +196,8 @@
     if (r.error) { r.field.setAttribute('aria-invalid', 'true'); statusEl.innerHTML = errIcon + r.error; next.disabled = true; return; }
     statusEl.innerHTML = okIcon + `${r.label} · you are ${r.age}`;
     next.disabled = false;
-    try { sessionStorage.setItem('siklo-dob', JSON.stringify([mm.value, dd.value, yy.value])); } catch (e) {}
+    const pad = n => String(n).padStart(2, '0');
+    SikloStore.update({ dob: `${yy.value}-${pad(mm.value)}-${pad(dd.value)}` });
   }
 
   // Fill the dropdowns. Years run from the youngest plausible age (8) back 100 years.
@@ -218,7 +220,9 @@
   yy.addEventListener('change', () => { fillDays(); update(); });
   dd.addEventListener('change', update);
 
-  try { const saved = JSON.parse(sessionStorage.getItem('siklo-dob') || 'null'); if (saved) { mm.value = saved[0]; yy.value = saved[2]; fillDays(); dd.value = saved[1]; update(); } } catch (e) {}
+  // Restore a birthday already entered in this session (or saved earlier)
+  const dob = SikloStore.draft().dob;
+  if (dob) { const [y, m, d] = dob.split('-'); mm.value = String(+m); yy.value = y; fillDays(); dd.value = String(+d); update(); }
 
   document.getElementById('backBtn').addEventListener('click', () => goTo('../index.html', 'back'));
   next.addEventListener('click', () => goTo('step-2.html', 'forward'));

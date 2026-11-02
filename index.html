@@ -48,11 +48,15 @@
     display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
   .cta:hover{background:var(--purple-900)}
   .cta svg{width:16px;height:16px;flex:none;transform:translateY(1.5px)}
+  .resume{width:100%;min-height:48px;margin-top:8px;border-radius:16px;background:var(--purple-50);color:var(--purple-700);font-size:14px;font-weight:600}
+  .resume:hover{background:var(--purple-100)}
+  .resume[hidden]{display:none}
   .foot{font-size:12px;color:var(--muted);line-height:1.55;text-align:center;margin-top:12px}
 
 </style>
 <link rel="stylesheet" href="assets/shared.css">
 <script src="assets/shared.js"></script>
+<script src="assets/store.js"></script>
 </head>
 <body>
 <main class="screen">
@@ -89,11 +93,17 @@
     Start privately
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
   </button>
+  <button class="resume" type="button" id="resumeBtn" hidden>Open my saved profile</button>
   <p class="foot">Four short steps. Optional questions can be skipped.<br>Changes persist only when you choose Save.</p>
 
 </main>
 <script>
   document.getElementById('startBtn').addEventListener('click', () => goTo('setup/step-1.html', 'forward'));
+  // A profile saved earlier in this browser
+  if (SikloStore.load()) {
+    const r = document.getElementById('resumeBtn'); r.hidden = false;
+    r.addEventListener('click', () => goTo('home.html', 'forward'));
+  }
 </script>
 </body>
 </html>
