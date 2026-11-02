@@ -47,6 +47,8 @@ export interface CycleView {
   ovulationDay: number | null;
   fertile: readonly [number, number] | null; // cycle days
   confirmed: ConfirmedOvulation | null;
+  /** True when date-based estimates are turned off (e.g. pregnancy, postpartum). */
+  estimateOff: boolean;
   confidence: Confidence | null;
   phase: Phase;
   prediction: Prediction;
@@ -69,7 +71,13 @@ export const cycleDayOf = (start: string, date: string) => diffDays(parseDate(st
 export const dateOfDay = (start: string, day: number) => toISO(addDays(parseDate(start), day - 1));
 
 /** Returns null when there is no period on or before today to anchor a cycle. */
-export function buildCycleView(allPeriods: readonly Period[], today: string, ovulation: ConfirmedOvulation | null): CycleView | null {
+export function buildCycleView(
+  allPeriods: readonly Period[],
+  today: string,
+  ovulation: ConfirmedOvulation | null,
+  options: { estimate?: boolean } = {},
+): CycleView | null {
+  const estimateOff = options.estimate === false;
   const periods = allPeriods
     .filter((p) => p.kind !== 'spotting' && p.start_date <= today)
     .sort((a, b) => (a.start_date < b.start_date ? -1 : 1));
@@ -94,7 +102,7 @@ export function buildCycleView(allPeriods: readonly Period[], today: string, ovu
     .slice(-TREND_CYCLES);
 
   // Next period: confirmed ovulation beats the statistical estimate
-  const confirmed = ovulation && ovulation.cycle_start === cycleStart ? ovulation : null;
+  const confirmed = !estimateOff && ovulation && ovulation.cycle_start === cycleStart ? ovulation : null;
   let length: number | null = null;
   let next: CycleView['next'] = null;
   let confidence: Confidence | null = null;
@@ -102,7 +110,7 @@ export function buildCycleView(allPeriods: readonly Period[], today: string, ovu
     length = confirmed.day + LUTEAL_DAYS;
     next = { likely: dateOfDay(cycleStart, length + 1), from: dateOfDay(cycleStart, length), to: dateOfDay(cycleStart, length + 2) };
     confidence = confirmed.signs.length >= 2 ? 3 : 2;
-  } else if (prediction.status === 'ok' && prediction.estimate && prediction.window && prediction.median_cycle_len) {
+  } else if (!estimateOff && prediction.status === 'ok' && prediction.estimate && prediction.window && prediction.median_cycle_len) {
     length = prediction.median_cycle_len;
     next = { likely: prediction.estimate, from: prediction.window[0], to: prediction.window[1] };
     confidence = prediction.confidence === 'high' ? 3 : prediction.confidence === 'medium' ? 2 : 1;
@@ -120,7 +128,7 @@ export function buildCycleView(allPeriods: readonly Period[], today: string, ovu
   else phase = 'Late';
 
   return {
-    today, cycleStart, cycleDay, periodDays, length, next, ovulationDay, fertile, confirmed, confidence, phase,
+    today, cycleStart, cycleDay, periodDays, length, next, ovulationDay, fertile, confirmed, estimateOff, confidence, phase,
     prediction, cycles, periodLengths,
     flags: healthFlags(cycles, periodLengths, prediction, cycleStart),
   };

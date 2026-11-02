@@ -63,9 +63,30 @@
     border-radius:14px;background:var(--purple-50);font-size:14px;font-weight:600;transition:background .15s}
   .check .plus{flex:none;width:24px;height:24px;border-radius:8px;background:var(--white);color:var(--purple-700);display:grid;place-items:center;transition:all .15s}
   .check .plus svg{width:14px;height:14px;transition:transform .2s}
-  .check[aria-pressed="true"]{background:var(--purple-100)}
-  .check[aria-pressed="true"] .plus{background:var(--button);color:#fff}
-  .check[aria-pressed="true"] .plus svg{transform:rotate(45deg)}
+  .check[aria-expanded="true"]{background:var(--purple-100)}
+  .check[aria-expanded="true"] .plus{background:var(--button);color:#fff}
+  .check[aria-expanded="true"] .plus svg{transform:rotate(45deg)}
+
+  /* Context choices: open below their button */
+  .ctx-panel{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .3s cubic-bezier(.22,.8,.24,1),opacity .2s}
+  .ctx-panel.open{grid-template-rows:1fr;opacity:1}
+  .ctx-inner{min-height:0;overflow:hidden}
+  .ctx-opts{display:flex;flex-direction:column;gap:6px;padding:8px 2px 2px}
+  .copt{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:10px 14px;text-align:left;
+    border:1px solid var(--line);border-radius:12px;background:var(--white);font-size:13.5px;font-weight:600;line-height:1.35}
+  .copt .radio{width:20px;height:20px}
+  .copt .radio::after{width:9px;height:9px}
+  .copt[aria-checked="true"]{border-color:var(--purple-700);background:var(--purple-50)}
+  .copt[aria-checked="true"] .radio{border-color:var(--purple-700)}
+  .copt[aria-checked="true"] .radio::after{transform:scale(1)}
+  .ctx-note{padding:10px 2px 2px}
+  .ctx-note label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px}
+  .ctx-note label span{color:var(--muted);font-weight:500}
+  .ctx-note textarea{min-height:64px}
+  .ctx-help{font-size:12px;line-height:1.5;color:var(--body);padding:8px 4px 2px}
+  .estimate-off{margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--purple-50);animation:fadeUp .25s ease both}
+  .estimate-off b{display:block;font-size:13px;color:var(--purple-900)}
+  .estimate-off p{font-size:12.5px;line-height:1.5;color:var(--body);margin-top:3px}
   .note{font-size:12px;line-height:1.5;color:var(--muted);margin-top:14px}
 
   /* Actions */
@@ -89,10 +110,10 @@
     </button>
     <span class="step">Step 4 of 5</span>
   </div>
-  <div class="bars" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+  <div class="bars" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on now"></i><i></i></div>
   </header>
 
-  <section class="body">
+  <section class="body stagger">
     <h1>Your context, your choice.</h1>
     <span class="chip">Optional</span>
 
@@ -116,14 +137,42 @@
       <h2>Other context <span>· optional</span></h2>
       <p>Contraception or life stage may change bleeding. You can add context without sharing sexual history.</p>
       <div class="checks">
-        <button class="check" type="button" aria-pressed="false" id="contra">
-          <span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
-          Add contraception context
-        </button>
-        <button class="check" type="button" aria-pressed="false" id="life">
-          <span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
-          Add life-stage context
-        </button>
+        <div class="ctx">
+          <button class="check" type="button" aria-expanded="false" aria-controls="contraPanel" id="contra">
+            <span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+            <span class="lbl" data-add="Add contraception context" data-open="Contraception context">Add contraception context</span>
+          </button>
+          <div class="ctx-panel" id="contraPanel" inert>
+            <div class="ctx-inner">
+              <div class="ctx-opts" role="radiogroup" aria-label="Contraception context" id="contraOpts"></div>
+              <div class="ctx-note" id="contraNoteWrap" hidden>
+                <label for="contraNote">In your own words <span>· optional</span></label>
+                <textarea id="contraNote" maxlength="120" placeholder="Describe it however you like"></textarea>
+              </div>
+              <p class="ctx-help" id="contraHelp" hidden></p>
+            </div>
+          </div>
+        </div>
+        <div class="ctx">
+          <button class="check" type="button" aria-expanded="false" aria-controls="lifePanel" id="life">
+            <span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+            <span class="lbl" data-add="Add life-stage context" data-open="Life-stage context">Add life-stage context</span>
+          </button>
+          <div class="ctx-panel" id="lifePanel" inert>
+            <div class="ctx-inner">
+              <div class="ctx-opts" role="radiogroup" aria-label="Life-stage context" id="lifeOpts"></div>
+              <div class="ctx-note" id="lifeNoteWrap" hidden>
+                <label for="lifeNote">In your own words <span>· optional</span></label>
+                <textarea id="lifeNote" maxlength="120" placeholder="Describe it however you like"></textarea>
+              </div>
+              <p class="ctx-help" id="lifeHelp" hidden></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="estimate-off" id="estimateOff" hidden>
+        <b>Estimate unavailable for this context</b>
+        <p id="estimateOffText"></p>
       </div>
     </div>
 

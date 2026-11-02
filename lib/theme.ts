@@ -44,8 +44,13 @@ export function mountThemeSwitch(button: HTMLButtonElement): void {
   };
   button.type = 'button';
   button.addEventListener('click', () => {
+    // Fade colours for a moment instead of snapping (see html.theme-fade in shared.css)
+    const root = document.documentElement;
+    const fade = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (fade) root.classList.add('theme-fade');
     setTheme(button.dataset.next === 'dark' ? 'dark' : 'light');
     render();
+    if (fade) setTimeout(() => root.classList.remove('theme-fade'), 400);
   });
   render();
 }

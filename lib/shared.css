@@ -97,8 +97,9 @@ html[data-dir="back"]::view-transition-new(screen){animation-name:vtInBack}
 
 /* Bottom tab bar (Today, Calendar, Insights, Profile) */
 .tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:var(--tabbar-bg);
-  border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 0 calc(22px + env(safe-area-inset-bottom,0px));z-index:5}
-.tabbar a{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;font-size:11px;color:var(--muted);text-decoration:none;font-weight:500}
+  border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;
+  min-height:68px;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
+.tabbar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:64px;min-height:52px;font-size:11px;color:var(--muted);text-decoration:none;font-weight:500}
 .tabbar a[aria-current="page"]{color:var(--purple-700);font-weight:600}
 .tabbar svg{width:22px;height:22px}
 
@@ -106,3 +107,47 @@ html[data-dir="back"]::view-transition-new(screen){animation-name:vtInBack}
 .toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--toast-bg);color:var(--toast-fg);font-size:12.5px;font-weight:500;
   padding:10px 16px;border-radius:12px;opacity:0;transition:all .25s;z-index:12;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- Motion ----------
+   Small, quick animations that make the app feel responsive. All of them are
+   skipped for people who ask their device for reduced motion. */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(.86)}75%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes pillIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+
+/* Every tappable control: smooth colour changes and a gentle press */
+html :is(.cta,.btn,.opt,.copt,.check,.chip,.pill,.skip,.back,.theme-switch,.resume,.avatar,.rm,.add,.wipe,.tabbar a,.conf,.daypick button){
+  transition:scale .14s ease,transform .14s ease,background-color .2s,border-color .2s,color .2s,opacity .2s,box-shadow .2s}
+
+/* Tab bar: soft highlight behind the current tab */
+.tabbar a{position:relative}
+.tabbar a[aria-current="page"]::before{content:"";position:absolute;top:2px;left:50%;width:48px;height:30px;margin-left:-24px;
+  border-radius:99px;background:var(--purple-50);z-index:-1}
+
+@media (prefers-reduced-motion:no-preference){
+  html :is(.cta,.btn,.opt,.copt,.check,.chip,.pill,.skip,.back,.theme-switch,.resume,.avatar,.rm,.add,.wipe,.tabbar a,.daypick button):active:not([disabled]){scale:.96}
+  html .conf:active{scale:.99}
+
+  /* Content rises in, one block after another */
+  .stagger > *{animation:fadeUp .45s cubic-bezier(.22,.8,.24,1) both}
+  .stagger > :nth-child(2){animation-delay:.04s}
+  .stagger > :nth-child(3){animation-delay:.08s}
+  .stagger > :nth-child(4){animation-delay:.12s}
+  .stagger > :nth-child(5){animation-delay:.16s}
+  .stagger > :nth-child(6){animation-delay:.2s}
+  .stagger > :nth-child(7){animation-delay:.24s}
+  .stagger > :nth-child(8){animation-delay:.28s}
+  .stagger > :nth-child(n+9){animation-delay:.32s}
+
+  /* Setup progress: the current step's bar fills in */
+  .bars i.now{transform-origin:left center;animation:fill .5s .15s cubic-bezier(.22,.8,.24,1) both}
+
+  /* Log chips and the current tab give a little bounce */
+  .chip.pop .ic{animation:pop .36s ease}
+  .tabbar a[aria-current="page"]::before{animation:pillIn .3s cubic-bezier(.22,.8,.24,1) both}
+}
+
+/* Light/dark switch: colours fade instead of snapping (class set briefly by theme.ts) */
+html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after{
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease,fill .35s ease,stroke .35s ease,box-shadow .35s ease!important}

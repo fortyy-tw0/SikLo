@@ -5,6 +5,7 @@ import {
   type CycleView, type Phase,
 } from '@lib/cycleView';
 import { byId, esc, todayIso } from '@lib/dom';
+import { estimateUnsuitable } from '@lib/context';
 import { greetingForThisVisit, withName } from '@lib/greeting';
 import { load, savedName } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
@@ -70,6 +71,10 @@ export default function mount(signal: AbortSignal): void {
         return { title: `Period expected · day ${v.cycleDay}`,
           text: `Your period was expected around ${fmt(v.next!.likely)}. Cycles shift for many reasons, like stress, travel or illness. If it has started, add the date. If it hasn't and you could be pregnant, a test can tell you.` };
       case 'Tracking':
+        if (v.estimateOff) {
+          return { title: `Day ${v.cycleDay}`,
+            text: 'Date-based estimates are off for your current life stage. You can still log bleeding and symptoms, and change this in your setup answers anytime.' };
+        }
         return { title: `Day ${v.cycleDay}`,
           text: 'SikLo shows phases once it can estimate your next period, after 3 complete cycles. Until then, keep adding period start dates. If you notice ovulation signs, you can confirm them below.' };
     }
@@ -87,9 +92,27 @@ export default function mount(signal: AbortSignal): void {
     byId('todayLabel').textContent = parseDate(today).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'long', month: 'short', day: 'numeric' });
   }
 
+  const motion = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let firstDraw = true;
+
+  /** Counts the big cycle-day number up from 1. */
+  function countUp(el: HTMLElement, to: number): void {
+    if (!motion() || to <= 1) { el.textContent = String(to); return; }
+    const start = performance.now(), ms = Math.min(700, 250 + to * 20);
+    const step = (now: number) => {
+      const k = Math.min(1, (now - start) / ms);
+      el.textContent = String(Math.max(1, Math.round(1 + (to - 1) * (1 - (1 - k) ** 3))));
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
   function drawRing(v: CycleView): void {
     const svg = byId('ring') as unknown as SVGSVGElement;
     svg.innerHTML = '';
+    const animate = firstDraw && motion();
+    firstDraw = false;
+    let order = 0; // arcs draw one after another
     const ring = ringFor(v);
     const C = 125, R = 108, W = 14, L = ring.days;
     const set = (el: Element, attrs: Record<string, string | number>) => Object.entries(attrs).forEach(([k, val]) => el.setAttribute(k, String(val)));
@@ -101,6 +124,11 @@ export default function mount(signal: AbortSignal): void {
         'stroke-dasharray': `${to - from + 1 - gap} ${L}`, 'stroke-dashoffset': -(from - 1) - gap / 2,
         transform: `rotate(-90 ${C} ${C})` });
       svg.appendChild(c);
+      if (animate) {
+        // Grow each arc from its start around the ring
+        c.animate([{ strokeDasharray: `0 ${L}` }, { strokeDasharray: `${to - from + 1 - gap} ${L}` }],
+          { duration: 700, delay: order++ * 140, easing: 'cubic-bezier(.22,.8,.24,1)', fill: 'backwards' });
+      }
     };
     const point = (day: number) => {
       const a = ((day - 0.5) / L) * 2 * Math.PI - Math.PI / 2;
@@ -110,7 +138,13 @@ export default function mount(signal: AbortSignal): void {
       const [x, y] = point(day);
       const c = document.createElementNS(SVG_NS, 'circle');
       set(c, { cx: x, cy: y, r, fill, stroke, 'stroke-width': sw });
+      c.style.transformBox = 'fill-box';
+      c.style.transformOrigin = 'center';
       svg.appendChild(c);
+      if (animate) {
+        c.animate([{ transform: 'scale(0)', opacity: 0 }, { transform: 'scale(1.25)', opacity: 1, offset: .7 }, { transform: 'scale(1)', opacity: 1 }],
+          { duration: 420, delay: 520 + order * 60, easing: 'ease-out', fill: 'backwards' });
+      }
     };
 
     arc(1, L, cssVar('--purple-100'));
@@ -122,11 +156,14 @@ export default function mount(signal: AbortSignal): void {
     // Before an estimate exists the ring is only a guide; say so
     const note = byId('ringNote');
     note.hidden = ring.scale === 'estimate';
-    note.textContent = ring.scale === 'average'
+    note.textContent = v.estimateOff
+      ? 'Estimates are off for your current life stage, so the ring is only a guide.'
+      : ring.scale === 'average'
       ? `The ring shows your average ${ring.days}-day cycle until SikLo can estimate your next period.`
       : `The ring shows a typical ${ring.days}-day cycle until SikLo learns yours.`;
 
-    byId('dayNum').textContent = String(v.cycleDay);
+    if (animate) countUp(byId('dayNum'), v.cycleDay);
+    else byId('dayNum').textContent = String(v.cycleDay);
     byId('phaseName').textContent = PHASE_LABEL[v.phase];
     byId('ring').setAttribute('aria-label', `Cycle day ${v.cycleDay}, ${PHASE_LABEL[v.phase]}`);
     byId('legendFertile').hidden = !v.fertile;
@@ -143,6 +180,8 @@ export default function mount(signal: AbortSignal): void {
     if (v.next) {
       const overdue = today > v.next.likely;
       set('dPeriod', fmtRange(v.next.from, v.next.to), overdue ? `was due ${fmt(v.next.likely)}` : `likely ${fmt(v.next.likely)}`);
+    } else if (v.estimateOff) {
+      set('dPeriod', 'Off', 'for your life stage', true);
     } else {
       const need = startsNeeded(periods, v.prediction);
       set('dPeriod', 'Not enough data', `${plural(need, 'more date')}`, true);
@@ -155,8 +194,9 @@ export default function mount(signal: AbortSignal): void {
       const ov = dateOfDay(v.cycleStart, v.ovulationDay!);
       set('dOv', `${v.confirmed ? '' : '~'}${fmt(ov)}`, v.confirmed ? 'confirmed by you' : 'estimated');
     } else {
-      set('dFertile', '–', 'needs an estimate', true);
-      set('dOv', '–', 'needs an estimate', true);
+      const why = v.estimateOff ? 'off' : 'needs an estimate';
+      set('dFertile', '–', why, true);
+      set('dOv', '–', why, true);
     }
   }
 
@@ -183,6 +223,10 @@ export default function mount(signal: AbortSignal): void {
         <li>Lengths ranged ${lo}–${hi} days, so SikLo shows a range, not one date.</li>
         <li>Confirming ovulation this cycle makes the period estimate much tighter.</li>
         ${notBirthControl}</ul>`;
+    } else if (v.estimateOff) {
+      txt.innerHTML = '<b>Estimates off</b> · for your current life stage';
+      why.innerHTML = `<ul><li>${esc(estimateUnsuitable(saved?.profile.life_stage) ?? '')}</li>
+        <li>You can change this anytime from Profile, under Change setup answers.</li></ul>`;
     } else {
       txt.innerHTML = '<b>No estimate yet</b> · SikLo needs 3 complete cycles';
       why.innerHTML = `<ul>
@@ -230,7 +274,7 @@ export default function mount(signal: AbortSignal): void {
       bar.appendChild(mark);
     }
 
-    byId('openSheet').hidden = !!v.confirmed || v.cycleDay <= v.periodDays;
+    byId('openSheet').hidden = !!v.confirmed || v.estimateOff || v.cycleDay <= v.periodDays;
     byId('confirmedNote').hidden = !v.confirmed;
     byId('confirmedTxt').textContent = v.confirmed ? `Ovulation confirmed on day ${v.confirmed.day}` : '';
   }
@@ -305,7 +349,7 @@ export default function mount(signal: AbortSignal): void {
     let view: CycleView | null = null;
 
     const render = () => {
-      view = buildCycleView(saved.periods, today, loadTracking().ovulation);
+      view = buildCycleView(saved.periods, today, loadTracking().ovulation, { estimate: !estimateUnsuitable(saved.profile.life_stage) });
       byId('empty').hidden = !!view;
       byId('cycleContent').hidden = !view;
       if (!view) return;
@@ -324,7 +368,9 @@ export default function mount(signal: AbortSignal): void {
     confBtn.addEventListener('click', () => {
       const open = confBtn.getAttribute('aria-expanded') !== 'true';
       confBtn.setAttribute('aria-expanded', String(open));
-      byId('why').hidden = !open;
+      const why = byId('why');
+      why.hidden = !open;
+      if (open && motion()) why.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'ease-out' });
     });
 
     // Log today: saved immediately on this device
@@ -339,6 +385,7 @@ export default function mount(signal: AbortSignal): void {
         t.logs[today] = LOG_KINDS.filter((k) => set.has(k));
       });
       renderLog();
+      byId('log').querySelector(`[data-kind="${kind}"]`)?.classList.add('pop'); // little bounce on the tapped chip
     });
 
     // Health flags

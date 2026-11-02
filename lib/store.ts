@@ -48,8 +48,10 @@ function emptyDraft(): Draft {
     cycle_type: null,
     diagnosed: null,
     concern_note: '',
-    contraception_context: false,
-    life_stage_context: false,
+    contraception: null,
+    contraception_note: '',
+    life_stage: null,
+    life_stage_note: '',
     periods: [],
   };
 }

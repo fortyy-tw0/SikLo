@@ -39,6 +39,7 @@ lib/
   tracking.ts       Daily logs, confirmed ovulation, flag choices
   tabbar.ts         Bottom tab bar;  toast.ts  confirmation messages
   greeting.ts       Random greeting on Today, once per app open
+  context.ts        Contraception / life-stage choices (same values as the app)
   dom.ts            Typed element lookup, escaping, today's date
   *.test.ts         Automated checks for the file of the same name
   backend/          Copied unchanged from siklo-backend-ts (prediction.ts, dates.ts)
@@ -66,7 +67,7 @@ npm test            # automated checks (prediction, Today screen, scaling)
 
 The site makes no network requests with user data. Setup answers are kept in
 `sessionStorage` as a draft and written to `localStorage` only when the user
-taps **Save on this device** on Step 4. "Delete my data from this device" on
+taps **Save** on the last setup step. "Delete my data from this device" on
 the home screen removes it. Browser storage is not encrypted at rest, unlike
 the phone app's SQLite database.
 
@@ -96,6 +97,21 @@ Built from the saved periods, never from sample data:
   days, periods over 7 days, plus the engine's missing-data and change flags).
   They are not diagnoses. Report and dismiss choices are saved on the device.
 - Calendar and Insights tabs are placeholders for now.
+
+## Optional context (setup step 4)
+
+"Add contraception context" and "Add life-stage context" open the same choices
+as the React Native app; "Other" choices open a box for the person's own words.
+Pregnancy and postpartum turn off date-based estimates on Today (history,
+logging and trends stay), as in the app.
+
+## Motion
+
+Press feedback on every control, content that rises in on each screen, the
+cycle ring drawing itself, the day count-up, the setup progress bar filling,
+and a smooth light/dark fade. All of it is skipped when the device asks for
+reduced motion. Styles are under "Motion" in `lib/shared.css`; add
+`class="stagger"` to a container to animate its children in.
 
 ## Light and dark mode
 

@@ -132,3 +132,15 @@ test('ring: with an estimate it is the predicted cycle; a late today stays at th
   assert.deepEqual(r, { days: 28, scale: 'estimate', periodDays: 5, fertile: [9, 14], ovulationDay: 14, todayDay: 11 });
   assert.equal(ringFor(buildCycleView(REGULAR, '2026-11-22', null)!).todayDay, 28);
 });
+
+test('estimates can be turned off (pregnancy, postpartum): no dates, no confirmed ovulation', () => {
+  const ov = { cycle_start: '2026-10-23', day: 14, signs: ['lh' as const] };
+  const v = buildCycleView(REGULAR, '2026-11-02', ov, { estimate: false })!;
+  assert.equal(v.estimateOff, true);
+  assert.equal(v.next, null);
+  assert.equal(v.fertile, null);
+  assert.equal(v.confirmed, null);
+  assert.equal(v.confidence, null);
+  assert.equal(v.phase, 'Tracking');
+  assert.ok(v.cycles.length > 0); // history and trends still shown
+});

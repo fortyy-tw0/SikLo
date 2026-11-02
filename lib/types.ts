@@ -4,6 +4,8 @@
  * siklo-backend-ts in the phone app.
  */
 
+import type { ContraceptionContext, LifeStageContext } from './context';
+
 export type CycleType = 'regular' | 'irregular' | 'not_sure';
 export type DiagnosisAnswer = 'yes' | 'no' | 'unsure' | 'private';
 export type EndState = 'ended' | 'ongoing' | 'unknown';
@@ -22,8 +24,10 @@ export interface Profile {
   cycle_type: CycleType | null;
   diagnosed: DiagnosisAnswer | null;
   concern_note: string; // stays a note, never a diagnosis
-  contraception_context: boolean;
-  life_stage_context: boolean;
+  contraception: ContraceptionContext | null;
+  contraception_note: string; // own words, for 'Other context'
+  life_stage: LifeStageContext | null;
+  life_stage_note: string; // own words, for 'Other / I'm not sure'
 }
 
 /** Setup answers in progress (session only). */

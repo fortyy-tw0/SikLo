@@ -31,7 +31,7 @@ export default function mount(_signal: AbortSignal): void {
       : '<li class="empty">No dates yet.</li>';
 
     byId('saved').textContent =
-      `Setup saved in this browser on ${new Date(saved.saved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}. Nothing was sent anywhere.`;
+      `Setup saved on ${new Date(saved.saved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.`;
 
     byId('editDates').addEventListener('click', () => goTo('dates', 'forward'));
     byId('editSetup').addEventListener('click', () => goTo('name', 'forward'));
