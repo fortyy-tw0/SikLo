@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SikLo Setup Step 1</title>
+<title>SikLo Setup Step 4</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -78,43 +78,45 @@
   .check[aria-pressed="true"] .plus svg{transform:rotate(45deg)}
   .note{font-size:12px;line-height:1.5;color:var(--muted);margin-top:14px}
 
-
-  /* Birthday */
-  .lead{font-size:14px;line-height:1.55;color:var(--body);margin-top:8px}
-  .dob{display:grid;grid-template-columns:1.6fr 1fr 1.25fr;gap:10px;margin-top:22px}
-  .seg label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
-  .sel{position:relative}
-  .sel select{width:100%;height:56px;padding:0 34px 0 14px;border:1px solid var(--line);border-radius:14px;background:var(--white);
-    -webkit-appearance:none;appearance:none;font:inherit;font-size:16px;font-weight:600;color:var(--ink);cursor:pointer;
-    font-variant-numeric:tabular-nums;outline:none;transition:border-color .15s,box-shadow .15s}
-  .sel select:invalid{color:#B3A9C4;font-weight:500}
-  .sel select option{color:var(--ink);font-weight:500}
-  .sel select:focus{border-color:var(--purple-500);box-shadow:0 0 0 3px var(--purple-100)}
-  .sel select[aria-invalid="true"]{border-color:var(--purple-700)}
-  .sel .chev{position:absolute;right:12px;top:50%;width:16px;height:16px;margin-top:-8px;color:var(--purple-700);pointer-events:none}
-  .status{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:13px;font-weight:600;color:var(--purple-700)}
-  .status svg{width:15px;height:15px;flex:none}
-  .status.err{color:var(--purple-900)}
-  .status:empty{display:none}
-  .why{display:flex;gap:12px;margin-top:16px;padding:14px 16px;border-radius:16px;background:var(--purple-50)}
-  .why .ic{flex:none;width:28px;height:28px;border-radius:9px;background:var(--purple-100);color:var(--purple-700);display:grid;place-items:center}
-  .why .ic svg{width:15px;height:15px}
-  .why b{display:block;font-size:13.5px;font-weight:700;color:var(--purple-900)}
-  .why p{font-size:12.5px;line-height:1.5;color:var(--body);margin-top:2px}
-  .cta[disabled]{opacity:.4;cursor:not-allowed}
-
   /* Actions */
   .cta{width:100%;min-height:52px;padding:15px;border-radius:16px;background:var(--purple-700);color:#fff;font-size:15px;font-weight:600;
     display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s}
   .cta:active{transform:scale(.98)}
-  .cta svg{width:16px;height:16px;flex:none;transform:translateY(1.5px)}
+  .cta svg{width:16px;height:16px}
   .skip{width:100%;min-height:44px;margin-top:4px;font-size:14px;font-weight:600;color:var(--purple-700);border-radius:14px}
   :focus-visible{outline:2px solid var(--purple-500);outline-offset:2px}
+  .cta[disabled]{opacity:.4;cursor:not-allowed}
+
+  /* Period dates */
+  .lead{font-size:14px;line-height:1.55;color:var(--body);margin-top:8px}
+  .periods{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+  .period{border:1px solid var(--line);border-radius:18px;padding:14px 14px 12px}
+  .period .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .period .row b{font-size:13.5px;font-weight:700}
+  .period .rm{min-height:32px;padding:0 10px;font-size:12.5px;font-weight:600;color:var(--purple-700);border-radius:10px}
+  .period .rm:hover{background:var(--purple-50)}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pair label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .pair label span{font-weight:500}
+  .pair input{width:100%;height:50px;padding:0 10px;border:1px solid var(--line);border-radius:14px;background:var(--white);
+    font:inherit;font-size:14.5px;font-weight:600;color:var(--ink);outline:none;-webkit-appearance:none;appearance:none;
+    font-variant-numeric:tabular-nums;transition:border-color .15s,box-shadow .15s}
+  .pair input:focus{border-color:var(--purple-500);box-shadow:0 0 0 3px var(--purple-100)}
+  .pair input[aria-invalid="true"]{border-color:var(--purple-700)}
+  .perr{font-size:12.5px;font-weight:600;color:var(--purple-900);margin-top:8px}
+  .perr:empty{display:none}
+  .add{margin-top:10px}
+  .progress{display:flex;gap:12px;margin-top:18px;padding:14px 16px;border-radius:16px;background:var(--purple-50)}
+  .progress .ic{flex:none;width:28px;height:28px;border-radius:9px;background:var(--purple-100);color:var(--purple-700);display:grid;place-items:center}
+  .progress .ic svg{width:15px;height:15px}
+  .progress b{display:block;font-size:13.5px;font-weight:700;color:var(--purple-900)}
+  .progress p{font-size:12.5px;line-height:1.5;color:var(--body);margin-top:2px}
+  .savenote{font-size:12px;line-height:1.5;color:var(--muted);text-align:center;margin-top:8px}
 
 </style>
 <link rel="stylesheet" href="../assets/shared.css">
-<script src="../assets/shared.js"></script>
-<script src="../assets/store.js"></script>
+<script src="../assets/js/boot.js"></script>
+<script type="module" src="../assets/js/step-4.js"></script>
 </head>
 <body>
 <main class="screen">
@@ -131,101 +133,36 @@
     <button class="back" type="button" id="backBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Back
     </button>
-    <span class="step">Step 1 of 4</span>
+    <span class="step">Step 4 of 4</span>
   </div>
-  <div class="bars" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
+  <div class="bars" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
   </header>
 
   <section class="body">
-    <h1>When is your birthday?</h1>
-    <p class="lead">Cycles change with age, so this helps SikLo explain what is typical for you.</p>
+    <h1>Your dates</h1>
+    <p class="lead">Add the start of each recent period you remember. End dates are optional.</p>
 
-    <div class="dob" role="group" aria-label="Birthday">
-      <div class="seg"><label for="mm">Month</label><div class="sel"><select id="mm" required autocomplete="bday-month"><option value="" disabled selected hidden>Select</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
-      <div class="seg"><label for="dd">Day</label><div class="sel"><select id="dd" required autocomplete="bday-day"><option value="" disabled selected hidden>Select</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
-      <div class="seg"><label for="yy">Year</label><div class="sel"><select id="yy" required autocomplete="bday-year"><option value="" disabled selected hidden>Select</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
-    </div>
-    <p class="status" id="status" aria-live="polite"></p>
+    <div class="periods" id="periods"></div>
 
-    <div class="why">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
-      <div>
-        <b>It stays on this phone</b>
-        <p>Your birthday is only used to tailor information to your age. It is never sent anywhere.</p>
-      </div>
+    <button class="check add" type="button" id="addBtn">
+      <span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+      Add another period
+    </button>
+
+    <div class="progress" aria-live="polite">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <div><b id="progTitle"></b><p id="progText"></p></div>
     </div>
   </section>
 
   <footer class="foot">
-    <button class="cta" id="next" disabled>
-      Continue
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    <button class="cta" id="next">
+      Save on this device
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
     </button>
+    <p class="savenote">Saved only in this browser. Nothing is sent anywhere.</p>
   </footer>
 
 </main>
-<script>
-
-  // ---- Birthday ----
-  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const mm = document.getElementById('mm'), dd = document.getElementById('dd'), yy = document.getElementById('yy');
-  const statusEl = document.getElementById('status'), next = document.getElementById('next');
-  const okIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>';
-  const errIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5h.01"/></svg>';
-
-  // Returns { ok, age, label } or { error, field } or null while incomplete.
-  function checkBirthday(mStr, dStr, yStr, today) {
-    if (!mStr || !dStr || yStr.length < 4) return null;
-    const m = Number(mStr), d = Number(dStr), y = Number(yStr);
-    if (m < 1 || m > 12) return { error: 'Month should be from 1 to 12.', field: mm };
-    const daysInMonth = new Date(y, m, 0).getDate();
-    if (d < 1 || d > daysInMonth) return { error: `${MONTHS[m - 1]} ${y} has ${daysInMonth} days.`, field: dd };
-    const dob = new Date(y, m - 1, d);
-    if (dob > today) return { error: 'That date is in the future.', field: yy };
-    let age = today.getFullYear() - y;
-    if (today.getMonth() < m - 1 || (today.getMonth() === m - 1 && today.getDate() < d)) age -= 1;
-    if (age < 8 || age > 100) return { error: 'Please check the year.', field: yy };
-    return { ok: true, age, label: `${MONTHS[m - 1]} ${d}, ${y}` };
-  }
-
-  function update() {
-    [mm, dd, yy].forEach(el => el.removeAttribute('aria-invalid'));
-    const r = checkBirthday(mm.value, dd.value, yy.value, new Date());
-    statusEl.classList.toggle('err', !!(r && r.error));
-    if (!r) { statusEl.innerHTML = ''; next.disabled = true; return; }
-    if (r.error) { r.field.setAttribute('aria-invalid', 'true'); statusEl.innerHTML = errIcon + r.error; next.disabled = true; return; }
-    statusEl.innerHTML = okIcon + `${r.label} · you are ${r.age}`;
-    next.disabled = false;
-    const pad = n => String(n).padStart(2, '0');
-    SikloStore.update({ dob: `${yy.value}-${pad(mm.value)}-${pad(dd.value)}` });
-  }
-
-  // Fill the dropdowns. Years run from the youngest plausible age (8) back 100 years.
-  const addOption = (sel, value, text) => { const o = document.createElement('option'); o.value = value; o.textContent = text; sel.appendChild(o); };
-  MONTHS.forEach((name, i) => addOption(mm, String(i + 1), name));
-  const thisYear = new Date().getFullYear();
-  for (let y = thisYear - 8; y >= thisYear - 100; y--) addOption(yy, String(y), String(y));
-
-  // Day list only offers days that exist in the chosen month and year.
-  function fillDays() {
-    const keep = dd.value;
-    const m = Number(mm.value) || 1, y = Number(yy.value) || 2000;   // before a choice: 31 days (Jan), or 29 in Feb of a leap year
-    const count = mm.value ? new Date(y, m, 0).getDate() : 31;
-    dd.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
-    for (let d = 1; d <= count; d++) addOption(dd, String(d), String(d));
-    if (keep) dd.value = String(Math.min(Number(keep), count));       // Mar 31 → Feb keeps the last valid day
-  }
-  fillDays();
-  mm.addEventListener('change', () => { fillDays(); update(); });
-  yy.addEventListener('change', () => { fillDays(); update(); });
-  dd.addEventListener('change', update);
-
-  // Restore a birthday already entered in this session (or saved earlier)
-  const dob = SikloStore.draft().dob;
-  if (dob) { const [y, m, d] = dob.split('-'); mm.value = String(+m); yy.value = y; fillDays(); dd.value = String(+d); update(); }
-
-  document.getElementById('backBtn').addEventListener('click', () => goTo('../index.html', 'back'));
-  next.addEventListener('click', () => goTo('step-2.html', 'forward'));
-</script>
 </body>
 </html>

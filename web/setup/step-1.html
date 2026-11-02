@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SikLo Setup Step 4</title>
+<title>SikLo Setup Step 1</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -78,46 +78,43 @@
   .check[aria-pressed="true"] .plus svg{transform:rotate(45deg)}
   .note{font-size:12px;line-height:1.5;color:var(--muted);margin-top:14px}
 
+
+  /* Birthday */
+  .lead{font-size:14px;line-height:1.55;color:var(--body);margin-top:8px}
+  .dob{display:grid;grid-template-columns:1.6fr 1fr 1.25fr;gap:10px;margin-top:22px}
+  .seg label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .sel{position:relative}
+  .sel select{width:100%;height:56px;padding:0 34px 0 14px;border:1px solid var(--line);border-radius:14px;background:var(--white);
+    -webkit-appearance:none;appearance:none;font:inherit;font-size:16px;font-weight:600;color:var(--ink);cursor:pointer;
+    font-variant-numeric:tabular-nums;outline:none;transition:border-color .15s,box-shadow .15s}
+  .sel select:invalid{color:#B3A9C4;font-weight:500}
+  .sel select option{color:var(--ink);font-weight:500}
+  .sel select:focus{border-color:var(--purple-500);box-shadow:0 0 0 3px var(--purple-100)}
+  .sel select[aria-invalid="true"]{border-color:var(--purple-700)}
+  .sel .chev{position:absolute;right:12px;top:50%;width:16px;height:16px;margin-top:-8px;color:var(--purple-700);pointer-events:none}
+  .status{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:13px;font-weight:600;color:var(--purple-700)}
+  .status svg{width:15px;height:15px;flex:none}
+  .status.err{color:var(--purple-900)}
+  .status:empty{display:none}
+  .why{display:flex;gap:12px;margin-top:16px;padding:14px 16px;border-radius:16px;background:var(--purple-50)}
+  .why .ic{flex:none;width:28px;height:28px;border-radius:9px;background:var(--purple-100);color:var(--purple-700);display:grid;place-items:center}
+  .why .ic svg{width:15px;height:15px}
+  .why b{display:block;font-size:13.5px;font-weight:700;color:var(--purple-900)}
+  .why p{font-size:12.5px;line-height:1.5;color:var(--body);margin-top:2px}
+  .cta[disabled]{opacity:.4;cursor:not-allowed}
+
   /* Actions */
   .cta{width:100%;min-height:52px;padding:15px;border-radius:16px;background:var(--purple-700);color:#fff;font-size:15px;font-weight:600;
     display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s}
   .cta:active{transform:scale(.98)}
-  .cta svg{width:16px;height:16px}
+  .cta svg{width:16px;height:16px;flex:none;transform:translateY(1.5px)}
   .skip{width:100%;min-height:44px;margin-top:4px;font-size:14px;font-weight:600;color:var(--purple-700);border-radius:14px}
   :focus-visible{outline:2px solid var(--purple-500);outline-offset:2px}
-  .cta[disabled]{opacity:.4;cursor:not-allowed}
-
-  /* Period dates */
-  .lead{font-size:14px;line-height:1.55;color:var(--body);margin-top:8px}
-  .periods{display:flex;flex-direction:column;gap:10px;margin-top:20px}
-  .period{border:1px solid var(--line);border-radius:18px;padding:14px 14px 12px}
-  .period .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-  .period .row b{font-size:13.5px;font-weight:700}
-  .period .rm{min-height:32px;padding:0 10px;font-size:12.5px;font-weight:600;color:var(--purple-700);border-radius:10px}
-  .period .rm:hover{background:var(--purple-50)}
-  .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .pair label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
-  .pair label span{font-weight:500}
-  .pair input{width:100%;height:50px;padding:0 10px;border:1px solid var(--line);border-radius:14px;background:var(--white);
-    font:inherit;font-size:14.5px;font-weight:600;color:var(--ink);outline:none;-webkit-appearance:none;appearance:none;
-    font-variant-numeric:tabular-nums;transition:border-color .15s,box-shadow .15s}
-  .pair input:focus{border-color:var(--purple-500);box-shadow:0 0 0 3px var(--purple-100)}
-  .pair input[aria-invalid="true"]{border-color:var(--purple-700)}
-  .perr{font-size:12.5px;font-weight:600;color:var(--purple-900);margin-top:8px}
-  .perr:empty{display:none}
-  .add{margin-top:10px}
-  .progress{display:flex;gap:12px;margin-top:18px;padding:14px 16px;border-radius:16px;background:var(--purple-50)}
-  .progress .ic{flex:none;width:28px;height:28px;border-radius:9px;background:var(--purple-100);color:var(--purple-700);display:grid;place-items:center}
-  .progress .ic svg{width:15px;height:15px}
-  .progress b{display:block;font-size:13.5px;font-weight:700;color:var(--purple-900)}
-  .progress p{font-size:12.5px;line-height:1.5;color:var(--body);margin-top:2px}
-  .savenote{font-size:12px;line-height:1.5;color:var(--muted);text-align:center;margin-top:8px}
 
 </style>
 <link rel="stylesheet" href="../assets/shared.css">
-<script src="../assets/shared.js"></script>
-<script src="../assets/store.js"></script>
-<script src="../assets/prediction.js"></script>
+<script src="../assets/js/boot.js"></script>
+<script type="module" src="../assets/js/step-1.js"></script>
 </head>
 <body>
 <main class="screen">
@@ -134,128 +131,38 @@
     <button class="back" type="button" id="backBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Back
     </button>
-    <span class="step">Step 4 of 4</span>
+    <span class="step">Step 1 of 4</span>
   </div>
-  <div class="bars" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+  <div class="bars" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
   </header>
 
   <section class="body">
-    <h1>Your dates</h1>
-    <p class="lead">Add the start of each recent period you remember. End dates are optional.</p>
+    <h1>When is your birthday?</h1>
+    <p class="lead">Cycles change with age, so this helps SikLo explain what is typical for you.</p>
 
-    <div class="periods" id="periods"></div>
+    <div class="dob" role="group" aria-label="Birthday">
+      <div class="seg"><label for="mm">Month</label><div class="sel"><select id="mm" required autocomplete="bday-month"><option value="" disabled selected hidden>Select</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
+      <div class="seg"><label for="dd">Day</label><div class="sel"><select id="dd" required autocomplete="bday-day"><option value="" disabled selected hidden>Select</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
+      <div class="seg"><label for="yy">Year</label><div class="sel"><select id="yy" required autocomplete="bday-year"><option value="" disabled selected hidden>Select</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
 
-    <button class="check add" type="button" id="addBtn">
-      <span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
-      Add another period
-    </button>
-
-    <div class="progress" aria-live="polite">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-      <div><b id="progTitle"></b><p id="progText"></p></div>
+    <div class="why">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+      <div>
+        <b>It stays on this phone</b>
+        <p>Your birthday is only used to tailor information to your age. It is never sent anywhere.</p>
+      </div>
     </div>
   </section>
 
   <footer class="foot">
-    <button class="cta" id="next">
-      Save on this device
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    <button class="cta" id="next" disabled>
+      Continue
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
-    <p class="savenote">Saved only in this browser. Nothing is sent anywhere.</p>
   </footer>
 
 </main>
-<script>
-
-  // ---- Period dates: kept in the session draft until Save ----
-  const P = SikloPrediction, list = document.getElementById('periods'), saveBtn = document.getElementById('next');
-  const today = P.toISO(new Date(Date.now() - new Date().getTimezoneOffset() * 60000));
-  const dob = SikloStore.draft().dob;
-  let rows = SikloStore.draft().periods.map(p => ({ start_date: p.start_date, end_date: p.end_date || '' }));
-  if (!rows.length) rows = [{ start_date: '', end_date: '' }];
-
-  // Same rules the backend enforces: no future dates, end after start, no overlapping periods.
-  function problems() {
-    const errs = rows.map(() => '');
-    rows.forEach((r, i) => {
-      if (!r.start_date) { if (r.end_date) errs[i] = 'Add a start date.'; return; }
-      if (r.start_date > today) errs[i] = 'The start date is in the future.';
-      else if (dob && r.start_date < dob) errs[i] = 'The start date is before your birthday.';
-      else if (r.end_date && r.end_date < r.start_date) errs[i] = 'The end date is before the start date.';
-      else if (r.end_date && r.end_date > today) errs[i] = 'The end date is in the future.';
-    });
-    rows.forEach((a, i) => rows.forEach((b, j) => {
-      if (j <= i || errs[i] || errs[j] || !a.start_date || !b.start_date) return;
-      const aEnd = a.end_date || a.start_date, bEnd = b.end_date || b.start_date;
-      if (a.start_date === b.start_date) errs[j] = 'This start date is already listed.';
-      else if (!(aEnd < b.start_date || bEnd < a.start_date)) errs[j] = 'These dates overlap another period.';
-    }));
-    return errs;
-  }
-
-  function filled() {
-    return rows.filter(r => r.start_date).map(r => ({
-      start_date: r.start_date, end_date: r.end_date || null, kind: 'period',
-      end_state: r.end_date ? 'ended' : 'unknown', flow_level: null
-    })).sort((a, b) => a.start_date < b.start_date ? -1 : 1);
-  }
-
-  function refresh() {
-    const errs = problems();
-    list.querySelectorAll('.period').forEach((el, i) => {
-      el.querySelector('.perr').textContent = errs[i];
-      el.querySelectorAll('input').forEach(inp => { if (!errs[i]) inp.removeAttribute('aria-invalid'); else inp.setAttribute('aria-invalid', 'true'); });
-    });
-    const ok = errs.every(e => !e);
-    saveBtn.disabled = !ok;
-    if (ok) SikloStore.update({ periods: filled() });
-
-    const r = P.compute(filled()), starts = filled().length;
-    const t = document.getElementById('progTitle'), x = document.getElementById('progText');
-    if (r.status === 'ok') {
-      t.textContent = 'Enough to estimate your next period';
-      x.textContent = `Based on ${r.cycles_used} complete cycle${r.cycles_used > 1 ? 's' : ''}. You will see it after you save.`;
-    } else {
-      const need = starts ? P.MIN_CYCLES_FOR_PREDICTION - r.cycles_used : P.MIN_CYCLES_FOR_PREDICTION + 1;   // each new start adds one cycle
-      t.textContent = starts ? `${need} more start date${need > 1 ? 's' : ''} for an estimate` : `An estimate needs ${need} start dates`;
-      x.textContent = 'SikLo only estimates after 3 complete cycles. You can still save and log with fewer.';
-    }
-  }
-
-  function render() {
-    list.innerHTML = '';
-    rows.forEach((r, i) => {
-      const el = document.createElement('div');
-      el.className = 'period';
-      el.innerHTML = `
-        <div class="row"><b>Period ${i + 1}</b>${rows.length > 1 ? '<button class="rm" type="button">Remove</button>' : ''}</div>
-        <div class="pair">
-          <div><label for="s${i}">Started</label><input id="s${i}" type="date" max="${today}" ${dob ? `min="${dob}"` : ''} value="${r.start_date}"></div>
-          <div><label for="e${i}">Ended <span>· optional</span></label><input id="e${i}" type="date" max="${today}" value="${r.end_date}"></div>
-        </div>
-        <p class="perr" aria-live="polite"></p>`;
-      el.querySelector(`#s${i}`).addEventListener('change', e => { r.start_date = e.target.value; refresh(); });
-      el.querySelector(`#e${i}`).addEventListener('change', e => { r.end_date = e.target.value; refresh(); });
-      const rm = el.querySelector('.rm');
-      if (rm) rm.addEventListener('click', () => { rows.splice(i, 1); render(); });
-      list.appendChild(el);
-    });
-    refresh();
-  }
-
-  document.getElementById('addBtn').addEventListener('click', () => {
-    rows.push({ start_date: '', end_date: '' }); render();
-    const inputs = list.querySelectorAll('input[type=date]'); inputs[inputs.length - 2].focus();
-  });
-  saveBtn.addEventListener('click', () => {
-    if (saveBtn.disabled) return;
-    SikloStore.update({ periods: filled() });
-    if (!SikloStore.commit()) { alert('This browser blocked saving. Check that site storage is allowed.'); return; }
-    goTo('../home.html', 'forward');
-  });
-  render();
-
-  document.getElementById('backBtn').addEventListener('click', () => goTo('step-3.html', 'back'));
-</script>
 </body>
 </html>

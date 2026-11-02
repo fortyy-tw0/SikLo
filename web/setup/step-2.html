@@ -66,8 +66,8 @@
 
 </style>
 <link rel="stylesheet" href="../assets/shared.css">
-<script src="../assets/shared.js"></script>
-<script src="../assets/store.js"></script>
+<script src="../assets/js/boot.js"></script>
+<script type="module" src="../assets/js/step-2.js"></script>
 </head>
 <body>
 <main class="screen">
@@ -120,27 +120,5 @@
   <button class="skip" type="button" id="skipBtn">Skip</button>
 
 </main>
-<script>
-
-  // Single-choice selection; Continue unlocks once something is picked.
-  const opts = document.getElementById('opts'), next = document.getElementById('next');
-  let choice = null;
-  const TO_API = { regular: 'regular', irregular: 'irregular', unsure: 'not_sure' };   // backend contract values
-  function pick(o) {
-    opts.querySelectorAll('.opt').forEach(x => x.setAttribute('aria-checked', x === o));
-    choice = o.dataset.v; next.disabled = false;
-  }
-  // Restore an earlier answer
-  const savedType = SikloStore.draft().cycle_type;
-  const savedOpt = savedType && opts.querySelector(`[data-v="${savedType === 'not_sure' ? 'unsure' : savedType}"]`);
-  if (savedOpt) pick(savedOpt);
-  opts.addEventListener('click', e => {
-    const o = e.target.closest('.opt'); if (!o) return;
-    pick(o);
-  });
-  next.addEventListener('click', () => { SikloStore.update({ cycle_type: TO_API[choice] }); goTo('step-3.html', 'forward'); });
-  document.getElementById('backBtn').addEventListener('click', () => goTo('step-1.html', 'back'));
-  document.getElementById('skipBtn').addEventListener('click', () => { SikloStore.update({ cycle_type: null }); goTo('step-3.html', 'forward'); });
-</script>
 </body>
 </html>

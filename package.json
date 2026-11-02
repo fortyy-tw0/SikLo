@@ -1,0 +1,21 @@
+{
+  "name": "siklo-web",
+  "private": true,
+  "version": "1.0.0",
+  "description": "SikLo onboarding screens: static pages with TypeScript, built with esbuild and deployed on Vercel.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --serve",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tests",
+    "test": "node tests/run.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "esbuild": "0.28.2",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

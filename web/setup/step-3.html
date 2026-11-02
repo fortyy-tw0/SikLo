@@ -88,8 +88,8 @@
 
 </style>
 <link rel="stylesheet" href="../assets/shared.css">
-<script src="../assets/shared.js"></script>
-<script src="../assets/store.js"></script>
+<script src="../assets/js/boot.js"></script>
+<script type="module" src="../assets/js/step-3.js"></script>
 </head>
 <body>
 <main class="screen">
@@ -158,47 +158,5 @@
   </footer>
 
 </main>
-<script>
-
-  // Answers for this step (all optional)
-  const answers = { diagnosed: null, concern: '', contraception: false, lifeStage: false };
-
-  document.getElementById('dx').addEventListener('click', e => {
-    const o = e.target.closest('.opt'); if (!o) return;
-    const already = o.getAttribute('aria-checked') === 'true';
-    document.querySelectorAll('#dx .opt').forEach(x => x.setAttribute('aria-checked', 'false'));
-    if (!already) o.setAttribute('aria-checked', 'true');     // tap again to clear
-    answers.diagnosed = already ? null : o.dataset.v;
-  });
-
-  const ta = document.getElementById('concern'), count = document.getElementById('count');
-  ta.addEventListener('input', () => { count.textContent = ta.value.length + '/500'; answers.concern = ta.value; });
-
-  ['contra', 'life'].forEach(id => {
-    const b = document.getElementById(id);
-    b.addEventListener('click', () => {
-      const on = b.getAttribute('aria-pressed') !== 'true';
-      b.setAttribute('aria-pressed', on);
-      answers[id === 'contra' ? 'contraception' : 'lifeStage'] = on;
-    });
-  });
-
-  // Restore earlier answers
-  const d = SikloStore.draft();
-  if (d.diagnosed) { const o = document.querySelector(`#dx [data-v="${d.diagnosed}"]`); if (o) { o.setAttribute('aria-checked', 'true'); answers.diagnosed = d.diagnosed; } }
-  if (d.concern_note) { ta.value = d.concern_note; count.textContent = ta.value.length + '/500'; answers.concern = ta.value; }
-  if (d.contraception_context) { document.getElementById('contra').setAttribute('aria-pressed', 'true'); answers.contraception = true; }
-  if (d.life_stage_context) { document.getElementById('life').setAttribute('aria-pressed', 'true'); answers.lifeStage = true; }
-
-  const keep = () => SikloStore.update({ diagnosed: answers.diagnosed, concern_note: answers.concern.trim(),
-    contraception_context: answers.contraception, life_stage_context: answers.lifeStage });
-  document.getElementById('backBtn').addEventListener('click', () => { keep(); goTo('step-2.html', 'back'); });
-  document.getElementById('next').addEventListener('click', () => { keep(); goTo('step-4.html', 'forward'); });
-  // Skip = share none of this optional context
-  document.getElementById('skipBtn').addEventListener('click', () => {
-    SikloStore.update({ diagnosed: null, concern_note: '', contraception_context: false, life_stage_context: false });
-    goTo('step-4.html', 'forward');
-  });
-</script>
 </body>
 </html>
