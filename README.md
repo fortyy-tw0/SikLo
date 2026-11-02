@@ -2,9 +2,7 @@
 
 **Your cycle. Your device. Your data.**
 
-SikLo is a private menstrual cycle tracker and health companion, built for
-Filipinas and anyone else who wants to understand their body without handing
-their health history to a company.
+SikLo is a private menstrual cycle tracker and health companion, built for women who wants to understand their body without handing their health history to a company.
 
 Live at **https://siklo-ph.vercel.app/**
 
