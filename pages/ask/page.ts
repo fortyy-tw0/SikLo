@@ -2,9 +2,10 @@
 // person's own log, with an optional language model for free-form phrasing.
 import { answerQuestion, MEDICAL_NOTE, retrieve, SUGGESTIONS, type Answer } from '@lib/assistant';
 import { estimateUnsuitable } from '@lib/context';
-import { averageCycle, buildCycleView, type CycleView } from '@lib/cycleView';
+import { buildCycleView, type CycleView } from '@lib/cycleView';
 import { byId, esc, todayIso } from '@lib/dom';
-import { deviceCanRunModel, generate, loadModel, modelStatus } from '@lib/localModel';
+import { deviceCanRunModel, downloadWithoutAsking, generate, loadModel, modelStatus } from '@lib/localModel';
+import { buildMemory, memoryFacts, type Memory } from '@lib/memory';
 import { load } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
 import { toast } from '@lib/toast';
@@ -25,8 +26,14 @@ export default function mount(signal: AbortSignal): void {
   const heard = byId('heard');
 
   const saved = load();
+  const today = todayIso();
+  const tracking = loadTracking();
   const view: CycleView | null = saved
-    ? buildCycleView(saved.periods, todayIso(), loadTracking().ovulation, { estimate: !estimateUnsuitable(saved.profile.life_stage) })
+    ? buildCycleView(saved.periods, today, tracking.ovulation, { estimate: !estimateUnsuitable(saved.profile.life_stage) })
+    : null;
+  /** Recomputed from her whole history every time this screen opens. */
+  const memory: Memory | null = saved
+    ? buildMemory({ periods: saved.periods, entries: tracking.entries, intimacy: tracking.intimacy, view, today })
     : null;
 
   // ---------- Conversation ----------
@@ -44,6 +51,9 @@ export default function mount(signal: AbortSignal): void {
     const el = document.createElement('div');
     el.className = `msg siklo${answer.crisis ? ' crisis' : ''}`;
     el.innerHTML = esc(answer.text).replace(/\n/g, '<br>')
+      + (answer.personal.length
+        ? `<span class="mine"><b>From your own logs</b>${answer.personal.map((line) => `<em>${esc(line)}</em>`).join('')}</span>`
+        : '')
       + (answer.sources.length ? `<span class="src">From the SikLo health library: ${esc(answer.sources.join(' · '))}</span>` : '')
       + (answer.showMedicalNote ? `<span class="note">${esc(MEDICAL_NOTE)}</span>` : '');
     thread.append(el);
@@ -61,15 +71,8 @@ export default function mount(signal: AbortSignal): void {
     return el;
   }
 
-  /** One short line of the person's own numbers, for the model to work from. */
-  function facts(): string | undefined {
-    if (!view) return undefined;
-    const bits = [`cycle day ${view.cycleDay}`, `phase ${view.phase}`];
-    const avg = averageCycle(view);
-    if (avg) bits.push(`average cycle ${avg} days`);
-    if (view.next) bits.push(`next period estimated ${view.next.likely}`);
-    return bits.join(', ');
-  }
+  /** Her own numbers and learned patterns, for the model to work from. */
+  const facts = () => (memory ? memoryFacts(memory, view) : undefined);
 
   let busy = false;
   async function ask(question: string, spoken = false): Promise<void> {
@@ -83,7 +86,7 @@ export default function mount(signal: AbortSignal): void {
     resize();
     refreshSend();
 
-    const base = answerQuestion(text, { view, name: saved?.profile.name });
+    const base = answerQuestion(text, { view, memory, name: saved?.profile.name });
     const dots = addThinking();
 
     // The model only ever rephrases a library answer, and never touches safety replies
@@ -105,6 +108,11 @@ export default function mount(signal: AbortSignal): void {
   };
   const refreshSend = () => { sendBtn.disabled = !input.value.trim(); };
   input.addEventListener('input', () => { resize(); refreshSend(); });
+  // The raised Ask button overlaps the field, so it steps aside while typing
+  const typing = (on: boolean) => document.documentElement.classList.toggle('typing', on);
+  input.addEventListener('focus', () => typing(true));
+  input.addEventListener('blur', () => typing(false));
+  signal.addEventListener('abort', () => typing(false));
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void ask(input.value); }
   });
@@ -122,10 +130,13 @@ export default function mount(signal: AbortSignal): void {
   });
 
   const greeting = saved?.profile.name ? `Hi ${saved.profile.name}. ` : '';
+  const known = memory?.patterns.length
+    ? ` I have learned ${memory.patterns.length} pattern${memory.patterns.length === 1 ? '' : 's'} from your logs so far, and I use them when they are relevant.`
+    : '';
   addSikLo({
     kind: 'library',
-    text: `${greeting}Ask me about cycles, symptoms, or anything you have logged. I work offline and nothing you type leaves this device.`,
-    sources: [], crisis: false, showMedicalNote: true,
+    text: `${greeting}Ask me about cycles, symptoms, or anything you have logged. I work offline and nothing you type leaves this device.${known}`,
+    sources: [], personal: [], crisis: false, showMedicalNote: true,
   });
   thread.append(suggestions, tools);
 
@@ -203,7 +214,7 @@ export default function mount(signal: AbortSignal): void {
           ? `<b>Downloading the full AI…</b><small>${esc(label ?? 'Starting')}</small><span class="bar"><i style="width:${Math.round((fraction ?? 0) * 100)}%"></i></span>`
           : status === 'failed'
             ? '<b>Download did not finish</b><small>Tap to try again. The library answers work in the meantime.</small>'
-            : '<b>Download the full AI</b><small>A one-time download (several hundred MB) lets SikLo word answers freely, still entirely on this device. Optional.</small>';
+            : `<b>Turn on the full AI</b><small>A one-time download (several hundred MB) lets SikLo word answers freely, still entirely on this device. ${downloadWithoutAsking() ? 'Starting now.' : 'Not started automatically, because this looks like mobile data.'}</small>`;
     modelBtn.innerHTML = `<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg></span><span>${body}</span>${status === 'ready' ? '<span class="state">On</span>' : ''}`;
     modelBtn.disabled = !supported || status === 'loading' || status === 'ready';
   }
@@ -219,6 +230,16 @@ export default function mount(signal: AbortSignal): void {
   tools.append(wakeBtn, modelBtn);
   renderWake();
   renderModel();
+
+  // Not optional where the device can run it and the connection is not metered:
+  // start it in the background, with the library answering until it is ready.
+  if (modelStatus() === 'not-loaded' && downloadWithoutAsking()) {
+    renderModel(0, 'Starting');
+    void loadModel((f, text) => renderModel(f, text)).then((ok) => {
+      renderModel();
+      if (ok) toast('Full AI ready, and it stays on this device');
+    });
+  }
 
   // ---------- Clear ----------
   byId('clearBtn').addEventListener('click', () => {

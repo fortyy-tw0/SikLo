@@ -10,7 +10,7 @@
  */
 import { addDays, diffDays, parseDate, toISO } from './cycle';
 import { FERTILE_DAYS_BEFORE, LUTEAL_DAYS, type CycleView } from './cycleView';
-import type { IntimacyEntry, LogKind } from './tracking';
+import { loggedKinds, type DayEntry, type IntimacyEntry, type LogKind } from './tracking';
 import type { Period } from './types';
 
 export interface DayCell {
@@ -34,6 +34,9 @@ export interface DayCell {
   /** Estimated (or confirmed) ovulation day. */
   ovulation: boolean;
   ovulationConfirmed: boolean;
+  /** What was logged that day, if anything. */
+  entry: DayEntry | null;
+  /** Which chips that entry fills, for the dots on the cell. */
   logs: LogKind[];
   intimacy: IntimacyEntry | null;
 }
@@ -51,7 +54,7 @@ export interface MonthGrid {
 export interface CalendarInput {
   periods: readonly Period[];
   view: CycleView | null;
-  logs: Record<string, LogKind[]>;
+  entries: Record<string, DayEntry>;
   intimacy: Record<string, IntimacyEntry>;
   today: string;
 }
@@ -124,7 +127,7 @@ export function monthGrid(year: number, month: number, input: CalendarInput): Mo
       date: null, dayOfMonth: 0, inMonth: false, isToday: false, future: false,
       period: false, periodStart: false, spotting: false, predictedPeriod: false,
       follicular: false, fertile: false, ovulation: false, ovulationConfirmed: false,
-      logs: [], intimacy: null,
+      entry: null, logs: [], intimacy: null,
     });
   }
   for (let d = 1; d <= daysInMonth; d++) {
@@ -146,7 +149,8 @@ export function monthGrid(year: number, month: number, input: CalendarInput): Mo
       fertile: !rec && est.fertile.has(date),
       ovulation: !rec && est.ovulation === date,
       ovulationConfirmed: est.ovulation === date && !!input.view?.confirmed,
-      logs: input.logs[date] ?? [],
+      entry: input.entries[date] ?? null,
+      logs: loggedKinds(input.entries[date]),
       intimacy: input.intimacy[date] ?? null,
     });
   }
@@ -155,7 +159,7 @@ export function monthGrid(year: number, month: number, input: CalendarInput): Mo
       date: null, dayOfMonth: 0, inMonth: false, isToday: false, future: false,
       period: false, periodStart: false, spotting: false, predictedPeriod: false,
       follicular: false, fertile: false, ovulation: false, ovulationConfirmed: false,
-      logs: [], intimacy: null,
+      entry: null, logs: [], intimacy: null,
     });
   }
 
@@ -169,7 +173,7 @@ export function monthGrid(year: number, month: number, input: CalendarInput): Mo
 
 /** Months the person can look at: back to their first record, forward one cycle past any estimate. */
 export function monthRange(input: CalendarInput): { first: [number, number]; last: [number, number] } {
-  const dates = input.periods.map((p) => p.start_date).concat(Object.keys(input.logs), Object.keys(input.intimacy));
+  const dates = input.periods.map((p) => p.start_date).concat(Object.keys(input.entries), Object.keys(input.intimacy));
   const earliest = dates.length ? dates.reduce((a, b) => (a < b ? a : b)) : input.today;
   const est = estimatedDays(input.view);
   const furthest = [...est.predicted].reduce((a, b) => (a > b ? a : b), input.today);

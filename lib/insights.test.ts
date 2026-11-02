@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildInsights, NOT_A_DIAGNOSIS, type InsightsInput } from './insights';
 import { buildCycleView } from './cycleView';
-import type { IntimacyEntry, LogKind } from './tracking';
+import type { DayEntry, IntimacyEntry } from './tracking';
 import type { Period } from './types';
 
 const p = (start: string, days = 5): Period => ({
@@ -13,7 +13,7 @@ const p = (start: string, days = 5): Period => ({
 const REGULAR = ['2026-07-02', '2026-07-30', '2026-08-28', '2026-09-25', '2026-10-23'].map((s) => p(s));
 const input = (over: Partial<InsightsInput> = {}): InsightsInput => ({
   view: buildCycleView(REGULAR, '2026-11-02', null, {}),
-  logs: {}, intimacy: {}, today: '2026-11-02', ...over,
+  entries: {}, intimacy: {}, today: '2026-11-02', ...over,
 });
 const ids = (i: InsightsInput) => buildInsights(i).map((x) => x.id);
 const find = (i: InsightsInput, id: string) => buildInsights(i).find((x) => x.id === id);
@@ -91,10 +91,13 @@ test('ordinary intercourse logs raise nothing', () => {
 });
 
 test('symptom patterns need a few days of logging first', () => {
-  const logs: Record<string, LogKind[]> = { '2026-11-01': ['flow'], '2026-11-02': ['flow', 'mood'] };
-  assert.ok(!ids(input({ logs })).includes('logged-most'));
-  logs['2026-10-30'] = ['flow'];
-  const found = find(input({ logs }), 'logged-most')!;
+  const logs: Record<string, DayEntry> = {
+    '2026-11-01': { flow: 'light', moods: [], symptoms: [], note: '' },
+    '2026-11-02': { flow: 'medium', moods: ['Low'], symptoms: [], note: '' },
+  };
+  assert.ok(!ids(input({ entries: logs })).includes('logged-most'));
+  logs['2026-10-30'] = { flow: 'heavy', moods: [], symptoms: [], note: '' };
+  const found = find(input({ entries: logs }), 'logged-most')!;
   assert.match(found.title, /flow most often/);
   assert.match(found.body, /flow 3/);
 });
@@ -103,7 +106,11 @@ test('no insight reads as a diagnosis or names a medicine', () => {
   const starts = ['2026-01-01', '2026-02-01', '2026-03-09', '2026-04-07', '2026-05-15', '2026-06-17', '2026-07-21'];
   const everything = input({
     view: buildCycleView(starts.map((s, i) => p(s, i === 2 ? 9 : 5)), '2026-07-25', null, {}),
-    logs: { '2026-07-21': ['flow'], '2026-07-22': ['flow', 'mood'], '2026-07-23': ['symptoms'] },
+    entries: {
+      '2026-07-21': { flow: 'medium', moods: [], symptoms: [], note: '' },
+      '2026-07-22': { flow: 'light', moods: ['Low'], symptoms: [], note: '' },
+      '2026-07-23': { moods: [], symptoms: ['Cramps'], note: '' },
+    },
     intimacy: { '2026-07-10': { protection: 'none', observations: ['bleeding_after', 'pain'], note: '' }, '2026-07-12': { protection: 'none', observations: ['pain'], note: '' } },
   });
   for (const i of buildInsights(everything)) {

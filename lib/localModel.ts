@@ -44,6 +44,22 @@ export function deviceCanRunModel(): boolean {
   return typeof navigator !== 'undefined' && 'gpu' in navigator;
 }
 
+interface NetworkInfo { saveData?: boolean; effectiveType?: string; type?: string }
+
+/**
+ * Whether it is fair to start a several-hundred-megabyte download without
+ * being asked. Mobile data is expensive, so this is deliberately cautious:
+ * only when the browser says the connection is not metered and not slow, and
+ * never when the person has asked their browser to save data.
+ */
+export function downloadWithoutAsking(info: NetworkInfo | undefined = (navigator as unknown as { connection?: NetworkInfo }).connection): boolean {
+  if (!deviceCanRunModel()) return false;
+  if (!info) return false;                       // nothing known: ask first
+  if (info.saveData) return false;               // she asked not to use data
+  if (info.type === 'cellular') return false;    // phone data
+  return info.effectiveType === undefined || info.effectiveType === '4g';
+}
+
 /**
  * Smallest instruction-following model on offer, so the download stays as
  * short as possible. Chosen from the library's own list at run time rather

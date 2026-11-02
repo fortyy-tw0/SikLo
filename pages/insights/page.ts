@@ -26,7 +26,7 @@ export default function mount(_signal: AbortSignal): void {
   const view = buildCycleView(saved.periods, today, tracking.ovulation, {
     estimate: !estimateUnsuitable(saved.profile.life_stage),
   });
-  const insights = buildInsights({ view, logs: tracking.logs, intimacy: tracking.intimacy, today });
+  const insights = buildInsights({ view, entries: tracking.entries, intimacy: tracking.intimacy, today });
 
   if (!insights.length) {
     byId('sections').innerHTML = `

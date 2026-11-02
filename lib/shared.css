@@ -107,6 +107,13 @@ html[data-dir="back"]::view-transition-new(screen){animation-name:vtInBack}
 .toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--toast-bg);color:var(--toast-fg);font-size:12.5px;font-weight:500;
   padding:10px 16px;border-radius:12px;opacity:0;transition:all .25s;z-index:12;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+/* A sheet covers the bottom of the screen, so confirmations move to the top instead */
+html:has(.sheet.show) .toast{top:22px;bottom:auto;transform:translate(-50%,-20px)}
+html:has(.sheet.show) .toast.show{transform:translate(-50%,0)}
+
+/* The raised Ask button steps aside while someone is typing a question */
+.tabbar .tab-ask{transition:opacity .18s ease,transform .18s ease}
+html.typing .tabbar .tab-ask{opacity:0;transform:translateY(14px) scale(.8);pointer-events:none}
 
 /* ---------- Motion ----------
    Small, quick animations that make the app feel responsive. All of them are

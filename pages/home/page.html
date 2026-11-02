@@ -119,6 +119,24 @@
   .band-l{display:flex;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--muted);margin-top:8px}
   .band-l .out{color:var(--flag);flex:none}
 
+  /* Log sheet fields */
+  .logsum{margin-top:10px;padding:10px 13px;border-radius:13px;background:var(--purple-50);
+    font-size:12.5px;line-height:1.5;color:var(--body)}
+  .logsum[hidden]{display:none}
+  .logopts{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+  .logopt{padding:10px 14px;border-radius:99px;border:1px solid var(--line);background:var(--white);
+    font-size:13.5px;font-weight:600}
+  .logopt[aria-pressed="true"],.logopt[aria-checked="true"]{border-color:var(--purple-700);background:var(--purple-50);color:var(--purple-700)}
+  .tlabel{display:block;font-size:12.5px;font-weight:600;margin:16px 0 6px}
+  .tlabel span{color:var(--muted);font-weight:500}
+  .tinput{width:100%;height:52px;padding:0 14px;border:1px solid var(--line);border-radius:14px;background:var(--white);
+    font:inherit;font-size:17px;font-weight:600;color:var(--ink);outline:none;font-variant-numeric:tabular-nums}
+  .tinput:focus{border-color:var(--purple-500);box-shadow:0 0 0 3px var(--purple-100)}
+  .thint{font-size:12px;line-height:1.5;color:var(--muted);margin-top:7px}
+  .tnote{width:100%;min-height:56px;resize:none;padding:11px 13px;border:1px solid var(--line);border-radius:13px;
+    background:var(--white);font:inherit;font-size:14px;line-height:1.45;color:var(--ink);outline:none}
+  .tnote:focus{border-color:var(--purple-500);box-shadow:0 0 0 3px var(--purple-100)}
+
   /* Confirm ovulation sheet */
   .scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
   .scrim.show{opacity:1;pointer-events:auto}
@@ -197,6 +215,7 @@
   <!-- Log -->
   <h2>Log today <small id="logCount"></small></h2>
   <div class="log" id="log"></div>
+  <p class="logsum" id="logSummary" hidden></p>
 
   <!-- Phase card with Confirm ovulation -->
   <h2>Your phase</h2>
@@ -254,5 +273,18 @@
   </div>
   <button class="btn" id="saveOv" type="button" disabled>Update my predictions</button>
   <button class="btn ghost" id="cancelOv" type="button">Cancel</button>
+</div>
+<!-- Log sheet: pick what applies, then Save -->
+<div class="scrim" id="logScrim"></div>
+<div class="sheet" id="logSheet" role="dialog" aria-modal="true" aria-labelledby="logTitle">
+  <div class="grab"></div>
+  <h3 id="logTitle"></h3>
+  <div class="sub" id="logHint"></div>
+  <div id="logFields"></div>
+  <label class="tlabel" for="logNote">Note <span>· optional</span></label>
+  <textarea class="tnote" id="logNote" maxlength="200" placeholder="Anything you want to remember"></textarea>
+  <button class="btn" id="saveLog" type="button">Save</button>
+  <button class="btn ghost" id="clearLog" type="button" hidden>Clear this</button>
+  <button class="btn ghost" id="cancelLog" type="button">Cancel</button>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

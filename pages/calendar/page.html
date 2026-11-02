@@ -24,14 +24,18 @@
   .dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:14px}
   .dow span{text-align:center;font-size:11px;font-weight:600;color:var(--muted)}
   .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:4px}
-  .cell{position:relative;aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;
-    justify-content:center;gap:2px;font-size:13.5px;font-weight:600;color:var(--ink);background:none}
+  .cell{position:relative;aspect-ratio:1;border-radius:12px;display:grid;place-items:center;
+    font-size:13.5px;font-weight:600;color:var(--ink);background:none;font-variant-numeric:tabular-nums}
   .cell.blank{visibility:hidden}
   .cell.future{color:var(--muted)}
-  .cell .n{line-height:1}
-  .cell .dots{display:flex;gap:2px;height:4px}
+  .cell .n{line-height:1;display:block}
+  /* Markers float under the number so they never shift it off centre */
+  .cell .dots{position:absolute;left:0;right:0;bottom:4px;display:flex;justify-content:center;align-items:center;gap:3px;
+    height:7px;pointer-events:none}
   .cell .dots i{width:4px;height:4px;border-radius:50%;background:var(--purple-700)}
-  .cell .dots i.heart{background:var(--purple-500)}
+  .cell .dots svg{width:8px;height:8px;color:var(--purple-700)}
+  .cell.period-start .dots i,.cell.period-start .dots svg{color:#fff;background:#fff}
+  .cell.period-start .dots svg{background:none}
 
   /* Recorded */
   .cell.period{background:var(--purple-300);color:var(--purple-900)}
@@ -53,6 +57,28 @@
   .legend i.ovulation{box-shadow:inset 0 0 0 2px var(--purple-700)}
   .legend i.today{outline:2px solid var(--purple-900);outline-offset:-2px;background:none}
   .note{font-size:11.5px;line-height:1.5;color:var(--muted);margin-top:14px}
+
+  /* Record intercourse */
+  .record{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;margin-top:16px;padding:12px 14px;
+    border-radius:16px;background:var(--purple-50);text-align:left}
+  .record .ic{flex:none;width:34px;height:34px;border-radius:11px;background:var(--white);color:var(--purple-700);display:grid;place-items:center}
+  .record .ic svg{width:17px;height:17px}
+  .record b{display:block;font-size:14px;font-weight:700}
+  .record small{display:block;font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:1px}
+  .record .chev{flex:none;width:16px;height:16px;margin-left:auto;color:var(--purple-700)}
+
+  /* This month */
+  h2{font-size:14px;font-weight:700;margin:24px 0 10px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .stat{border:1px solid var(--line);border-radius:14px;padding:11px 10px;text-align:center}
+  .stat .v{font-size:19px;font-weight:700;color:var(--purple-900);font-variant-numeric:tabular-nums}
+  .stat .k{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+  .entries{list-style:none;margin-top:10px;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .entries li{display:flex;gap:11px;padding:11px 14px;font-size:12.5px;line-height:1.45}
+  .entries li + li{border-top:1px solid var(--line)}
+  .entries .d{flex:none;width:52px;font-weight:700;color:var(--purple-700)}
+  .entries .w{color:var(--body);overflow-wrap:anywhere}
+  .entries .none{color:var(--muted);justify-content:center}
 
   /* Day sheet */
   .scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
@@ -122,6 +148,16 @@
     <span><i class="today"></i>Today</span>
   </div>
   <p class="note" id="estimateNote"></p>
+
+  <button class="record" type="button" id="recordBtn">
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.3-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.7-7 9-7 9z"/></svg></span>
+    <span><b>Record intercourse</b><small id="recordHint">For today, or pick another day</small></span>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+  </button>
+
+  <h2 id="summaryHeading">This month</h2>
+  <div class="stats" id="monthStats"></div>
+  <ul class="entries" id="monthEntries"></ul>
 
 </main>
 

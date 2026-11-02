@@ -5,7 +5,8 @@
  * An answer is built in this order:
  *   1. safety check   - crisis, emergency, and things SikLo must not answer
  *   2. your own data  - questions about your cycle, answered from your log
- *   3. the library    - the closest topics in lib/library/articles.ts
+ *   3. the topic gate - is this about cycles at all? if not, SikLo says so
+ *   4. the library    - the closest topics in lib/library/articles.ts
  * Every answer carries the reminder that SikLo is not a healthcare professional.
  *
  * `answerQuestion` is pure and has no DOM or storage access, so it is checked
@@ -13,7 +14,8 @@
  */
 import { diffDays, parseDate } from './cycle';
 import { averageCycle, averagePeriod, variation, type CycleView } from './cycleView';
-import { ARTICLES, SOURCE_NOTE, type Article } from './library/articles';
+import { ARTICLES, SOURCE_NOTE, TOPIC_TERMS, type Article } from './library/articles';
+import { relevantPatterns, type Memory } from './memory';
 import { FIXED_REPLIES, isCrisis, safetyCheck, type SafetyKind } from './safety';
 
 export const MEDICAL_NOTE =
@@ -23,17 +25,21 @@ export const MEDICAL_NOTE =
 export interface AnswerContext {
   /** The person's cycle as the Today screen sees it, when they have saved dates. */
   view?: CycleView | null;
+  /** What SikLo has worked out from her logs, so answers can be about her. */
+  memory?: Memory | null;
   name?: string;
 }
 
 export interface Answer {
   /** Where the reply came from, for the interface and for checks. */
-  kind: 'safety' | 'cycle' | 'library' | 'unknown';
+  kind: 'safety' | 'cycle' | 'library' | 'off_topic' | 'unknown';
   text: string;
   /** Titles of the library topics used, if any. */
   sources: string[];
   /** Crisis replies are shown alone, with no follow-up suggestions. */
   crisis: boolean;
+  /** Lines drawn from her own logs, shown under the answer. */
+  personal: string[];
   /** False only for crisis replies, where a disclaimer would be out of place. */
   showMedicalNote: boolean;
 }
@@ -49,10 +55,23 @@ const words = (s: string) => s.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(
 /** Drops a plural "s" so "cramps" matches "cramp". */
 const stem = (w: string) => (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0, -1) : w);
 
+/**
+ * Whether a question is for SikLo at all.
+ *
+ * Without this the assistant answered anything, because it took the closest
+ * article however weak the match: "why are bananas yellow?" came back with the
+ * article on discharge, since "yellow" is one of its keywords. The term list is
+ * built in backend/siklo_knowledge/vocabulary.py and shipped in the bundle.
+ */
+export function isOnTopic(question: string): boolean {
+  return words(question).some((w) => TOPIC_TERMS.has(w) || TOPIC_TERMS.has(stem(w)));
+}
+
 interface Scored { article: Article; score: number }
 
 /** Library topics closest to the question, best first. */
 export function retrieve(question: string, limit = 3): Scored[] {
+  if (!isOnTopic(question)) return [];
   const asked = words(question).filter((w) => !STOP.has(w)).map(stem);
   if (!asked.length) return [];
   const scored = ARTICLES.map((article) => {
@@ -140,16 +159,24 @@ function answerFromCycle(intent: CycleIntent, v: CycleView): string | null {
   }
 }
 
+/**
+ * What SikLo has noticed in her own logs that bears on this question. These are
+ * observations about her records, never conclusions about her body.
+ */
+function personalLines(ctx: AnswerContext, question: string): string[] {
+  return ctx.memory ? relevantPatterns(ctx.memory, question).map((p) => p.summary) : [];
+}
+
 // ---------- Putting an answer together ----------
 export function answerQuestion(question: string, ctx: AnswerContext = {}): Answer {
   const asked = question.trim();
   if (!asked) {
-    return { kind: 'unknown', text: 'Ask me anything about cycles, symptoms, or what you have logged.', sources: [], crisis: false, showMedicalNote: false };
+    return { kind: 'unknown', text: 'Ask me anything about cycles, symptoms, or what you have logged.', sources: [], personal: [], crisis: false, showMedicalNote: false };
   }
 
   const flag: SafetyKind | null = safetyCheck(asked);
   if (flag) {
-    return { kind: 'safety', text: FIXED_REPLIES[flag], sources: [], crisis: isCrisis(flag), showMedicalNote: !isCrisis(flag) };
+    return { kind: 'safety', text: FIXED_REPLIES[flag], sources: [], personal: [], crisis: isCrisis(flag), showMedicalNote: !isCrisis(flag) };
   }
 
   const intent = cycleIntent(asked);
@@ -158,15 +185,26 @@ export function answerQuestion(question: string, ctx: AnswerContext = {}): Answe
       return {
         kind: 'cycle',
         text: 'I do not have any period dates saved on this device yet, so I cannot answer that about you. You can add them from Profile, under “Add or edit dates”.',
-        sources: [], crisis: false, showMedicalNote: true,
+        sources: [], personal: [], crisis: false, showMedicalNote: true,
       };
     }
     const text = answerFromCycle(intent, ctx.view);
     if (text) {
       // Her own numbers are the answer; background reading is one follow-up away,
       // and appending it here made short answers long and vague.
-      return { kind: 'cycle', text, sources: [], crisis: false, showMedicalNote: true };
+      return { kind: 'cycle', text, sources: [], personal: personalLines(ctx, asked), crisis: false, showMedicalNote: true };
     }
+  }
+
+  if (!isOnTopic(asked)) {
+    return {
+      kind: 'off_topic',
+      text:
+        'That one is outside what I know about. I only cover periods and reproductive health: how cycles work, ' +
+        'symptoms such as cramps, discharge or mood changes, contraception in general terms, and what you have logged. ' +
+        'Ask me something in that line and I will do my best.',
+      sources: [], personal: [], crisis: false, showMedicalNote: false,
+    };
   }
 
   const hits = retrieve(asked);
@@ -174,10 +212,9 @@ export function answerQuestion(question: string, ctx: AnswerContext = {}): Answe
     return {
       kind: 'unknown',
       text:
-        'I am not sure about that one. I can explain how cycles work, common symptoms such as cramps, discharge or mood ' +
-        'changes, contraception in general terms, and what you have logged. For anything about your own body, a ' +
-        'healthcare professional is the right place to ask.',
-      sources: [], crisis: false, showMedicalNote: true,
+        'That is about cycles, but I do not have a topic covering it yet. A healthcare professional is the right place ' +
+        'to ask about anything specific to your body. I can explain how cycles work, common symptoms, or what you have logged.',
+      sources: [], personal: [], crisis: false, showMedicalNote: true,
     };
   }
   const main = hits[0].article;
@@ -185,7 +222,10 @@ export function answerQuestion(question: string, ctx: AnswerContext = {}): Answe
   const text = also.length
     ? `${main.text}\n\n${also.map((s) => `${s.article.title}: ${s.article.text}`).join('\n\n')}`
     : main.text;
-  return { kind: 'library', text, sources: hits.map((s) => s.article.title), crisis: false, showMedicalNote: true };
+  return {
+    kind: 'library', text, sources: hits.map((s) => s.article.title),
+    personal: personalLines(ctx, asked), crisis: false, showMedicalNote: true,
+  };
 }
 
 export { SOURCE_NOTE };

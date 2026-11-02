@@ -1,0 +1,5 @@
+siklo.db
+siklo.db-wal
+siklo.db-shm
+__pycache__/
+.pytest_cache/

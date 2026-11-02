@@ -10,7 +10,10 @@ import { greetingForThisVisit, withName } from '@lib/greeting';
 import { load, savedName } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
 import { toast } from '@lib/toast';
-import { LOG_KINDS, loadTracking, saveTracking, type LogKind, type OvulationSign } from '@lib/tracking';
+import {
+  describeEntry, emptyEntry, FLOW_OPTIONS, LOG_KINDS, loadTracking, loggedKinds, MOOD_OPTIONS,
+  saveTracking, SYMPTOM_OPTIONS, type LogKind, type OvulationSign,
+} from '@lib/tracking';
 import { redirect } from '@lib/router';
 
 /** Called by the router each time this screen is shown. */
@@ -36,7 +39,15 @@ export default function mount(signal: AbortSignal): void {
     temp: { label: 'Temp', icon: '<path d="M14 14.8V4a2 2 0 0 0-4 0v10.8a4 4 0 1 0 4 0z"/>' },
   };
 
-  const SIGNS: { key: OvulationSign; title: string; detail: string }[] = [
+  /** What each Log today chip opens. */
+const LOG_SHEET: Record<LogKind, { title: string; hint: string }> = {
+  flow: { title: 'Flow today', hint: 'How heavy is the bleeding?' },
+  mood: { title: 'Mood today', hint: 'Pick any that fit. More than one is fine.' },
+  symptoms: { title: 'Symptoms today', hint: 'Pick anything you have noticed today.' },
+  temp: { title: 'Temperature today', hint: 'Your morning reading, if you take one.' },
+};
+
+const SIGNS: { key: OvulationSign; title: string; detail: string }[] = [
     { key: 'lh', title: 'Positive ovulation test', detail: 'LH strip turned positive' },
     { key: 'bbt', title: 'Temperature rise', detail: 'Morning temp up ~0.2–0.5°C for 3 days' },
     { key: 'cm', title: 'Egg-white mucus', detail: 'Clear, stretchy discharge' },
@@ -237,13 +248,124 @@ export default function mount(signal: AbortSignal): void {
   }
 
   function renderLog(): void {
-    const done = new Set(loadTracking().logs[today] ?? []);
+    const entry = loadTracking().entries[today];
+    const done = new Set(loggedKinds(entry));
     byId('log').innerHTML = LOG_KINDS.map((k) => `
       <button class="chip" type="button" data-kind="${k}" aria-pressed="${done.has(k)}">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LOG_ITEMS[k].icon}</svg></div>${LOG_ITEMS[k].label}
       </button>`).join('');
-    byId('logCount').textContent = `${done.size} of ${LOG_KINDS.length} logged`;
+    const summary = entry ? describeEntry(entry) : '';
+    byId('logCount').textContent = done.size ? `${done.size} of ${LOG_KINDS.length} logged` : 'Nothing logged yet';
+    byId('logSummary').textContent = summary;
+    byId('logSummary').hidden = !summary;
   }
+
+  /** Set below, once the screen is built; the log sheet calls it after saving. */
+  let refreshAll: () => void = () => {};
+
+  // ---------- Logging a category, with a Save ----------
+  const logSheet = byId('logSheet');
+  const logScrim = byId('logScrim');
+  let openKind: LogKind | null = null;
+
+  const closeLog = () => {
+    logSheet.classList.remove('show');
+    logScrim.classList.remove('show');
+    openKind = null;
+  };
+  logScrim.addEventListener('click', closeLog);
+  byId('cancelLog').addEventListener('click', closeLog);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && openKind) closeLog(); }, { signal });
+
+  const chipRow = (options: readonly string[], chosen: readonly string[], multi: boolean) =>
+    options.map((o) => `<button class="logopt" type="button" data-v="${esc(o)}"
+      ${multi ? `aria-pressed="${chosen.includes(o)}"` : `role="radio" aria-checked="${chosen.includes(o)}"`}>${esc(o)}</button>`).join('');
+
+  function openLog(kind: LogKind): void {
+    openKind = kind;
+    const entry = { ...emptyEntry(), ...loadTracking().entries[today] };
+    byId('logTitle').textContent = LOG_SHEET[kind].title;
+    byId('logHint').textContent = LOG_SHEET[kind].hint;
+
+    const fields = byId('logFields');
+    if (kind === 'flow') {
+      fields.innerHTML = `<div class="logopts" role="radiogroup" aria-label="Flow" id="flowOpts">
+        ${chipRow(FLOW_OPTIONS.map((f) => f.label), entry.flow ? [FLOW_OPTIONS.find((f) => f.value === entry.flow)!.label] : [], false)}</div>`;
+    } else if (kind === 'mood') {
+      fields.innerHTML = `<div class="logopts" id="moodOpts">${chipRow(MOOD_OPTIONS, entry.moods, true)}</div>`;
+    } else if (kind === 'symptoms') {
+      fields.innerHTML = `<div class="logopts" id="sympOpts">${chipRow(SYMPTOM_OPTIONS, entry.symptoms, true)}</div>`;
+    } else {
+      fields.innerHTML = `<label class="tlabel" for="tempInput">Temperature in °C</label>
+        <input class="tinput" id="tempInput" type="number" inputmode="decimal" step="0.1" min="33" max="43"
+          placeholder="36.6" value="${entry.tempC ?? ''}">
+        <p class="thint">Taken at the same time each morning before getting up is the most useful.</p>`;
+    }
+
+    const note = byId<HTMLTextAreaElement>('logNote');
+    note.value = entry.note;
+    byId('clearLog').hidden = !loggedKinds(loadTracking().entries[today]).includes(kind);
+    logScrim.classList.add('show');
+    logSheet.classList.add('show');
+    fields.querySelector<HTMLElement>('.logopt, .tinput')?.focus({ preventScroll: true });
+  }
+
+  byId('logFields').addEventListener('click', (e) => {
+    const b = (e.target as Element).closest<HTMLElement>('.logopt');
+    if (!b) return;
+    const multi = b.hasAttribute('aria-pressed');
+    if (multi) b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'));
+    else {
+      const on = b.getAttribute('aria-checked') !== 'true';
+      b.parentElement!.querySelectorAll('.logopt').forEach((o) => o.setAttribute('aria-checked', 'false'));
+      b.setAttribute('aria-checked', String(on)); // tapping the chosen one again clears it
+    }
+  });
+
+  const chosenIn = (id: string) =>
+    [...byId(id).querySelectorAll<HTMLElement>('.logopt')]
+      .filter((o) => o.getAttribute('aria-pressed') === 'true' || o.getAttribute('aria-checked') === 'true')
+      .map((o) => o.dataset.v!);
+
+  byId('saveLog').addEventListener('click', () => {
+    if (!openKind) return;
+    const kind = openKind;
+    const note = byId<HTMLTextAreaElement>('logNote').value.trim();
+    saveTracking((t) => {
+      const entry = { ...emptyEntry(), ...t.entries[today] };
+      if (kind === 'flow') {
+        const label = chosenIn('flowOpts')[0];
+        entry.flow = FLOW_OPTIONS.find((f) => f.label === label)?.value;
+      } else if (kind === 'mood') entry.moods = chosenIn('moodOpts');
+      else if (kind === 'symptoms') entry.symptoms = chosenIn('sympOpts');
+      else {
+        const value = Number(byId<HTMLInputElement>('tempInput').value);
+        entry.tempC = Number.isFinite(value) && value >= 33 && value <= 43 ? value : undefined;
+      }
+      entry.note = note;
+      t.entries[today] = entry;
+    });
+    closeLog();
+    refreshAll();
+    byId('log').querySelector(`[data-kind="${kind}"]`)?.classList.add('pop');
+    toast('Saved on this device');
+  });
+
+  byId('clearLog').addEventListener('click', () => {
+    if (!openKind) return;
+    const kind = openKind;
+    saveTracking((t) => {
+      const entry = t.entries[today];
+      if (!entry) return;
+      if (kind === 'flow') delete entry.flow;
+      else if (kind === 'mood') entry.moods = [];
+      else if (kind === 'symptoms') entry.symptoms = [];
+      else delete entry.tempC;
+    });
+    closeLog();
+    refreshAll();
+    toast('Cleared');
+  });
 
   function renderPhase(v: CycleView): void {
     const { title, text } = phaseCopy(v);
@@ -361,6 +483,7 @@ export default function mount(signal: AbortSignal): void {
       renderFlags(view);
       renderTrends(view);
     };
+    refreshAll = render;
     render();
 
     // Confidence explainer
@@ -373,19 +496,10 @@ export default function mount(signal: AbortSignal): void {
       if (open && motion()) why.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'ease-out' });
     });
 
-    // Log today: saved immediately on this device
+    // Log today: each chip opens its own detail, saved on Save
     byId('log').addEventListener('click', (e) => {
       const chip = (e.target as Element).closest<HTMLElement>('.chip');
-      if (!chip) return;
-      const kind = chip.dataset.kind as LogKind;
-      saveTracking((t) => {
-        const set = new Set(t.logs[today] ?? []);
-        if (set.has(kind)) set.delete(kind);
-        else set.add(kind);
-        t.logs[today] = LOG_KINDS.filter((k) => set.has(k));
-      });
-      renderLog();
-      byId('log').querySelector(`[data-kind="${kind}"]`)?.classList.add('pop'); // little bounce on the tapped chip
+      if (chip) openLog(chip.dataset.kind as LogKind);
     });
 
     // Health flags

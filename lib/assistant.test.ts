@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { answerQuestion, MEDICAL_NOTE, retrieve, SUGGESTIONS } from './assistant';
+import { answerQuestion, isOnTopic, MEDICAL_NOTE, retrieve, SUGGESTIONS } from './assistant';
 import { buildCycleView } from './cycleView';
 import { ARTICLES } from './library/articles';
 import type { Period } from './types';
@@ -98,18 +98,22 @@ test('estimates turned off are respected', () => {
   assert.match(answerQuestion('when am i fertile?', { view: off }).text, /turned off/);
 });
 
-test('an unknown question admits it', () => {
-  const a = answerQuestion('what is the capital of france', { view: view() });
+test('a cycle question with no matching topic admits it', () => {
+  // On-topic vocabulary, but nothing in the library answers it
+  const a = answerQuestion('what do fallopian tubes do', { view: view() });
   assert.equal(a.kind, 'unknown');
-  assert.match(a.text, /not sure/);
+  assert.match(a.text, /do not have a topic covering it yet/);
+  assert.equal(a.showMedicalNote, true);
 });
 
 test('every non-crisis answer carries the medical reminder', () => {
-  const questions = ['why do i get cramps', 'when is my next period', 'what is the capital of france', 'am i pregnant', 'what are my safe days'];
+  const questions = ['why do i get cramps', 'when is my next period', 'am i pregnant', 'what are my safe days'];
   for (const q of questions) {
     assert.equal(answerQuestion(q, { view: view() }).showMedicalNote, true, q);
   }
   assert.match(MEDICAL_NOTE, /not a healthcare professional/);
+  // An off-topic reply is not medical, so it carries no medical disclaimer
+  assert.equal(answerQuestion('why are bananas yellow?', { view: view() }).showMedicalNote, false);
 });
 
 test('suggested questions all produce a real answer', () => {
@@ -118,4 +122,53 @@ test('suggested questions all produce a real answer', () => {
     assert.notEqual(a.kind, 'unknown', q);
     assert.ok(a.text.length > 40, q);
   }
+});
+
+test('off-topic questions are declined, not matched to the nearest article', () => {
+  const off = [
+    'why are bananas yellow?',      // used to return the article on discharge
+    'how do i cook rice',
+    'what is the capital of france',
+    'who won the game last night',
+    'tell me a joke',
+    'what time is it',
+    'how do i fix my laptop',
+    'recommend a movie',
+  ];
+  for (const q of off) {
+    const a = answerQuestion(q, { view: view() });
+    assert.equal(a.kind, 'off_topic', `${q} -> ${a.kind}: ${a.text.slice(0, 60)}`);
+    assert.match(a.text, /outside what I know about/);
+    assert.deepEqual(a.sources, []);
+  }
+});
+
+test('the gate does not block real questions', () => {
+  const on = [
+    'is my discharge yellow', 'why do i get cramps', 'when is my next period', 'kailan ang regla ko',
+    'masakit ang puson ko', 'what is pcos', 'how long do periods last', 'my ovaries hurt',
+    'is spotting normal', 'can i swim on my period', 'what are the phases of a cycle',
+  ];
+  for (const q of on) {
+    const a = answerQuestion(q, { view: view() });
+    assert.notEqual(a.kind, 'off_topic', `${q} was wrongly declined`);
+  }
+});
+
+test('the gate never blocks a crisis message', () => {
+  // "i want to die" contains no cycle vocabulary at all
+  for (const q of ['i want to die', 'gusto ko nang mamatay', 'i fainted']) {
+    const a = answerQuestion(q, { view: view() });
+    assert.equal(a.kind, 'safety', q);
+  }
+});
+
+test('retrieval itself returns nothing for off-topic wording', () => {
+  assert.deepEqual(retrieve('why are bananas yellow?'), []);
+  assert.ok(retrieve('why is my discharge yellow').length > 0);
+});
+
+test('isOnTopic is exported for the screens to use', () => {
+  assert.equal(isOnTopic('when is my period'), true);
+  assert.equal(isOnTopic('why are bananas yellow'), false);
 });

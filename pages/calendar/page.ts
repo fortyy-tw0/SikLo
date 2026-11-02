@@ -9,7 +9,7 @@ import { load, savePeriods } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
 import { toast } from '@lib/toast';
 import {
-  loadTracking, OBSERVATION_OPTIONS, PROTECTION_OPTIONS, saveTracking,
+  describeEntry, loadTracking, OBSERVATION_OPTIONS, PROTECTION_OPTIONS, saveTracking,
   type IntimacyEntry, type IntimacyObservation, type Protection,
 } from '@lib/tracking';
 import type { Period } from '@lib/types';
@@ -26,7 +26,7 @@ export default function mount(signal: AbortSignal): void {
   const state = () => {
     const t = loadTracking();
     const view: CycleView | null = buildCycleView(periods, today, t.ovulation, { estimate: !estimateUnsuitable(saved.profile.life_stage) });
-    return { tracking: t, view, input: { periods, view, logs: t.logs, intimacy: t.intimacy, today } };
+    return { tracking: t, view, input: { periods, view, entries: t.entries, intimacy: t.intimacy, today } };
   };
 
   let shown: [number, number] = (() => {
@@ -53,7 +53,7 @@ export default function mount(signal: AbortSignal): void {
       if (c.future) classes.push('future');
       const dots = [
         ...(c.logs.length ? ['<i></i>'] : []),
-        ...(c.intimacy ? ['<i class="heart"></i>'] : []),
+        ...(c.intimacy ? [HEART] : []),   // a small heart, so intercourse days read at a glance
       ].join('');
       return `<button class="${classes.join(' ')}" type="button" data-date="${c.date}" aria-label="${esc(label(c))}">
         <span class="n">${c.dayOfMonth}</span><span class="dots">${dots}</span></button>`;
@@ -69,6 +69,38 @@ export default function mount(signal: AbortSignal): void {
       : grid.hasEstimates
         ? 'Estimated days come from your recent cycles and can shift. They are not a method of birth control.'
         : 'Estimates appear once you have three complete cycles recorded.';
+
+    renderMonth(grid.cells, grid.label);
+  }
+
+  /** The counts and the list of entries under the grid, so the tab has no dead space. */
+  function renderMonth(cells: DayCell[], label: string): void {
+    const t = loadTracking();
+    const days = cells.filter((c): c is DayCell & { date: string } => c.inMonth && c.date !== null);
+    const counts: [string, number][] = [
+      ['Period days', days.filter((c) => c.period || c.periodStart).length],
+      ['Days logged', days.filter((c) => c.logs.length).length],
+      ['Intercourse', days.filter((c) => c.intimacy).length],
+    ];
+    const now = parseDate(today);
+    const thisMonth = shown[0] === now.getUTCFullYear() && shown[1] === now.getUTCMonth();
+    byId('summaryHeading').textContent = thisMonth ? 'This month' : label;
+    byId('monthStats').innerHTML = counts
+      .map(([k, v]) => `<div class="stat"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
+
+    const short = (iso: string) => parseDate(iso).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
+    const rows = days.filter((c) => !c.future).reverse().flatMap((c) => {
+      const bits: string[] = [];
+      const entry = t.entries[c.date];
+      if (c.periodStart) bits.push('Period started');
+      else if (c.period) bits.push('Period day');
+      if (entry) bits.push(describeEntry(entry));
+      if (c.intimacy) bits.push('Intercourse logged');
+      return bits.length ? [`<li><span class="d">${short(c.date)}</span><span class="w">${esc(bits.filter(Boolean).join(' · '))}</span></li>`] : [];
+    }).slice(0, 8);
+    byId('monthEntries').innerHTML = rows.length
+      ? rows.join('')
+      : '<li class="none">Nothing recorded for these dates yet</li>';
   }
 
   function label(c: DayCell): string {
@@ -92,6 +124,20 @@ export default function mount(signal: AbortSignal): void {
   };
   byId('prevBtn').addEventListener('click', () => step(-1));
   byId('nextBtn').addEventListener('click', () => step(1));
+
+  // ---------- Record intercourse, straight from the tab ----------
+  byId('recordHint').textContent = loadTracking().intimacy[today]
+    ? 'Already logged for today. Tap to change it.'
+    : `For ${fmtLong(today).replace(/^[A-Za-z]+, /, '')}, or tap a date above`;
+  byId('recordBtn').addEventListener('click', () => {
+    const d = parseDate(today);
+    if (shown[0] !== d.getUTCFullYear() || shown[1] !== d.getUTCMonth()) {
+      shown = [d.getUTCFullYear(), d.getUTCMonth()];
+      render();
+    }
+    openDay(today);
+    renderIntimacy(today);
+  });
 
   // ---------- Day sheet ----------
   const sheet = byId('sheet');
@@ -147,6 +193,8 @@ export default function mount(signal: AbortSignal): void {
     scrim.classList.add('show');
     sheet.classList.add('show');
   }
+
+  const HEART = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.3-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.7-7 9-7 9z"/></svg>';
 
   const ICON = {
     drop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',

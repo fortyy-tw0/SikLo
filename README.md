@@ -74,8 +74,18 @@ check-up. It never says what a pattern means, because that is a clinician's job.
 **Answers questions, offline.** Ask SikLo explains how cycles work, what common
 symptoms are, and what your own log shows, drawing on a library of short health
 summaries written for this app. You can type, or say "Hey SikLo" and ask out
-loud. On devices that can run one, an optional language model downloads once and
-words the answers more freely, still entirely on the device.
+loud. It answers questions about periods and reproductive health and declines
+everything else, rather than reaching for the nearest article. On devices that
+can run one, a language model downloads in the background and words the answers
+more freely, still entirely on the device; the library answers cover the wait,
+and on a metered connection it waits to be asked.
+
+**Learns your patterns, without learning about you.** The more you log, the more
+of an answer comes from your own record: how long your cycles run, which
+symptoms show up and when in the cycle they tend to arrive, how your periods
+usually last. Those patterns are worked out on the device each time, from your
+logs alone, and are shown with how confident they are. Nothing about you is
+uploaded, and nothing is used to train anything.
 
 **Works without a connection.** Once loaded, SikLo keeps working on a bus, in a
 barangay with no signal, or on a phone with no load. Nothing it does requires
@@ -121,16 +131,29 @@ to open.
 
 ```bash
 npm install
-npm run dev         # http://localhost:8000
-npm run build       # production build into dist/
-npm run typecheck   # strict TypeScript
-npm test            # 89 checks: prediction, calendar, insights, safety, assistant
+npm run dev            # http://localhost:8000
+npm run build          # production build into dist/
+npm run typecheck      # strict TypeScript
+npm test               # 106 checks: prediction, calendar, insights, safety, assistant, patterns
+npm run knowledge      # rebuild the health library (Python 3 + SQLite)
+npm run knowledge:test # 55 checks on the library and the topic rules
 ```
 
-TypeScript throughout, no framework, built with esbuild into a single page and
-deployed on Vercel. The cycle prediction engine is copied byte-for-byte from the
-`backend` branch's `siklo-backend-ts`, so this app and the React Native app give
-the same answer for the same dates.
+The app itself is TypeScript throughout, no framework, built with esbuild into a
+single page and deployed on Vercel. The cycle prediction engine is copied
+byte-for-byte from the `backend` branch's `siklo-backend-ts`, so this app and
+the React Native app give the same answer for the same dates.
+
+**The knowledge behind Ask SikLo is built in Python and SQL.** `backend/` holds
+the health library as plain Markdown, a SQLite schema with a full-text index,
+and the rules that keep it honest: a topic that names a dose or reads as a
+diagnosis fails the build rather than reaching a reader. The same build derives
+the vocabulary that decides whether a question is about periods at all, then
+compiles everything into a TypeScript file the browser carries with it. That is
+why the assistant works with no connection and no server: Python does the work
+once, on a laptop, and ships the result. Adding to the library means adding a
+Markdown file in `backend/articles/` and running `npm run knowledge`; see
+`backend/README.md`.
 
 ## Related branches
 

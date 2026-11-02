@@ -2,13 +2,15 @@
   "name": "siklo-web",
   "private": true,
   "version": "1.0.0",
-  "description": "SikLo onboarding screens: static pages with TypeScript, built with esbuild and deployed on Vercel.",
+  "description": "SikLo: a private, offline menstrual cycle tracker and health companion.",
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
     "dev": "node build.mjs --serve",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.checks.json",
-    "test": "node build.mjs --check"
+    "test": "node build.mjs --check",
+    "knowledge": "cd backend && python3 -m siklo_knowledge.build",
+    "knowledge:test": "cd backend && python3 -m pytest -q"
   },
   "devDependencies": {
     "@types/node": "26.1.2",

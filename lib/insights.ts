@@ -10,7 +10,7 @@
  */
 import { diffDays, parseDate } from './cycle';
 import { averageCycle, averagePeriod, TYPICAL_CYCLE, variation, type CycleView, type Phase } from './cycleView';
-import type { IntimacyEntry, LogKind } from './tracking';
+import { loggedKinds, type DayEntry, type IntimacyEntry, type LogKind } from './tracking';
 
 export interface Insight {
   id: string;
@@ -22,7 +22,7 @@ export interface Insight {
 
 export interface InsightsInput {
   view: CycleView | null;
-  logs: Record<string, LogKind[]>;
+  entries: Record<string, DayEntry>;
   intimacy: Record<string, IntimacyEntry>;
   today: string;
 }
@@ -152,10 +152,10 @@ export function buildInsights(input: InsightsInput): Insight[] {
 
 /** Which symptoms were logged most often in the first days of recent cycles. */
 function symptomPatterns(input: InsightsInput): Insight | null {
-  const dates = Object.keys(input.logs).filter((d) => input.logs[d]?.length);
+  const dates = Object.keys(input.entries).filter((d) => loggedKinds(input.entries[d]).length);
   if (dates.length < 3) return null;
   const counts = new Map<LogKind, number>();
-  for (const d of dates) for (const k of input.logs[d]) counts.set(k, (counts.get(k) ?? 0) + 1);
+  for (const d of dates) for (const k of loggedKinds(input.entries[d])) counts.set(k, (counts.get(k) ?? 0) + 1);
   const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]);
   if (!ranked.length) return null;
   const names: Record<LogKind, string> = { flow: 'flow', mood: 'mood', symptoms: 'symptoms', temp: 'temperature' };

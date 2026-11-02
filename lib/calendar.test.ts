@@ -13,7 +13,7 @@ const REGULAR = ['2026-07-02', '2026-07-30', '2026-08-28', '2026-09-25', '2026-1
 const input = (over: Partial<CalendarInput> = {}): CalendarInput => ({
   periods: REGULAR,
   view: buildCycleView(REGULAR, '2026-11-02', null, {}),
-  logs: {}, intimacy: {}, today: '2026-11-02', ...over,
+  entries: {}, intimacy: {}, today: '2026-11-02', ...over,
 });
 
 test('a recorded period fills every day from start to end', () => {
@@ -82,10 +82,11 @@ test('today, and days that have not happened yet, are marked', () => {
 
 test('logs and intercourse entries land on their dates', () => {
   const g = monthGrid(2026, 10, input({
-    logs: { '2026-11-02': ['flow', 'mood'] },
+    entries: { '2026-11-02': { moods: ['Low'], symptoms: ['Cramps'], note: '' } },
     intimacy: { '2026-11-01': { protection: 'condom', observations: ['nothing_unusual'], note: '' } },
   }));
-  assert.deepEqual(g.cells.find((c) => c.date === '2026-11-02')!.logs, ['flow', 'mood']);
+  assert.deepEqual(g.cells.find((c) => c.date === '2026-11-02')!.logs, ['mood', 'symptoms']);
+  assert.deepEqual(g.cells.find((c) => c.date === '2026-11-02')!.entry!.symptoms, ['Cramps']);
   assert.equal(g.cells.find((c) => c.date === '2026-11-01')!.intimacy!.protection, 'condom');
   assert.equal(g.cells.find((c) => c.date === '2026-11-03')!.intimacy, null);
 });

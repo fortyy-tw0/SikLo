@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chooseModel, modelStatus } from './localModel';
+import { chooseModel, downloadWithoutAsking, modelStatus } from './localModel';
 
 test('picks the smallest small instruction model available', () => {
   const list = [
@@ -26,4 +26,13 @@ test('an empty list is handled rather than throwing', () => {
 
 test('the model starts out not loaded, so the article engine answers', () => {
   assert.equal(modelStatus(), 'not-loaded');
+});
+
+test('a large download is never started unasked on metered or slow connections', () => {
+  // No WebGPU in this environment, so every case must be false anyway
+  assert.equal(downloadWithoutAsking({ saveData: true, effectiveType: '4g' }), false);
+  assert.equal(downloadWithoutAsking({ type: 'cellular', effectiveType: '4g' }), false);
+  assert.equal(downloadWithoutAsking({ effectiveType: '2g' }), false);
+  assert.equal(downloadWithoutAsking({ effectiveType: '3g' }), false);
+  assert.equal(downloadWithoutAsking(undefined), false);
 });
