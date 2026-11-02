@@ -16,10 +16,11 @@ with each automated check (`*.test.ts`) next to the code it checks.
 ```
 pages/
   index/            Landing ("A little space for you.")
-  setup/step-1/     Birthday
-  setup/step-2/     Cycle description
-  setup/step-3/     Optional context
-  setup/step-4/     Period dates + Save
+  setup/name/       Step 1: name or nickname (optional), shown on Today
+  setup/birthday/   Step 2: birthday
+  setup/cycle/      Step 3: cycle description
+  setup/context/    Step 4: optional context
+  setup/dates/      Step 5: period dates + Save
   home/             Today: ring, key dates, log, phase, flags
   profile/          Saved periods, edit, light/dark, delete my data
 lib/
@@ -76,6 +77,11 @@ can be handed to `siklo-backend-ts` in the React Native app.
 
 Built from the saved periods, never from sample data:
 
+- **Greeting**: "Hi there, <name>" with their initial as the profile button, or
+  "Hi there" if they skipped the name step.
+- **Cycle ring**: with an estimate it shows the predicted cycle. Before that it
+  shows their average cycle, or a typical 28-day guide, with a caption saying
+  so. A current period without an end date is drawn as the days so far (up to 7).
 - **Next period** comes from the backend engine (median of recent cycles, range
   from shortest to longest). Before 3 complete cycles it says "Not enough data".
 - **Ovulation** is placed 14 days before the next period; the **fertile window**

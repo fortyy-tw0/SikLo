@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { averageCycle, averagePeriod, buildCycleView, variation } from './cycleView';
+import { averageCycle, averagePeriod, buildCycleView, ringFor, variation } from './cycleView';
 import type { Period } from './types';
 
 const p = (start: string, days = 5): Period => {
@@ -99,4 +99,36 @@ test('spotting and future-dated periods do not move the current cycle', () => {
   const extra: Period[] = [{ ...p('2026-10-28', 1), kind: 'spotting' }, p('2026-12-01')];
   const v = buildCycleView([...REGULAR, ...extra], '2026-11-02', null)!;
   assert.equal(v.cycleStart, '2026-10-23');
+});
+
+const open = (start: string): Period => ({ start_date: start, end_date: null, kind: 'period', end_state: 'unknown', flow_level: null });
+
+test('a period with no end date yet counts as the period so far', () => {
+  const v = buildCycleView([open('2026-10-31')], '2026-11-02', null)!;
+  assert.equal(v.cycleDay, 3);
+  assert.equal(v.periodDays, 3);
+  assert.equal(v.phase, 'Period');
+  assert.equal(buildCycleView([open('2026-10-01')], '2026-11-02', null)!.periodDays, 7); // capped
+});
+
+test('ring: before any estimate it uses a typical 28-day guide', () => {
+  const r = ringFor(buildCycleView([open('2026-10-31')], '2026-11-02', null)!);
+  assert.deepEqual(r, { days: 28, scale: 'typical', periodDays: 3, fertile: null, ovulationDay: null, todayDay: 3 });
+});
+
+test('ring: stretches when today is past the guide', () => {
+  assert.equal(ringFor(buildCycleView([p('2026-09-01')], '2026-10-10', null)!).days, 40);
+});
+
+test('ring: uses the average cycle when there is history but no estimate yet', () => {
+  const r = ringFor(buildCycleView([p('2026-08-01'), p('2026-09-02'), p('2026-10-05')], '2026-10-10', null)!);
+  assert.equal(r.scale, 'average');
+  assert.equal(r.days, 33);
+  assert.equal(r.todayDay, 6);
+});
+
+test('ring: with an estimate it is the predicted cycle; a late today stays at the end', () => {
+  const r = ringFor(buildCycleView(REGULAR, '2026-11-02', null)!);
+  assert.deepEqual(r, { days: 28, scale: 'estimate', periodDays: 5, fertile: [9, 14], ovulationDay: 14, todayDay: 11 });
+  assert.equal(ringFor(buildCycleView(REGULAR, '2026-11-22', null)!).todayDay, 28);
 });

@@ -8,13 +8,13 @@
  * Browser Back/Forward move between screens (history entries all keep the
  * address "/"), and a refresh reopens the screen you were on.
  */
-export type ScreenId = 'index' | 'step-1' | 'step-2' | 'step-3' | 'step-4' | 'home' | 'profile';
+export type ScreenId = 'index' | 'name' | 'birthday' | 'cycle' | 'context' | 'dates' | 'home' | 'profile';
 export type Direction = 'forward' | 'back';
 /** Sets a screen up. Listeners on document/window must pass `{ signal }` so they stop when the screen is left. */
 export type Mount = (signal: AbortSignal) => void;
 
 /** Order of screens, used to pick the slide direction for browser Back/Forward. */
-const ORDER: ScreenId[] = ['index', 'step-1', 'step-2', 'step-3', 'step-4', 'home', 'profile'];
+const ORDER: ScreenId[] = ['index', 'name', 'birthday', 'cycle', 'context', 'dates', 'home', 'profile'];
 
 interface Entry {
   screen: ScreenId;

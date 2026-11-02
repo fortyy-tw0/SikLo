@@ -1,11 +1,11 @@
 // Today: cycle ring, key dates, confidence, daily log, phase + confirm ovulation, health flags, trends.
 import { diffDays, parseDate, startsNeeded } from '@lib/cycle';
 import {
-  averageCycle, averagePeriod, buildCycleView, dateOfDay, TYPICAL_CYCLE, variation,
+  averageCycle, averagePeriod, buildCycleView, dateOfDay, ringFor, TYPICAL_CYCLE, variation,
   type CycleView, type Phase,
 } from '@lib/cycleView';
 import { byId, esc, todayIso } from '@lib/dom';
-import { load } from '@lib/store';
+import { load, savedName } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
 import { toast } from '@lib/toast';
 import { LOG_KINDS, loadTracking, saveTracking, type LogKind, type OvulationSign } from '@lib/tracking';
@@ -76,16 +76,21 @@ export default function mount(signal: AbortSignal): void {
 
   // ---------- Rendering ----------
   function renderHeader(): void {
+    const name = savedName();
+    byId('greeting').textContent = name ? `Hi there, ${name}` : 'Hi there';
+    if (name) {
+      const avatar = byId('avatar');
+      avatar.textContent = [...name][0].toUpperCase(); // first character, emoji-safe
+      avatar.setAttribute('aria-label', `Your profile (${name})`);
+    }
     byId('todayLabel').textContent = parseDate(today).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'long', month: 'short', day: 'numeric' });
   }
-
-  /** Length of the ring: the predicted cycle, else the typical recorded cycle, else today. */
-  const ringLength = (v: CycleView) => Math.max(v.length ?? averageCycle(v) ?? v.cycleDay, v.periodDays);
 
   function drawRing(v: CycleView): void {
     const svg = byId('ring') as unknown as SVGSVGElement;
     svg.innerHTML = '';
-    const C = 125, R = 108, W = 14, L = ringLength(v);
+    const ring = ringFor(v);
+    const C = 125, R = 108, W = 14, L = ring.days;
     const set = (el: Element, attrs: Record<string, string | number>) => Object.entries(attrs).forEach(([k, val]) => el.setAttribute(k, String(val)));
 
     const arc = (from: number, to: number, color: string) => {
@@ -108,10 +113,17 @@ export default function mount(signal: AbortSignal): void {
     };
 
     arc(1, L, cssVar('--purple-100'));
-    arc(1, Math.min(v.periodDays, L), cssVar('--purple-300'));
-    if (v.fertile) arc(v.fertile[0], Math.min(v.fertile[1], L), cssVar('--purple-700'));
-    if (v.ovulationDay) dot(v.ovulationDay, 3, cssVar('--white'));
-    dot(Math.min(v.cycleDay, L), 10, cssVar('--white'), cssVar('--purple-900'), 3.5);
+    arc(1, ring.periodDays, cssVar('--purple-300'));
+    if (ring.fertile) arc(ring.fertile[0], ring.fertile[1], cssVar('--purple-700'));
+    if (ring.ovulationDay) dot(ring.ovulationDay, 3, cssVar('--white'));
+    dot(ring.todayDay, 10, cssVar('--white'), cssVar('--purple-900'), 3.5);
+
+    // Before an estimate exists the ring is only a guide; say so
+    const note = byId('ringNote');
+    note.hidden = ring.scale === 'estimate';
+    note.textContent = ring.scale === 'average'
+      ? `The ring shows your average ${ring.days}-day cycle until SikLo can estimate your next period.`
+      : `The ring shows a typical ${ring.days}-day cycle until SikLo learns yours.`;
 
     byId('dayNum').textContent = String(v.cycleDay);
     byId('phaseName').textContent = PHASE_LABEL[v.phase];

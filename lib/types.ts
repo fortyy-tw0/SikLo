@@ -17,6 +17,7 @@ export interface Period {
 }
 
 export interface Profile {
+  name: string; // preferred name or nickname, '' if skipped
   dob: string | null; // YYYY-MM-DD
   cycle_type: CycleType | null;
   diagnosed: DiagnosisAnswer | null;

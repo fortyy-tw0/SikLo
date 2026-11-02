@@ -61,11 +61,11 @@ export default function mount(_signal: AbortSignal): void {
       life_stage_context: answers.lifeStage,
     });
 
-  byId('backBtn').addEventListener('click', () => { keep(); goTo('step-2', 'back'); });
-  byId('next').addEventListener('click', () => { keep(); goTo('step-4', 'forward'); });
+  byId('backBtn').addEventListener('click', () => { keep(); goTo('cycle', 'back'); });
+  byId('next').addEventListener('click', () => { keep(); goTo('dates', 'forward'); });
   // Skip = share none of this optional context
   byId('skipBtn').addEventListener('click', () => {
     update({ diagnosed: null, concern_note: '', contraception_context: false, life_stage_context: false });
-    goTo('step-4', 'forward');
+    goTo('dates', 'forward');
   });
 }

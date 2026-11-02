@@ -22,6 +22,8 @@ export const TYPICAL_CYCLE: readonly [number, number] = [21, 35];
 export const MAX_TYPICAL_PERIOD = 7;
 export const VARIATION_LIMIT = 7;
 export const TREND_CYCLES = 6;
+/** Ring scale before SikLo can estimate a cycle; a visual guide only, never used for dates. */
+export const GUIDE_CYCLE_DAYS = 28;
 const VALID_CYCLE: readonly [number, number] = [15, 90]; // same bounds as the backend engine
 
 export type Phase = 'Period' | 'Follicular' | 'Fertile window' | 'Luteal' | 'Late' | 'Tracking';
@@ -77,8 +79,10 @@ export function buildCycleView(allPeriods: readonly Period[], today: string, ovu
   const prediction = predict(periods);
   const cycleStart = current.start_date;
   const cycleDay = cycleDayOf(cycleStart, today);
+  // Current period length: as recorded, else the usual length, else (no end date yet)
+  // the days so far, up to the typical maximum.
   const recorded = current.end_date ? cycleDayOf(cycleStart, current.end_date) : null;
-  const periodDays = recorded ?? prediction.expected_duration ?? 1;
+  const periodDays = recorded ?? prediction.expected_duration ?? Math.min(cycleDay, MAX_TYPICAL_PERIOD);
 
   // Complete cycles and recorded period lengths, for trends and flags
   const starts = periods.map((p) => p.start_date);
@@ -174,6 +178,38 @@ export function healthFlags(cycles: readonly number[], periodLengths: readonly n
     if (titles[f.key]) flags.push({ key: key(f.key), title: titles[f.key], text: f.message });
   }
   return flags;
+}
+
+export interface Ring {
+  /** Days the full circle stands for. */
+  days: number;
+  /** Where the scale comes from: the estimate, the person's average cycle, or a typical guide. */
+  scale: 'estimate' | 'average' | 'typical';
+  periodDays: number;
+  fertile: readonly [number, number] | null;
+  ovulationDay: number | null;
+  /** Position of the "today" marker (stays at the end of the ring when a period is late). */
+  todayDay: number;
+}
+
+/**
+ * How to draw the cycle ring. With an estimate the circle is the predicted cycle.
+ * Before that it is the person's average cycle or a typical 28 days (stretched if
+ * today is further along), so the period and today markers sit where they belong.
+ */
+export function ringFor(v: CycleView): Ring {
+  const average = averageCycle(v);
+  const scale: Ring['scale'] = v.length !== null ? 'estimate' : average !== null ? 'average' : 'typical';
+  const base = v.length ?? Math.max(average ?? GUIDE_CYCLE_DAYS, v.cycleDay);
+  const days = Math.max(base, v.periodDays);
+  return {
+    days,
+    scale,
+    periodDays: Math.min(v.periodDays, days),
+    fertile: v.fertile ? [v.fertile[0], Math.min(v.fertile[1], days)] : null,
+    ovulationDay: v.ovulationDay,
+    todayDay: Math.min(v.cycleDay, days),
+  };
 }
 
 /** Mean of the trend cycles, rounded; null with no complete cycles. */

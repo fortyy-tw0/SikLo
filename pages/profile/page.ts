@@ -33,8 +33,8 @@ export default function mount(_signal: AbortSignal): void {
     byId('saved').textContent =
       `Setup saved in this browser on ${new Date(saved.saved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}. Nothing was sent anywhere.`;
 
-    byId('editDates').addEventListener('click', () => goTo('step-4', 'forward'));
-    byId('editSetup').addEventListener('click', () => goTo('step-1', 'forward'));
+    byId('editDates').addEventListener('click', () => goTo('dates', 'forward'));
+    byId('editSetup').addEventListener('click', () => goTo('name', 'forward'));
     byId('wipeBtn').addEventListener('click', () => {
       if (!confirm('Delete your SikLo profile, dates and logs from this browser? This cannot be undone.')) return;
       wipe();

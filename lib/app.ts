@@ -6,17 +6,20 @@
 import home from '../pages/home/page';
 import index from '../pages/index/page';
 import profile from '../pages/profile/page';
-import step1 from '../pages/setup/step-1/page';
-import step2 from '../pages/setup/step-2/page';
-import step3 from '../pages/setup/step-3/page';
-import step4 from '../pages/setup/step-4/page';
+import birthday from '../pages/setup/birthday/page';
+import context from '../pages/setup/context/page';
+import cycle from '../pages/setup/cycle/page';
+import dates from '../pages/setup/dates/page';
+import name from '../pages/setup/name/page';
 import { register, start } from './router';
 
+// Setup runs: name -> birthday -> cycle -> context -> dates -> Today
 register('index', index);
-register('step-1', step1);
-register('step-2', step2);
-register('step-3', step3);
-register('step-4', step4);
+register('name', name);
+register('birthday', birthday);
+register('cycle', cycle);
+register('context', context);
+register('dates', dates);
 register('home', home);
 register('profile', profile);
 

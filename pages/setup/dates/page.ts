@@ -134,5 +134,5 @@ export default function mount(_signal: AbortSignal): void {
   });
 
   render();
-  byId('backBtn').addEventListener('click', () => goTo('step-3', 'back'));
+  byId('backBtn').addEventListener('click', () => goTo('context', 'back'));
 }

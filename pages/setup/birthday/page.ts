@@ -95,6 +95,6 @@ export default function mount(_signal: AbortSignal): void {
     refresh();
   }
 
-  byId('backBtn').addEventListener('click', () => goTo('index', 'back'));
-  next.addEventListener('click', () => goTo('step-2', 'forward'));
+  byId('backBtn').addEventListener('click', () => goTo('name', 'back'));
+  next.addEventListener('click', () => goTo('cycle', 'forward'));
 }

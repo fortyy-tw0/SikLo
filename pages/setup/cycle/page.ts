@@ -34,11 +34,11 @@ export default function mount(_signal: AbortSignal): void {
   next.addEventListener('click', () => {
     if (!choice) return;
     update({ cycle_type: TO_API[choice] });
-    goTo('step-3', 'forward');
+    goTo('context', 'forward');
   });
-  byId('backBtn').addEventListener('click', () => goTo('step-1', 'back'));
+  byId('backBtn').addEventListener('click', () => goTo('birthday', 'back'));
   byId('skipBtn').addEventListener('click', () => {
     update({ cycle_type: null });
-    goTo('step-3', 'forward');
+    goTo('context', 'forward');
   });
 }

@@ -5,7 +5,7 @@ import { mountThemeSwitch } from '@lib/theme';
 
 /** Called by the router each time this screen is shown. */
 export default function mount(_signal: AbortSignal): void {
-  byId('startBtn').addEventListener('click', () => goTo('step-1', 'forward'));
+  byId('startBtn').addEventListener('click', () => goTo('name', 'forward'));
 
   // A profile saved earlier in this browser
   if (load()) {

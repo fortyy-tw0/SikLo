@@ -43,6 +43,7 @@ function writeJson(s: Storage | null, key: string, value: unknown): boolean {
 
 function emptyDraft(): Draft {
   return {
+    name: '',
     dob: null,
     cycle_type: null,
     diagnosed: null,
@@ -94,6 +95,19 @@ export function wipe(): void {
   storage('local')?.removeItem(SAVED_KEY);
   storage('local')?.removeItem(TRACKING_KEY);
   storage('session')?.removeItem(DRAFT_KEY);
+}
+
+export const MAX_NAME_LENGTH = 30;
+
+/** Tidy a typed name: trim, single spaces, at most MAX_NAME_LENGTH characters. */
+export function cleanName(raw: string): string {
+  return raw.replace(/\s+/g, ' ').trim().slice(0, MAX_NAME_LENGTH).trim();
+}
+
+/** The saved name, or '' (older saved profiles have none). */
+export function savedName(): string {
+  const p = load()?.profile as Partial<Profile> | undefined;
+  return typeof p?.name === 'string' ? cleanName(p.name) : '';
 }
 
 /** Map a profile to the backend's POST /onboarding body. */

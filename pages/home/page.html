@@ -15,14 +15,13 @@
   .brand .lock{display:flex;align-items:center;gap:8px}
   .brand .mk{width:28px;height:28px}
   .brand .wm{height:26px;width:auto}
-  .avatar{width:40px;height:40px;border-radius:50%;background:var(--purple-100);color:var(--purple-700);display:grid;place-items:center}
+  .avatar{width:40px;height:40px;border-radius:50%;background:var(--purple-100);color:var(--purple-700);display:grid;place-items:center;
+    font-size:16px;font-weight:700;text-decoration:none}
   .avatar svg{width:20px;height:20px}
 
   /* Header */
   .hello{font-size:13px;color:var(--muted);font-weight:500}
-  .name{font-size:22px;font-weight:700;letter-spacing:-.3px;margin-top:2px}
-  .local{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--purple-700);font-weight:600;margin-top:6px}
-  .local svg{width:12px;height:12px}
+  .name{font-size:22px;font-weight:700;letter-spacing:-.3px;margin-top:2px;overflow-wrap:anywhere}
 
   /* Ring */
   .ring-wrap{display:flex;justify-content:center;margin:22px 0 8px;position:relative}
@@ -32,6 +31,7 @@
   .ring-center .phase{font-size:13px;font-weight:600;color:var(--purple-700);background:var(--purple-50);padding:5px 12px;border-radius:99px}
   .legend{display:flex;justify-content:center;gap:18px;font-size:12px;color:var(--muted);margin-bottom:22px}
   .legend span{display:flex;align-items:center;gap:6px}
+  .ring-note{font-size:12px;line-height:1.5;color:var(--muted);text-align:center;margin:-12px auto 20px;max-width:300px}
   .legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
 
   /* Key dates + confidence */
@@ -153,18 +153,14 @@
 
   <header>
     <div class="hello" id="todayLabel"></div>
-    <div class="name">Hi there</div>
-    <div class="local">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-      Stored on this device only
-    </div>
+    <div class="name" id="greeting">Hi there</div>
   </header>
 
   <!-- Shown when no period date has been saved yet -->
   <section class="phase-card empty-card" id="empty" hidden>
     <div class="t">Add a period date to see your cycle</div>
     <p>Your cycle day, phase and trends start from the first day of your most recent period. Nothing else is needed to begin.</p>
-    <a class="btn" href="/" data-go="step-4">Add period dates</a>
+    <a class="btn" href="/" data-go="dates">Add period dates</a>
   </section>
 
   <div id="cycleContent">
@@ -182,6 +178,7 @@
     <span id="legendFertile"><i style="background:var(--purple-700)"></i>Fertile window</span>
     <span><i style="background:var(--white);border:2px solid var(--purple-900)"></i>Today</span>
   </div>
+  <p class="ring-note" id="ringNote" hidden></p>
 
   <!-- Key dates as ranges + confidence -->
   <div class="dates-card">
