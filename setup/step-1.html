@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SikLo Setup Step 1</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#F4F1F8;color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+  button,textarea{font:inherit;color:inherit}
+  button{cursor:pointer;border:0;background:none}
+
+  /* App screen: fixed header + scrolling content + fixed actions */
+  .screen{width:390px;height:calc(100dvh / var(--z,1));max-height:844px;margin:0 auto;background:var(--white);
+    display:flex;flex-direction:column;overflow:hidden}
+  .head{padding:calc(28px + env(safe-area-inset-top,0px)) 22px 0;flex:none}
+  .body{flex:1;overflow-y:auto;padding:4px 22px 24px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  .foot{flex:none;padding:12px 22px calc(14px + env(safe-area-inset-bottom,0px));background:var(--white);
+    box-shadow:0 -1px 0 var(--line)}
+
+  /* Top bar */
+  .top{display:flex;justify-content:space-between;align-items:center}
+  .logo{display:flex;align-items:center;gap:9px}
+  .logo .mk{width:32px;height:32px}
+  .logo .wm{height:30px;width:auto}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--purple-700);
+    background:var(--purple-50);padding:7px 12px;border-radius:99px}
+  .badge svg{width:12px;height:12px}
+
+  /* Progress */
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+  .back{display:flex;align-items:center;gap:4px;min-height:44px;font-size:13px;font-weight:600;color:var(--purple-700)}
+  .back svg{width:16px;height:16px}
+  .step{font-size:12px;font-weight:600;color:var(--muted)}
+  .bars{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 14px}
+  .bars i{height:4px;border-radius:99px;background:var(--purple-100)}
+  .bars i.on{background:var(--purple-700)}
+
+  /* Content */
+  h1{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.25;margin-top:12px}
+  .chip{display:inline-block;margin-top:10px;font-size:11.5px;font-weight:600;letter-spacing:.3px;color:var(--purple-700);
+    background:var(--purple-50);padding:5px 10px;border-radius:99px}
+  .q{font-size:16px;font-weight:700;line-height:1.35;margin-top:22px}
+  .hint{font-size:13px;line-height:1.5;color:var(--muted);margin-top:4px}
+
+  .opts{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  .opt{display:flex;align-items:center;gap:14px;width:100%;min-height:52px;text-align:left;padding:13px 16px;
+    border:1px solid var(--line);border-radius:16px;font-size:15px;font-weight:600;transition:border-color .15s,background .15s}
+  .radio{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--purple-300);display:grid;place-items:center}
+  .radio::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--purple-700);transform:scale(0);transition:transform .15s}
+  .opt[aria-checked="true"]{border-color:var(--purple-700);background:var(--purple-50)}
+  .opt[aria-checked="true"] .radio{border-color:var(--purple-700)}
+  .opt[aria-checked="true"] .radio::after{transform:scale(1)}
+
+  .field{margin-top:24px}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
+  .field label span{color:var(--muted);font-weight:500}
+  textarea{width:100%;min-height:84px;resize:none;padding:13px 14px;border:1px solid var(--line);border-radius:14px;
+    font-size:14.5px;line-height:1.5;background:var(--white);outline:none;transition:border-color .15s,box-shadow .15s}
+  textarea::placeholder{color:#B3A9C4}
+  textarea:focus{border-color:var(--purple-500);box-shadow:0 0 0 3px var(--purple-100)}
+  .meta{display:flex;justify-content:space-between;gap:12px;margin-top:6px;font-size:12px;color:var(--muted);line-height:1.45}
+  .meta .count{flex:none;font-variant-numeric:tabular-nums}
+
+  .other{margin-top:24px;padding:16px;border:1px solid var(--line);border-radius:18px}
+  .other h2{font-size:15px;font-weight:700}
+  .other h2 span{color:var(--muted);font-weight:500}
+  .other p{font-size:13px;line-height:1.5;color:var(--body);margin-top:4px}
+  .checks{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .check{display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:12px 14px;text-align:left;
+    border-radius:14px;background:var(--purple-50);font-size:14px;font-weight:600;transition:background .15s}
+  .check .plus{flex:none;width:24px;height:24px;border-radius:8px;background:var(--white);color:var(--purple-700);display:grid;place-items:center;transition:all .15s}
+  .check .plus svg{width:14px;height:14px;transition:transform .2s}
+  .check[aria-pressed="true"]{background:var(--purple-100)}
+  .check[aria-pressed="true"] .plus{background:var(--purple-700);color:#fff}
+  .check[aria-pressed="true"] .plus svg{transform:rotate(45deg)}
+  .note{font-size:12px;line-height:1.5;color:var(--muted);margin-top:14px}
+
+
+  /* Birthday */
+  .lead{font-size:14px;line-height:1.55;color:var(--body);margin-top:8px}
+  .dob{display:grid;grid-template-columns:1.6fr 1fr 1.25fr;gap:10px;margin-top:22px}
+  .seg label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .sel{position:relative}
+  .sel select{width:100%;height:56px;padding:0 34px 0 14px;border:1px solid var(--line);border-radius:14px;background:var(--white);
+    -webkit-appearance:none;appearance:none;font:inherit;font-size:16px;font-weight:600;color:var(--ink);cursor:pointer;
+    font-variant-numeric:tabular-nums;outline:none;transition:border-color .15s,box-shadow .15s}
+  .sel select:invalid{color:#B3A9C4;font-weight:500}
+  .sel select option{color:var(--ink);font-weight:500}
+  .sel select:focus{border-color:var(--purple-500);box-shadow:0 0 0 3px var(--purple-100)}
+  .sel select[aria-invalid="true"]{border-color:var(--purple-700)}
+  .sel .chev{position:absolute;right:12px;top:50%;width:16px;height:16px;margin-top:-8px;color:var(--purple-700);pointer-events:none}
+  .status{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:13px;font-weight:600;color:var(--purple-700)}
+  .status svg{width:15px;height:15px;flex:none}
+  .status.err{color:var(--purple-900)}
+  .status:empty{display:none}
+  .why{display:flex;gap:12px;margin-top:16px;padding:14px 16px;border-radius:16px;background:var(--purple-50)}
+  .why .ic{flex:none;width:28px;height:28px;border-radius:9px;background:var(--purple-100);color:var(--purple-700);display:grid;place-items:center}
+  .why .ic svg{width:15px;height:15px}
+  .why b{display:block;font-size:13.5px;font-weight:700;color:var(--purple-900)}
+  .why p{font-size:12.5px;line-height:1.5;color:var(--body);margin-top:2px}
+  .cta[disabled]{opacity:.4;cursor:not-allowed}
+
+  /* Actions */
+  .cta{width:100%;min-height:52px;padding:15px;border-radius:16px;background:var(--purple-700);color:#fff;font-size:15px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s}
+  .cta:active{transform:scale(.98)}
+  .cta svg{width:16px;height:16px;flex:none;transform:translateY(1.5px)}
+  .skip{width:100%;min-height:44px;margin-top:4px;font-size:14px;font-weight:600;color:var(--purple-700);border-radius:14px}
+  :focus-visible{outline:2px solid var(--purple-500);outline-offset:2px}
+
+</style>
+<link rel="stylesheet" href="../assets/shared.css">
+<script src="../assets/shared.js"></script>
+</head>
+<body>
+<main class="screen">
+
+  <header class="head">
+  <div class="top">
+    <div class="logo"><svg class="mk" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="116" fill="#6A2BB0"/><g transform="translate(0 -12)" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"><path d="M182 410C164 348 180 292 216 264C196 246 188 216 196 190L194 124L238 160Q256 154 274 160L318 124L316 190C324 216 316 246 296 264C332 292 348 348 330 410Q256 422 182 410Z"/><path d="M322 402C384 406 400 350 366 316" fill="none" stroke-width="26" stroke-linecap="round"/></g></svg><svg class="wm" aria-label="SikLo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 2742 921"><g fill="#3B1466" transform="translate(0 861) scale(1 -1)"><path transform="translate(0 0)" d="M42 210H224Q228 171 251.0 150.5Q274 130 311 130Q349 130 371.0 147.5Q393 165 393 196Q393 222 375.5 239.0Q358 256 332.5 267.0Q307 278 260 292Q192 313 149.0 334.0Q106 355 75.0 396.0Q44 437 44 503Q44 601 115.0 656.5Q186 712 300 712Q416 712 487.0 656.5Q558 601 563 502H378Q376 536 353.0 555.5Q330 575 294 575Q263 575 244.0 558.5Q225 542 225 511Q225 477 257.0 458.0Q289 439 357 417Q425 394 467.5 373.0Q510 352 541.0 312.0Q572 272 572 209Q572 149 541.5 100.0Q511 51 453.0 22.0Q395 -7 316 -7Q239 -7 178.0 18.0Q117 43 80.5 92.0Q44 141 42 210Z"/><path transform="translate(615 0)" d="M46 708Q46 748 74.5 774.5Q103 801 148 801Q192 801 220.5 774.5Q249 748 249 708Q249 669 220.5 642.5Q192 616 148 616Q103 616 74.5 642.5Q46 669 46 708ZM233 558V0H62V558Z"/><path transform="translate(910 0)" d="M403 0 233 234V0H62V740H233V331L402 558H613L381 278L615 0Z"/></g><path d="M1703.5 241.5L1798.5 775.5L1998.5 561.0" fill="none" stroke="#6A2BB0" stroke-width="171" stroke-linecap="round" stroke-linejoin="round"/><path d="M2595.4 561.8 L2596.0 568.5 L2596.4 575.2 L2596.5 582.0 L2596.4 588.8 L2596.0 595.5 L2595.4 602.2 L2594.6 608.9 L2593.6 615.6 L2592.3 622.2 L2590.8 628.8 L2589.0 635.3 L2587.0 641.8 L2584.8 648.2 L2582.4 654.5 L2579.8 660.7 L2576.9 666.8 L2573.9 672.8 L2570.6 678.8 L2567.1 684.5 L2563.4 690.2 L2559.5 695.7 L2555.5 701.1 L2551.2 706.4 L2546.8 711.5 L2542.2 716.4 L2537.4 721.2 L2532.5 725.8 L2527.4 730.2 L2522.1 734.5 L2516.7 738.5 L2511.2 742.4 L2505.5 746.1 L2499.8 749.6 L2493.8 752.9 L2487.8 755.9 L2481.7 758.8 L2475.5 761.4 L2469.2 763.8 L2462.8 766.0 L2456.3 768.0 L2449.8 769.8 L2443.2 771.3 L2436.6 772.6 L2429.9 773.6 L2423.2 774.4 L2416.5 775.0 L2409.8 775.4 L2403.0 775.5 L2396.2 775.4 L2389.5 775.0 L2382.8 774.4 L2376.1 773.6 L2369.4 772.6 L2362.8 771.3 L2356.2 769.8 L2349.7 768.0 L2343.2 766.0 L2336.8 763.8 L2330.5 761.4 L2324.3 758.8 L2318.2 755.9 L2312.2 752.9 L2306.2 749.6 L2300.5 746.1 L2294.8 742.4 L2289.3 738.5 L2283.9 734.5 L2278.6 730.2 L2273.5 725.8 L2268.6 721.2 L2263.8 716.4 L2259.2 711.5 L2254.8 706.4 L2250.5 701.1 L2246.5 695.7 L2242.6 690.2 L2238.9 684.5 L2235.4 678.8 L2232.1 672.8 L2229.1 666.8 L2226.2 660.7 L2223.6 654.5 L2221.2 648.2 L2219.0 641.8 L2217.0 635.3 L2215.2 628.8 L2213.7 622.2 L2212.4 615.6 L2211.4 608.9 L2210.6 602.2 L2210.0 595.5 L2209.6 588.8 L2209.5 582.0 L2209.6 575.2 L2210.0 568.5 L2210.6 561.8 L2211.4 555.1 L2212.4 548.4 L2213.7 541.8 L2215.2 535.2 L2217.0 528.7 L2219.0 522.2 L2221.2 515.8 L2223.6 509.5 L2226.2 503.3 L2229.1 497.2 L2232.1 491.2 L2235.4 485.2 L2238.9 479.5 L2242.6 473.8 L2246.5 468.3 L2250.5 462.9 L2254.8 457.6 L2259.2 452.5 L2263.8 447.6 L2268.6 442.8 L2273.5 438.2 L2278.6 433.8 L2283.9 429.5 L2289.3 425.5 L2294.8 421.6 L2300.5 417.9 L2306.2 414.4 L2312.2 411.1 L2318.2 408.1 L2324.3 405.2 L2330.5 402.6 L2336.8 400.2 L2343.2 398.0 L2349.7 396.0 L2356.2 394.2 L2362.8 392.7 L2369.4 391.4 L2376.1 390.4" fill="none" stroke="#6A2BB0" stroke-width="171" stroke-linecap="round"/><circle cx="2522.1" cy="429.5" r="58.1" fill="#9B5DE5"/></svg></div>
+    <div class="badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      Local profile
+    </div>
+  </div>
+  <div class="nav">
+    <button class="back" type="button" id="backBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Back
+    </button>
+    <span class="step">Step 1 of 4</span>
+  </div>
+  <div class="bars" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
+  </header>
+
+  <section class="body">
+    <h1>When is your birthday?</h1>
+    <p class="lead">Cycles change with age, so this helps SikLo explain what is typical for you.</p>
+
+    <div class="dob" role="group" aria-label="Birthday">
+      <div class="seg"><label for="mm">Month</label><div class="sel"><select id="mm" required autocomplete="bday-month"><option value="" disabled selected hidden>Select</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
+      <div class="seg"><label for="dd">Day</label><div class="sel"><select id="dd" required autocomplete="bday-day"><option value="" disabled selected hidden>Select</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
+      <div class="seg"><label for="yy">Year</label><div class="sel"><select id="yy" required autocomplete="bday-year"><option value="" disabled selected hidden>Select</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+
+    <div class="why">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+      <div>
+        <b>It stays on this phone</b>
+        <p>Your birthday is only used to tailor information to your age. It is never sent anywhere.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <button class="cta" id="next" disabled>
+      Continue
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </footer>
+
+</main>
+<script>
+
+  // ---- Birthday ----
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const mm = document.getElementById('mm'), dd = document.getElementById('dd'), yy = document.getElementById('yy');
+  const statusEl = document.getElementById('status'), next = document.getElementById('next');
+  const okIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>';
+  const errIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5h.01"/></svg>';
+
+  // Returns { ok, age, label } or { error, field } or null while incomplete.
+  function checkBirthday(mStr, dStr, yStr, today) {
+    if (!mStr || !dStr || yStr.length < 4) return null;
+    const m = Number(mStr), d = Number(dStr), y = Number(yStr);
+    if (m < 1 || m > 12) return { error: 'Month should be from 1 to 12.', field: mm };
+    const daysInMonth = new Date(y, m, 0).getDate();
+    if (d < 1 || d > daysInMonth) return { error: `${MONTHS[m - 1]} ${y} has ${daysInMonth} days.`, field: dd };
+    const dob = new Date(y, m - 1, d);
+    if (dob > today) return { error: 'That date is in the future.', field: yy };
+    let age = today.getFullYear() - y;
+    if (today.getMonth() < m - 1 || (today.getMonth() === m - 1 && today.getDate() < d)) age -= 1;
+    if (age < 8 || age > 100) return { error: 'Please check the year.', field: yy };
+    return { ok: true, age, label: `${MONTHS[m - 1]} ${d}, ${y}` };
+  }
+
+  function update() {
+    [mm, dd, yy].forEach(el => el.removeAttribute('aria-invalid'));
+    const r = checkBirthday(mm.value, dd.value, yy.value, new Date());
+    statusEl.classList.toggle('err', !!(r && r.error));
+    if (!r) { statusEl.innerHTML = ''; next.disabled = true; return; }
+    if (r.error) { r.field.setAttribute('aria-invalid', 'true'); statusEl.innerHTML = errIcon + r.error; next.disabled = true; return; }
+    statusEl.innerHTML = okIcon + `${r.label} · you are ${r.age}`;
+    next.disabled = false;
+    try { sessionStorage.setItem('siklo-dob', JSON.stringify([mm.value, dd.value, yy.value])); } catch (e) {}
+  }
+
+  // Fill the dropdowns. Years run from the youngest plausible age (8) back 100 years.
+  const addOption = (sel, value, text) => { const o = document.createElement('option'); o.value = value; o.textContent = text; sel.appendChild(o); };
+  MONTHS.forEach((name, i) => addOption(mm, String(i + 1), name));
+  const thisYear = new Date().getFullYear();
+  for (let y = thisYear - 8; y >= thisYear - 100; y--) addOption(yy, String(y), String(y));
+
+  // Day list only offers days that exist in the chosen month and year.
+  function fillDays() {
+    const keep = dd.value;
+    const m = Number(mm.value) || 1, y = Number(yy.value) || 2000;   // before a choice: 31 days (Jan), or 29 in Feb of a leap year
+    const count = mm.value ? new Date(y, m, 0).getDate() : 31;
+    dd.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+    for (let d = 1; d <= count; d++) addOption(dd, String(d), String(d));
+    if (keep) dd.value = String(Math.min(Number(keep), count));       // Mar 31 → Feb keeps the last valid day
+  }
+  fillDays();
+  mm.addEventListener('change', () => { fillDays(); update(); });
+  yy.addEventListener('change', () => { fillDays(); update(); });
+  dd.addEventListener('change', update);
+
+  try { const saved = JSON.parse(sessionStorage.getItem('siklo-dob') || 'null'); if (saved) { mm.value = saved[0]; yy.value = saved[2]; fillDays(); dd.value = saved[1]; update(); } } catch (e) {}
+
+  document.getElementById('backBtn').addEventListener('click', () => goTo('../index.html', 'back'));
+  next.addEventListener('click', () => goTo('step-2.html', 'forward'));
+</script>
+</body>
+</html>

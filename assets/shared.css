@@ -1,0 +1,32 @@
+/* SikLo shared styles: brand tokens, page transitions, scrollbar */
+:root{
+  --purple-900:#3B1466;
+  --purple-700:#6A2BB0;
+  --purple-500:#9B5DE5;
+  --purple-300:#C9A8F2;
+  --purple-100:#F1E8FD;
+  --purple-50:#F8F4FE;
+  --ink:#1E1430;
+  --body:#4A3F5E;
+  --muted:#8A7FA0;
+  --line:#ECE6F5;
+  --white:#FFFFFF;
+}
+/* Page transition */
+.screen{animation:pageIn .45s cubic-bezier(.22,.8,.24,1) both}
+html[data-dir="back"] .screen{animation-name:pageInBack}
+.screen.leaving{animation:pageOut .3s ease both}
+html[data-dir="back"] .screen.leaving{animation-name:pageOutBack}
+@keyframes pageIn{from{transform:translateX(60px);opacity:0}to{transform:none;opacity:1}}
+@keyframes pageInBack{from{transform:translateX(-60px);opacity:0}to{transform:none;opacity:1}}
+@keyframes pageOut{to{transform:translateX(-60px);opacity:0}}
+@keyframes pageOutBack{to{transform:translateX(60px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.screen,.screen.leaving{animation:none}}
+
+/* Thin, light scrollbar (no dark default) */
+*{scrollbar-width:thin;scrollbar-color:var(--purple-100) transparent}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--purple-100);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--purple-300)}
+::-webkit-scrollbar-button{display:none;height:0;width:0}
