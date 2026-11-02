@@ -151,3 +151,23 @@ html :is(.cta,.btn,.opt,.copt,.check,.chip,.pill,.skip,.back,.theme-switch,.resu
 /* Light/dark switch: colours fade instead of snapping (class set briefly by theme.ts) */
 html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after{
   transition:background-color .35s ease,color .35s ease,border-color .35s ease,fill .35s ease,stroke .35s ease,box-shadow .35s ease!important}
+
+/* ---------- Ask SikLo button (middle of the tab bar) ----------
+   A circular take on the app logo: purple disc, white ring, white mark. */
+.tabbar .tab-ask{min-width:64px;align-self:flex-start;margin-top:-26px}
+.ai-ring{position:relative;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;
+  background:var(--button);color:#fff;border:3px solid var(--white);
+  box-shadow:0 6px 16px rgba(58,20,102,.3)}
+html[data-theme="dark"] .ai-ring{box-shadow:0 6px 18px rgba(0,0,0,.55)}
+.ai-ring::after{content:"";position:absolute;width:44px;height:44px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.55)}            /* inner circle: this is the AI */
+.ai-ring .ai-mark{width:26px;height:26px}
+.tabbar .tab-ask[aria-current="page"]::before{display:none}
+.tabbar .tab-ask[aria-current="page"] .ai-ring{background:var(--button-hover)}
+@media (prefers-reduced-motion:no-preference){
+  .tabbar .tab-ask:active .ai-ring{scale:.94}
+  /* While the microphone is open, the ring breathes */
+  .ai-ring.listening{animation:ringPulse 1.6s ease-in-out infinite}
+  @keyframes ringPulse{0%,100%{box-shadow:0 6px 16px rgba(58,20,102,.3),0 0 0 0 rgba(122,67,204,.45)}
+    50%{box-shadow:0 6px 16px rgba(58,20,102,.3),0 0 0 12px rgba(122,67,204,0)}}
+}

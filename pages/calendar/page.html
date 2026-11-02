@@ -1,0 +1,139 @@
+<!-- Screen "calendar": month view of recorded and estimated days. -->
+<style>
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  textarea{font:inherit;color:inherit}
+  :focus-visible{outline:2px solid var(--purple-500);outline-offset:2px}
+  .screen{width:390px;min-height:calc(100dvh / var(--z,1));margin:0 auto;background:var(--white);
+    padding:calc(24px + env(safe-area-inset-top,0px)) 22px 120px}
+
+  .top{display:flex;justify-content:space-between;align-items:center}
+  .logo{display:flex;align-items:center;gap:9px}
+  .logo .mk{width:28px;height:28px}
+  .logo .wm{height:26px;width:auto}
+  h1{font-size:22px;font-weight:700;letter-spacing:-.3px;margin-top:14px}
+  .sub{font-size:12.5px;line-height:1.5;color:var(--muted);margin-top:3px}
+
+  /* Month navigation */
+  .months{display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+  .months b{font-size:15px;font-weight:700}
+  .months button{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--purple-50);color:var(--purple-700)}
+  .months button svg{width:17px;height:17px}
+  .months button[disabled]{opacity:.35;cursor:not-allowed}
+
+  /* Grid */
+  .dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:14px}
+  .dow span{text-align:center;font-size:11px;font-weight:600;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:4px}
+  .cell{position:relative;aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:2px;font-size:13.5px;font-weight:600;color:var(--ink);background:none}
+  .cell.blank{visibility:hidden}
+  .cell.future{color:var(--muted)}
+  .cell .n{line-height:1}
+  .cell .dots{display:flex;gap:2px;height:4px}
+  .cell .dots i{width:4px;height:4px;border-radius:50%;background:var(--purple-700)}
+  .cell .dots i.heart{background:var(--purple-500)}
+
+  /* Recorded */
+  .cell.period{background:var(--purple-300);color:var(--purple-900)}
+  .cell.period-start{background:var(--purple-700);color:#fff}
+  .cell.period-start .dots i{background:#fff}
+  .cell.spotting{box-shadow:inset 0 0 0 2px var(--purple-300)}
+  /* Estimated: outlined, never filled, so it reads as a guess */
+  .cell.predicted{box-shadow:inset 0 0 0 1.5px var(--purple-300);background:var(--purple-50)}
+  .cell.fertile{background:var(--purple-100)}
+  .cell.ovulation{box-shadow:inset 0 0 0 2px var(--purple-700)}
+  .cell.today{outline:2px solid var(--purple-900);outline-offset:-2px}
+
+  .legend{display:grid;grid-template-columns:1fr 1fr;gap:7px 12px;margin-top:18px}
+  .legend span{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--body);line-height:1.3}
+  .legend i{flex:none;width:14px;height:14px;border-radius:5px;background:var(--purple-100)}
+  .legend i.start{background:var(--purple-700)}
+  .legend i.period{background:var(--purple-300)}
+  .legend i.predicted{background:var(--purple-50);box-shadow:inset 0 0 0 1.5px var(--purple-300)}
+  .legend i.ovulation{box-shadow:inset 0 0 0 2px var(--purple-700)}
+  .legend i.today{outline:2px solid var(--purple-900);outline-offset:-2px;background:none}
+  .note{font-size:11.5px;line-height:1.5;color:var(--muted);margin-top:14px}
+
+  /* Day sheet */
+  .scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
+  .scrim.show{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;left:50%;bottom:0;width:390px;transform:translate(-50%,100%);background:var(--white);
+    border-radius:24px 24px 0 0;padding:10px 22px calc(26px + env(safe-area-inset-bottom,0px));
+    transition:transform .25s ease;z-index:11;visibility:hidden;max-height:86dvh;overflow-y:auto}
+  .sheet.show{transform:translate(-50%,0);visibility:visible}
+  .grab{width:38px;height:4px;border-radius:99px;background:var(--line);margin:0 auto 14px}
+  .sheet h2{font-size:17px;font-weight:700}
+  .sheet .when{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .marks{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .marks span{font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:99px;background:var(--purple-50);color:var(--purple-700)}
+  .acts{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+  .act{display:flex;align-items:center;gap:11px;width:100%;min-height:50px;padding:12px 14px;border-radius:14px;
+    background:var(--purple-50);font-size:14px;font-weight:600;text-align:left}
+  .act .ic{flex:none;width:26px;height:26px;border-radius:8px;background:var(--white);color:var(--purple-700);display:grid;place-items:center}
+  .act .ic svg{width:14px;height:14px}
+  .act.danger{color:var(--purple-900)}
+  .act[disabled]{opacity:.5;cursor:not-allowed}
+
+  .panel{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+  .panel h3{font-size:14px;font-weight:700}
+  .panel p{font-size:12.5px;line-height:1.5;color:var(--body);margin-top:3px}
+  .opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+  .opt{padding:9px 13px;border-radius:99px;border:1px solid var(--line);background:var(--white);
+    font-size:12.5px;font-weight:600}
+  .opt[aria-checked="true"],.opt[aria-pressed="true"]{border-color:var(--purple-700);background:var(--purple-50);color:var(--purple-700)}
+  .panel label{display:block;font-size:12.5px;font-weight:600;margin:13px 0 6px}
+  .panel label span{color:var(--muted);font-weight:500}
+  .panel textarea{width:100%;min-height:58px;resize:none;padding:11px 13px;border:1px solid var(--line);
+    border-radius:13px;background:var(--white);font-size:14px;line-height:1.45;outline:none}
+  .panel textarea:focus{border-color:var(--purple-500);box-shadow:0 0 0 3px var(--purple-100)}
+  .cta{width:100%;min-height:50px;margin-top:14px;border-radius:15px;background:var(--button);color:#fff;
+    font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+  .link{width:100%;min-height:42px;margin-top:6px;font-size:13.5px;font-weight:600;color:var(--purple-700);border-radius:13px}
+</style>
+
+<main class="screen stagger">
+
+  <div class="top">
+    <div class="logo"><svg class="mk" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="116" fill="#6A2BB0"/><g transform="translate(0 -12)" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"><path d="M182 410C164 348 180 292 216 264C196 246 188 216 196 190L194 124L238 160Q256 154 274 160L318 124L316 190C324 216 316 246 296 264C332 292 348 348 330 410Q256 422 182 410Z"/><path d="M322 402C384 406 400 350 366 316" fill="none" stroke-width="26" stroke-linecap="round"/></g></svg><svg class="wm" aria-label="SikLo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 2742 921"><g fill="#3B1466" transform="translate(0 861) scale(1 -1)"><path transform="translate(0 0)" d="M42 210H224Q228 171 251.0 150.5Q274 130 311 130Q349 130 371.0 147.5Q393 165 393 196Q393 222 375.5 239.0Q358 256 332.5 267.0Q307 278 260 292Q192 313 149.0 334.0Q106 355 75.0 396.0Q44 437 44 503Q44 601 115.0 656.5Q186 712 300 712Q416 712 487.0 656.5Q558 601 563 502H378Q376 536 353.0 555.5Q330 575 294 575Q263 575 244.0 558.5Q225 542 225 511Q225 477 257.0 458.0Q289 439 357 417Q425 394 467.5 373.0Q510 352 541.0 312.0Q572 272 572 209Q572 149 541.5 100.0Q511 51 453.0 22.0Q395 -7 316 -7Q239 -7 178.0 18.0Q117 43 80.5 92.0Q44 141 42 210Z"/><path transform="translate(615 0)" d="M46 708Q46 748 74.5 774.5Q103 801 148 801Q192 801 220.5 774.5Q249 748 249 708Q249 669 220.5 642.5Q192 616 148 616Q103 616 74.5 642.5Q46 669 46 708ZM233 558V0H62V558Z"/><path transform="translate(910 0)" d="M403 0 233 234V0H62V740H233V331L402 558H613L381 278L615 0Z"/></g><path d="M1703.5 241.5L1798.5 775.5L1998.5 561.0" fill="none" stroke="#6A2BB0" stroke-width="171" stroke-linecap="round" stroke-linejoin="round"/><path d="M2595.4 561.8 L2596.0 568.5 L2596.4 575.2 L2596.5 582.0 L2596.4 588.8 L2596.0 595.5 L2595.4 602.2 L2594.6 608.9 L2593.6 615.6 L2592.3 622.2 L2590.8 628.8 L2589.0 635.3 L2587.0 641.8 L2584.8 648.2 L2582.4 654.5 L2579.8 660.7 L2576.9 666.8 L2573.9 672.8 L2570.6 678.8 L2567.1 684.5 L2563.4 690.2 L2559.5 695.7 L2555.5 701.1 L2551.2 706.4 L2546.8 711.5 L2542.2 716.4 L2537.4 721.2 L2532.5 725.8 L2527.4 730.2 L2522.1 734.5 L2516.7 738.5 L2511.2 742.4 L2505.5 746.1 L2499.8 749.6 L2493.8 752.9 L2487.8 755.9 L2481.7 758.8 L2475.5 761.4 L2469.2 763.8 L2462.8 766.0 L2456.3 768.0 L2449.8 769.8 L2443.2 771.3 L2436.6 772.6 L2429.9 773.6 L2423.2 774.4 L2416.5 775.0 L2409.8 775.4 L2403.0 775.5 L2396.2 775.4 L2389.5 775.0 L2382.8 774.4 L2376.1 773.6 L2369.4 772.6 L2362.8 771.3 L2356.2 769.8 L2349.7 768.0 L2343.2 766.0 L2336.8 763.8 L2330.5 761.4 L2324.3 758.8 L2318.2 755.9 L2312.2 752.9 L2306.2 749.6 L2300.5 746.1 L2294.8 742.4 L2289.3 738.5 L2283.9 734.5 L2278.6 730.2 L2273.5 725.8 L2268.6 721.2 L2263.8 716.4 L2259.2 711.5 L2254.8 706.4 L2250.5 701.1 L2246.5 695.7 L2242.6 690.2 L2238.9 684.5 L2235.4 678.8 L2232.1 672.8 L2229.1 666.8 L2226.2 660.7 L2223.6 654.5 L2221.2 648.2 L2219.0 641.8 L2217.0 635.3 L2215.2 628.8 L2213.7 622.2 L2212.4 615.6 L2211.4 608.9 L2210.6 602.2 L2210.0 595.5 L2209.6 588.8 L2209.5 582.0 L2209.6 575.2 L2210.0 568.5 L2210.6 561.8 L2211.4 555.1 L2212.4 548.4 L2213.7 541.8 L2215.2 535.2 L2217.0 528.7 L2219.0 522.2 L2221.2 515.8 L2223.6 509.5 L2226.2 503.3 L2229.1 497.2 L2232.1 491.2 L2235.4 485.2 L2238.9 479.5 L2242.6 473.8 L2246.5 468.3 L2250.5 462.9 L2254.8 457.6 L2259.2 452.5 L2263.8 447.6 L2268.6 442.8 L2273.5 438.2 L2278.6 433.8 L2283.9 429.5 L2289.3 425.5 L2294.8 421.6 L2300.5 417.9 L2306.2 414.4 L2312.2 411.1 L2318.2 408.1 L2324.3 405.2 L2330.5 402.6 L2336.8 400.2 L2343.2 398.0 L2349.7 396.0 L2356.2 394.2 L2362.8 392.7 L2369.4 391.4 L2376.1 390.4" fill="none" stroke="#6A2BB0" stroke-width="171" stroke-linecap="round"/><circle cx="2522.1" cy="429.5" r="58.1" fill="#9B5DE5"/></svg></div>
+  </div>
+
+  <h1>Calendar</h1>
+  <p class="sub">Filled days are what you recorded. Outlined days are estimates.</p>
+
+  <div class="months">
+    <button type="button" id="prevBtn" aria-label="Previous month">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <b id="monthLabel" aria-live="polite"></b>
+    <button type="button" id="nextBtn" aria-label="Next month">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <div class="dow" aria-hidden="true"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+  <div class="grid" id="grid" role="grid" aria-label="Days"></div>
+
+  <div class="legend">
+    <span><i class="start"></i>Period started</span>
+    <span><i class="period"></i>Period day</span>
+    <span><i class="predicted"></i>Period expected</span>
+    <span><i></i>Fertile window (estimated)</span>
+    <span><i class="ovulation"></i>Ovulation (estimated)</span>
+    <span><i class="today"></i>Today</span>
+  </div>
+  <p class="note" id="estimateNote"></p>
+
+</main>
+
+<nav class="tabbar" id="tabbar" data-current="calendar" aria-label="Main"></nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetDate">
+  <div class="grab"></div>
+  <h2 id="sheetDate"></h2>
+  <p class="when" id="sheetWhen"></p>
+  <div class="marks" id="sheetMarks"></div>
+  <div class="acts" id="sheetActs"></div>
+  <div id="sheetPanel"></div>
+  <button class="link" type="button" id="closeSheet">Close</button>
+</div>

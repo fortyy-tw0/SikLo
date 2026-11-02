@@ -92,6 +92,22 @@ export function commit(): SavedProfile | null {
   return record;
 }
 
+/**
+ * Rewrite the saved period list in place, for edits made outside setup (the
+ * Calendar). Dates are sorted and kept unique by start date. Returns the saved
+ * record, or null when the browser refused to store it.
+ */
+export function savePeriods(periods: readonly Period[]): SavedProfile | null {
+  const saved = load();
+  if (!saved) return null;
+  const byStart = new Map(periods.map((p) => [p.start_date, p]));
+  const next: SavedProfile = {
+    ...saved,
+    periods: [...byStart.values()].sort((a, b) => (a.start_date < b.start_date ? -1 : 1)),
+  };
+  return writeJson(storage('local'), SAVED_KEY, next) ? next : null;
+}
+
 /** Delete everything SikLo stored in this browser: setup, dates, logs and ovulation. */
 export function wipe(): void {
   storage('local')?.removeItem(SAVED_KEY);

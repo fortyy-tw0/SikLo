@@ -1,137 +1,146 @@
-# SikLo — web app
+# SikLo
 
-The SikLo app as a single-page web app, written in TypeScript and deployed on
-Vercel at https://siklo-ph.vercel.app/. Every screen lives at that one address:
-screens swap in place without reloading, browser Back/Forward move between
-them, and a refresh reopens the screen you were on. Everything a visitor
-enters stays in their own browser.
+**Your cycle. Your device. Your data.**
 
-## Structure
+SikLo is a private menstrual cycle tracker and health companion, built for
+Filipinas and anyone else who wants to understand their body without handing
+their health history to a company.
 
-One folder per screen: each holds that screen's layout and styles (`page.html`)
-and its TypeScript (`page.ts`, which exports the `mount()` the router calls when
-the screen is shown). Code and styles shared by several screens live in `lib/`,
-with each automated check (`*.test.ts`) next to the code it checks.
+Live at **https://siklo-ph.vercel.app/**
 
-```
-pages/
-  index/            Landing ("A little space for you.")
-  setup/name/       Step 1: name or nickname (optional), shown on Today
-  setup/birthday/   Step 2: birthday
-  setup/cycle/      Step 3: cycle description
-  setup/context/    Step 4: optional context
-  setup/dates/      Step 5: period dates + Save
-  home/             Today: ring, key dates, log, phase, flags
-  profile/          Saved periods, edit, light/dark, delete my data
-lib/
-  shell.html        The one HTML page; the build adds every screen to it
-  app.ts            Entry point: registers the screens, starts the router
-  router.ts         Shows screens at "/", Back/Forward, refresh
-  nav.ts            goTo(screen, direction)
-  boot.ts           Runs in <head>: screen scaling, theme, transitions
-  shared.css        Colour tokens (light + dark), basics, transitions, tab bar, toast
-  theme.ts          Light / dark mode: saved choice, switch control
-  zoom.ts           How much to scale the 390x844 design
-  store.ts          On-device storage (draft until Save, then this browser only)
-  types.ts          Profile and period shapes (backend API contract values)
-  cycle.ts          predict() and helpers on top of the backend engine
-  cycleView.ts      Everything the Today screen shows
-  tracking.ts       Daily logs, confirmed ovulation, flag choices
-  tabbar.ts         Bottom tab bar;  toast.ts  confirmation messages
-  greeting.ts       Random greeting on Today, once per app open
-  context.ts        Contraception / life-stage choices (same values as the app)
-  dom.ts            Typed element lookup, escaping, today's date
-  *.test.ts         Automated checks for the file of the same name
-  backend/          Copied unchanged from siklo-backend-ts (prediction.ts, dates.ts)
-build.mjs           Builds the one page into dist/; also runs the checks
-vercel.json         Install, build, output dir, caching, old addresses -> /
-```
+---
 
-Screens import shared code as `@lib/<file>`. Each screen's styles only apply
-to that screen, so screens can reuse class names. To add a screen, create
-`pages/<path>/page.html` and `page.ts`, add its name to `ScreenId` in
-`lib/router.ts`, and register it in `lib/app.ts`. Links in a layout can use
-`<a href="/" data-go="profile">`.
+## What SikLo is
 
-## Commands
+Most cycle apps ask you to make an account, then keep your period dates, your
+symptoms and your sex life on their servers. SikLo asks for none of that. There
+is no sign-up, no email, no password and no server holding your records. You
+open it, answer five short questions, and everything you log from then on stays
+on the device in your hand.
+
+It is built around one idea: **a person should be able to understand her own
+cycle without trading away her privacy, and without being told things that
+aren't true.**
+
+## Why tracking a period matters
+
+A period is not only an inconvenience to plan around. Clinicians increasingly
+treat the menstrual cycle as a sign of general health, in the same way as blood
+pressure or heart rate, because it responds to so much of what is happening in
+the body: hormones, nutrition, thyroid function, stress, body weight, sleep and
+illness all show up in how a cycle behaves.
+
+That makes a written record genuinely useful:
+
+- **Changes become visible early.** Cycles that drift outside 21 to 35 days,
+  periods that run past seven days, bleeding that soaks a pad every hour, or
+  bleeding between periods are all things a clinician wants to know about. They
+  are far easier to notice in a log than in memory.
+- **A check-up stops being guesswork.** "I think it's been irregular lately"
+  gives a doctor very little. "Here are my last six cycles: 31, 36, 29, 38, 33,
+  34 days" gives them something to work with. For many women, especially where
+  a specialist visit means travel, cost and time off work, making one
+  appointment count is the difference between answers and another wait.
+- **Conditions like PCOS, endometriosis, thyroid disorders and fibroids often
+  show first in the cycle.** None of them can be diagnosed by an app, but all of
+  them are easier to raise with evidence in hand.
+- **Planning, in either direction.** Whether someone is trying to conceive or
+  trying not to, knowing their own pattern is better than assuming a textbook
+  28-day cycle that most people do not actually have.
+- **It is yours to understand.** Knowing that the low mood arriving every month
+  is a pattern, and not a personal failing, changes how it feels.
+
+## What it does
+
+**Tracks what you notice.** Period start and end dates, flow, mood, symptoms and
+temperature, plus intercourse with only the details that matter clinically:
+whether protection was used, and anything you noticed such as pain or bleeding
+afterwards. Everything is optional and nothing is required to keep using it.
+
+**Estimates your next period honestly.** SikLo shows a range from your shortest
+to your longest recent cycle, not a single confident date, and it says how sure
+it is and why. It refuses to estimate at all until you have three complete
+cycles recorded, because an estimate from one or two cycles is a guess wearing a
+number. It never tells you which days are "safe" from pregnancy, because that
+claim is not safe to make.
+
+**Shows your cycle at a glance.** A ring for where you are today, a calendar
+separating what you actually recorded from what is only projected, and trends
+across your recent cycles.
+
+**Points out what is worth asking about.** Insights describes patterns in plain
+language — cycles outside the typical range, variation of more than a week,
+periods longer than seven days, bleeding after sex — and says what to raise at a
+check-up. It never says what a pattern means, because that is a clinician's job.
+
+**Answers questions, offline.** Ask SikLo explains how cycles work, what common
+symptoms are, and what your own log shows, drawing on a library of short health
+summaries written for this app. You can type, or say "Hey SikLo" and ask out
+loud. On devices that can run one, an optional language model downloads once and
+words the answers more freely, still entirely on the device.
+
+**Works without a connection.** Once loaded, SikLo keeps working on a bus, in a
+barangay with no signal, or on a phone with no load. Nothing it does requires
+the internet.
+
+## What it will never do
+
+Being clear about the limits is part of the design:
+
+- It does not diagnose anything, and it will say so when asked.
+- It does not name medicines or doses.
+- It does not identify days when sex cannot lead to pregnancy.
+- It does not tell you whether you are pregnant; a test does that.
+- It does not send your records anywhere, because there is nowhere to send them.
+
+When a question crosses into a crisis, SikLo stops answering and gives real
+numbers: the NCMH Crisis Hotline on 1553, 0919-057-1553 or 0917-899-8727, and
+911 for emergencies.
+
+> **SikLo is not a healthcare professional.** It describes what is common and
+> what you recorded. For anything about your own body, see a qualified doctor,
+> midwife or nurse. The health library in this repository is written by the team
+> and is still pending review by a qualified professional.
+
+## Using it
+
+Open the link, tap **Start privately**, and answer five short steps: what to
+call you, your birthday, how your cycles usually feel, any context you want to
+add, and the dates of recent periods. Only the last of these does much work, and
+every optional question can be skipped. Nothing is written to your device until
+you tap **Save**.
+
+After that the five tabs are: **Today** for where you are now, **Calendar** for
+the month, **Ask SikLo** in the middle for questions, **Insights** for patterns,
+and **Profile** to edit your dates, switch between light and dark, or delete
+everything.
+
+To stop using it, open Profile and tap **Delete my data from this device**. That
+is the whole process: there is no account to close, because there was never one
+to open.
+
+## Running it yourself
 
 ```bash
 npm install
-npm run dev         # build, watch and serve the app at http://localhost:8000
+npm run dev         # http://localhost:8000
 npm run build       # production build into dist/
-npm run typecheck   # strict TypeScript checks
-npm test            # automated checks (prediction, Today screen, scaling)
+npm run typecheck   # strict TypeScript
+npm test            # 89 checks: prediction, calendar, insights, safety, assistant
 ```
 
-## Data stays on the device
+TypeScript throughout, no framework, built with esbuild into a single page and
+deployed on Vercel. The cycle prediction engine is copied byte-for-byte from the
+`backend` branch's `siklo-backend-ts`, so this app and the React Native app give
+the same answer for the same dates.
 
-The site makes no network requests with user data. Setup answers are kept in
-`sessionStorage` as a draft and written to `localStorage` only when the user
-taps **Save** on the last setup step. "Delete my data from this device" on
-the home screen removes it. Browser storage is not encrypted at rest, unlike
-the phone app's SQLite database.
+## Related branches
 
-Field names follow the siklo-backend API contract, and `onboardingPayload()`
-in `lib/store.ts` returns a `POST /onboarding` body, so the same answers
-can be handed to `siklo-backend-ts` in the React Native app.
+- `main` — this web app
+- `backend` — the on-device engine (`siklo-backend-ts`) and the Python reference
+  implementation, including the health library and safety rules
+- `app` — the React Native app
 
-## Today screen
+## Licence
 
-Built from the saved periods, never from sample data:
-
-- **Greeting**: picked at random each time the app is opened (never the same
-  twice in a row; "Good morning" etc. only at the right time; English and
-  Filipino), followed by their name if they gave one. Their initial is the
-  profile button. List in `lib/greeting.ts`.
-- **Cycle ring**: with an estimate it shows the predicted cycle. Before that it
-  shows their average cycle, or a typical 28-day guide, with a caption saying
-  so. A current period without an end date is drawn as the days so far (up to 7).
-- **Next period** comes from the backend engine (median of recent cycles, range
-  from shortest to longest). Before 3 complete cycles it says "Not enough data".
-- **Ovulation** is placed 14 days before the next period; the **fertile window**
-  is the 5 days before it plus ovulation day. Both are labelled estimates and
-  are not birth control.
-- **Confirm ovulation** (for the current cycle) moves the next period to
-  ovulation day + 14 with a ±1 day range. It can be undone.
-- **Worth a look** flags patterns (cycles outside 21–35 days, variation over 7
-  days, periods over 7 days, plus the engine's missing-data and change flags).
-  They are not diagnoses. Report and dismiss choices are saved on the device.
-- Calendar and Insights tabs are placeholders for now.
-
-## Optional context (setup step 4)
-
-"Add contraception context" and "Add life-stage context" open the same choices
-as the React Native app; "Other" choices open a box for the person's own words.
-Pregnancy and postpartum turn off date-based estimates on Today (history,
-logging and trends stay), as in the app.
-
-## Motion
-
-Press feedback on every control, content that rises in on each screen, the
-cycle ring drawing itself, the day count-up, the setup progress bar filling,
-and a smooth light/dark fade. All of it is skipped when the device asks for
-reduced motion. Styles are under "Motion" in `lib/shared.css`; add
-`class="stagger"` to a container to animate its children in.
-
-## Light and dark mode
-
-"Switch to dark mode" is on the landing page and in Profile. The choice is
-saved in the browser (light until someone picks dark) and every page follows
-it. Colours come from tokens in `lib/shared.css`: `:root` holds the light
-values and `html[data-theme="dark"]` the dark ones, so new styles should use
-the tokens (`var(--white)`, `var(--button)`, ...) rather than fixed colours.
-
-## Prediction engine
-
-`lib/backend/prediction.ts` and `dates.ts` are byte-for-byte copies of the
-files in `siklo-backend-ts/src` on the `backend` branch, so the website and
-the phone app give the same estimate for the same dates. An estimate appears
-only after 3 complete cycles of 15–90 days; spotting never counts. To change
-the rules, change them in the backend, then copy the two files here and run
-`npm test`.
-
-## Deploy
-
-Vercel builds `main` with `npm run build` and serves `dist/`. Every push to
-`main` redeploys. Old page addresses (`/index.html`, `/setup/...`, `/home.html`,
-`/profile.html`) redirect to `/`.
+See `LICENSE` on the `backend` branch.

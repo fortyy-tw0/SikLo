@@ -3,7 +3,10 @@
  * To add a screen: create pages/<path>/page.html + page.ts, add its id to
  * ScreenId in router.ts, and register it here.
  */
+import ask from '../pages/ask/page';
+import calendar from '../pages/calendar/page';
 import home from '../pages/home/page';
+import insights from '../pages/insights/page';
 import index from '../pages/index/page';
 import profile from '../pages/profile/page';
 import birthday from '../pages/setup/birthday/page';
@@ -21,6 +24,9 @@ register('cycle', cycle);
 register('context', context);
 register('dates', dates);
 register('home', home);
+register('ask', ask);
+register('calendar', calendar);
+register('insights', insights);
 register('profile', profile);
 
 start();
