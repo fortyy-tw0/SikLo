@@ -56,7 +56,11 @@ function swapIn(id: ScreenId): void {
 function show(id: ScreenId, dir: Direction): void {
   const root = document.documentElement;
   root.dataset.dir = dir;
-  const animate = current !== null && 'startViewTransition' in document && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const animate =
+    current !== null &&
+    'startViewTransition' in document &&
+    document.visibilityState === 'visible' && // background tabs would hold the swap until shown
+    !matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (animate) document.startViewTransition(() => swapIn(id));
   else swapIn(id);
 }
