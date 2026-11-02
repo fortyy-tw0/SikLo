@@ -1,8 +1,8 @@
 // Step 2: how would you describe your cycles?
-import { byId } from '../lib/dom';
-import { goTo } from '../lib/nav';
-import { draft, update } from '../lib/store';
-import type { CycleType } from '../lib/types';
+import { byId } from '@lib/dom';
+import { goTo } from '@lib/nav';
+import { draft, update } from '@lib/store';
+import type { CycleType } from '@lib/types';
 
 /** The page's option values -> the backend contract's cycle_type values. */
 const TO_API = { regular: 'regular', irregular: 'irregular', unsure: 'not_sure' } as const satisfies Record<string, CycleType>;

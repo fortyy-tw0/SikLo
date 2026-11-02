@@ -17,9 +17,18 @@
     "isolatedModules": true,
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@lib/*": [
+        "./lib/*"
+      ]
+    }
   },
   "include": [
-    "src"
+    "lib",
+    "pages"
+  ],
+  "exclude": [
+    "**/*.test.ts"
   ]
 }

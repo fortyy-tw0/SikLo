@@ -5,32 +5,39 @@ Vercel. Everything a visitor enters stays in their own browser.
 
 ## Structure
 
+One folder per page: each holds that page's layout (`page.html`) and its
+TypeScript (`page.ts`). Code and styles shared by several pages live in `lib/`,
+with each automated check (`*.test.ts`) next to the code it checks.
+
 ```
-web/                    Page markup and styles, copied to dist/ as-is
-  index.html            Landing ("A little space for you.")
-  setup/step-1.html     Birthday
-  setup/step-2.html     Cycle description
-  setup/step-3.html     Optional context
-  setup/step-4.html     Period dates + Save
-  home.html             Today: cycle ring, key dates, log, phase + confirm ovulation, flags, trends
-  profile.html          Saved periods, edit dates or setup, delete my data
-  assets/shared.css     Brand colour tokens, page transitions, scrollbar
-src/                    TypeScript
-  boot.ts               Runs in <head>: phone-width scaling, slide direction
-  pages/<page>.ts       One script per page (landing, step-1..4, home, profile)
-  lib/nav.ts            goTo() with the slide transition
-  lib/store.ts          On-device storage (draft until Save, then this browser only)
-  lib/cycle.ts          predict() and helpers on top of the backend engine
-  lib/cycleView.ts      Everything the Today screen shows (phase, fertile window, flags, trends)
-  lib/tracking.ts       Daily logs, confirmed ovulation, flag choices (saved on this device)
-  lib/tabbar.ts         Bottom tab bar; lib/toast.ts confirmation messages
-  lib/types.ts          Profile and period shapes (backend API contract values)
-  lib/dom.ts            Typed element lookup, escaping, today's date
-  backend/              Copied unchanged from siklo-backend-ts (prediction.ts, dates.ts)
-tests/                  Prediction, date-rule and Today-screen model tests (node:test)
-build.mjs               esbuild: web/ + compiled src/ -> dist/
-vercel.json             Install, build, output dir, clean URLs
+pages/
+  index/            Landing ("A little space for you.")        -> /index.html
+  setup/step-1/     Birthday                                    -> /setup/step-1.html
+  setup/step-2/     Cycle description                           -> /setup/step-2.html
+  setup/step-3/     Optional context                            -> /setup/step-3.html
+  setup/step-4/     Period dates + Save                         -> /setup/step-4.html
+  home/             Today: ring, key dates, log, phase, flags   -> /home.html
+  profile/          Saved periods, edit, delete my data         -> /profile.html
+lib/
+  shared.css        Brand colour tokens, page transitions, tab bar, toast
+  boot.ts           Runs in <head>: screen scaling, slide direction
+  zoom.ts           How much to scale the 390x844 design
+  nav.ts            goTo() with the slide transition
+  store.ts          On-device storage (draft until Save, then this browser only)
+  types.ts          Profile and period shapes (backend API contract values)
+  cycle.ts          predict() and helpers on top of the backend engine
+  cycleView.ts      Everything the Today screen shows
+  tracking.ts       Daily logs, confirmed ovulation, flag choices
+  tabbar.ts         Bottom tab bar;  toast.ts  confirmation messages
+  dom.ts            Typed element lookup, escaping, today's date
+  *.test.ts         Automated checks for the file of the same name
+  backend/          Copied unchanged from siklo-backend-ts (prediction.ts, dates.ts)
+build.mjs           Builds pages/ + lib/ into dist/; also runs the checks
+vercel.json         Install, build, output dir, caching, old-link rewrites
 ```
+
+Pages import shared code as `@lib/<file>`. To add a page, create
+`pages/<path>/page.html` and `page.ts`; it is published at `/<path>.html`.
 
 ## Commands
 
@@ -38,8 +45,8 @@ vercel.json             Install, build, output dir, clean URLs
 npm install
 npm run dev         # build, watch and serve dist/ at http://localhost:8000
 npm run build       # production build into dist/
-npm run typecheck   # strict TypeScript checks (site + tests)
-npm test            # prediction engine + date rules
+npm run typecheck   # strict TypeScript checks
+npm test            # automated checks (prediction, Today screen, scaling)
 ```
 
 ## Data stays on the device
@@ -51,7 +58,7 @@ the home screen removes it. Browser storage is not encrypted at rest, unlike
 the phone app's SQLite database.
 
 Field names follow the siklo-backend API contract, and `onboardingPayload()`
-in `src/lib/store.ts` returns a `POST /onboarding` body, so the same answers
+in `lib/store.ts` returns a `POST /onboarding` body, so the same answers
 can be handed to `siklo-backend-ts` in the React Native app.
 
 ## Today screen
@@ -72,7 +79,7 @@ Built from the saved periods, never from sample data:
 
 ## Prediction engine
 
-`src/backend/prediction.ts` and `dates.ts` are byte-for-byte copies of the
+`lib/backend/prediction.ts` and `dates.ts` are byte-for-byte copies of the
 files in `siklo-backend-ts/src` on the `backend` branch, so the website and
 the phone app give the same estimate for the same dates. An estimate appears
 only after 3 complete cycles of 15–90 days; spotting never counts. To change

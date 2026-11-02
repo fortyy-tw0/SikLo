@@ -7,8 +7,8 @@
   "scripts": {
     "build": "node build.mjs",
     "dev": "node build.mjs --serve",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p tests",
-    "test": "node tests/run.mjs"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.checks.json",
+    "test": "node build.mjs --check"
   },
   "devDependencies": {
     "@types/node": "26.1.2",

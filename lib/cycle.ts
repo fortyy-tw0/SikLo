@@ -5,11 +5,11 @@
  * siklo-backend-ts, so the website and the phone app give the same answer for
  * the same dates. Update them by copying the backend files again.
  */
-import { compute, flagMessages, MIN_CYCLES_FOR_PREDICTION, type Prediction } from '../backend/prediction';
+import { compute, flagMessages, MIN_CYCLES_FOR_PREDICTION, type Prediction } from './backend/prediction';
 import type { Period } from './types';
 
 export { flagMessages, MIN_CYCLES_FOR_PREDICTION, type Prediction };
-export { addDays, diffDays, parseDate, toISO } from '../backend/dates';
+export { addDays, diffDays, parseDate, toISO } from './backend/dates';
 
 /** Spotting never feeds predictions; the backend applies the same filter in SQL (kind='period'). */
 // A missing kind counts as a period, matching the backend's default.

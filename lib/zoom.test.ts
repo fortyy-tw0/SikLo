@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { zoomFor } from '../src/lib/zoom';
+import { zoomFor } from './zoom';
 
 test('phones fill the width', () => {
   assert.equal(zoomFor(390, 844), 1);

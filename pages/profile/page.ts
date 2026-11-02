@@ -1,9 +1,9 @@
 // Profile: saved periods, edit dates or setup answers, delete everything from this device.
-import { diffDays, parseDate } from '../lib/cycle';
-import { byId } from '../lib/dom';
-import { goTo } from '../lib/nav';
-import { load, wipe } from '../lib/store';
-import { mountTabbar } from '../lib/tabbar';
+import { diffDays, parseDate } from '@lib/cycle';
+import { byId } from '@lib/dom';
+import { goTo } from '@lib/nav';
+import { load, wipe } from '@lib/store';
+import { mountTabbar } from '@lib/tabbar';
 
 const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
   parseDate(iso).toLocaleDateString('en-US', { timeZone: 'UTC', ...opts });

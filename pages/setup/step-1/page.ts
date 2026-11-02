@@ -1,7 +1,7 @@
 // Step 1: birthday
-import { byId } from '../lib/dom';
-import { goTo } from '../lib/nav';
-import { draft, update as updateDraft } from '../lib/store';
+import { byId } from '@lib/dom';
+import { goTo } from '@lib/nav';
+import { draft, update as updateDraft } from '@lib/store';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const MIN_AGE = 8;

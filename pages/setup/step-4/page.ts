@@ -1,9 +1,9 @@
 // Step 4: period dates. Kept in the session draft until Save.
-import { predict, startsNeeded } from '../lib/cycle';
-import { byId, todayIso } from '../lib/dom';
-import { goTo } from '../lib/nav';
-import { commit, draft, update } from '../lib/store';
-import type { Period } from '../lib/types';
+import { predict, startsNeeded } from '@lib/cycle';
+import { byId, todayIso } from '@lib/dom';
+import { goTo } from '@lib/nav';
+import { commit, draft, update } from '@lib/store';
+import type { Period } from '@lib/types';
 
 interface Row {
   start_date: string; // '' while not filled in

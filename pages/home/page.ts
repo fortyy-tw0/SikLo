@@ -1,14 +1,14 @@
 // Today: cycle ring, key dates, confidence, daily log, phase + confirm ovulation, health flags, trends.
-import { diffDays, parseDate, startsNeeded } from '../lib/cycle';
+import { diffDays, parseDate, startsNeeded } from '@lib/cycle';
 import {
   averageCycle, averagePeriod, buildCycleView, dateOfDay, TYPICAL_CYCLE, variation,
   type CycleView, type Phase,
-} from '../lib/cycleView';
-import { byId, esc, todayIso } from '../lib/dom';
-import { load } from '../lib/store';
-import { mountTabbar } from '../lib/tabbar';
-import { toast } from '../lib/toast';
-import { LOG_KINDS, loadTracking, saveTracking, type LogKind, type OvulationSign } from '../lib/tracking';
+} from '@lib/cycleView';
+import { byId, esc, todayIso } from '@lib/dom';
+import { load } from '@lib/store';
+import { mountTabbar } from '@lib/tabbar';
+import { toast } from '@lib/toast';
+import { LOG_KINDS, loadTracking, saveTracking, type LogKind, type OvulationSign } from '@lib/tracking';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const today = todayIso();

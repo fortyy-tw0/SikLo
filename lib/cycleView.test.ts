@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { averageCycle, averagePeriod, buildCycleView, variation } from '../src/lib/cycleView';
-import type { Period } from '../src/lib/types';
+import { averageCycle, averagePeriod, buildCycleView, variation } from './cycleView';
+import type { Period } from './types';
 
 const p = (start: string, days = 5): Period => {
   const end = new Date(new Date(start + 'T00:00:00Z').getTime() + (days - 1) * 86_400_000).toISOString().slice(0, 10);

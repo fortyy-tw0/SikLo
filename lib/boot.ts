@@ -3,8 +3,8 @@
  * - scales the 390 x 844 design to the screen
  * - sets the slide direction for this page's entrance animation
  */
-import { readDirection } from './lib/nav';
-import { zoomFor } from './lib/zoom';
+import { readDirection } from './nav';
+import { zoomFor } from './zoom';
 
 function fit(): void {
   const z = zoomFor(window.innerWidth, window.innerHeight);

@@ -1,6 +1,6 @@
-import { byId } from '../lib/dom';
-import { goTo } from '../lib/nav';
-import { load } from '../lib/store';
+import { byId } from '@lib/dom';
+import { goTo } from '@lib/nav';
+import { load } from '@lib/store';
 
 byId('startBtn').addEventListener('click', () => goTo('setup/step-1.html', 'forward'));
 

@@ -1,6 +1,6 @@
 /**
  * Everything the Today screen shows, worked out from the saved periods.
- * Pure (no DOM, no storage), so it is unit-tested in tests/cycleView.test.ts.
+ * Pure (no DOM, no storage), so it is checked in cycleView.test.ts.
  *
  * Rules:
  * - The next-period estimate and its range come from the backend engine

@@ -1,8 +1,8 @@
 // Step 3: optional context (all answers optional)
-import { byId } from '../lib/dom';
-import { goTo } from '../lib/nav';
-import { draft, update } from '../lib/store';
-import type { DiagnosisAnswer } from '../lib/types';
+import { byId } from '@lib/dom';
+import { goTo } from '@lib/nav';
+import { draft, update } from '@lib/store';
+import type { DiagnosisAnswer } from '@lib/types';
 
 const MAX_NOTE = 500;
 

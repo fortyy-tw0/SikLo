@@ -1,9 +1,9 @@
 // Same cases as siklo-backend-ts/tests/prediction.test.ts, run through the
-// web prototype's predict() wrapper, plus Step 4's date rules.
+// web prototype's predict() wrapper.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { flagMessages, predict, startsNeeded } from '../src/lib/cycle';
-import type { Period } from '../src/lib/types';
+import { flagMessages, predict, startsNeeded } from './cycle';
+import type { Period } from './types';
 
 const SPEC = ['2025-04-24', '2025-05-21', '2025-06-21', '2025-07-27', '2025-08-25', '2025-09-28'];
 
