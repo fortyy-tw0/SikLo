@@ -61,8 +61,24 @@ function show(id: ScreenId, dir: Direction): void {
     'startViewTransition' in document &&
     document.visibilityState === 'visible' && // background tabs would hold the swap until shown
     !matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (animate) document.startViewTransition(() => swapIn(id));
-  else swapIn(id);
+  if (!animate) {
+    swapIn(id);
+    return;
+  }
+  // The slide starts on the browser's next frame. If no frame comes (some embedded or
+  // minimised windows), switch screens anyway so the app never appears stuck.
+  let swapped = false;
+  const swapOnce = () => {
+    if (swapped) return;
+    swapped = true;
+    swapIn(id);
+  };
+  const transition = document.startViewTransition(swapOnce);
+  setTimeout(() => {
+    if (swapped) return;
+    transition.skipTransition();
+    swapOnce();
+  }, 250);
 }
 
 /** Go to a screen. Going back to the screen we came from uses browser history, so Back/Forward stay in step. */
