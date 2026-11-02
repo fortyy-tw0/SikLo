@@ -7,6 +7,7 @@
  * Nothing here makes a network request. Unlike the phone app, browser storage
  * is not encrypted at rest.
  */
+import { TRACKING_KEY } from './tracking';
 import type { Draft, OnboardingPayload, Period, Profile, SavedProfile } from './types';
 
 const DRAFT_KEY = 'siklo-draft';
@@ -88,9 +89,10 @@ export function commit(): SavedProfile | null {
   return record;
 }
 
-/** Delete everything SikLo stored in this browser. */
+/** Delete everything SikLo stored in this browser: setup, dates, logs and ovulation. */
 export function wipe(): void {
   storage('local')?.removeItem(SAVED_KEY);
+  storage('local')?.removeItem(TRACKING_KEY);
   storage('session')?.removeItem(DRAFT_KEY);
 }
 

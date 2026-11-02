@@ -3,99 +3,274 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SikLo Your Cycle</title>
+<title>SikLo Today</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
   body{font-family:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:#F4F1F8;color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
-
-  .screen{width:390px;height:calc(100dvh / var(--z,1));max-height:844px;margin:0 auto;background:var(--white);
-    display:flex;flex-direction:column;overflow:hidden}
-  .head{padding:calc(28px + env(safe-area-inset-top,0px)) 22px 0;flex:none}
-  .body{flex:1;overflow-y:auto;padding:8px 22px 28px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-
-  .top{display:flex;justify-content:space-between;align-items:center}
-  .logo{display:flex;align-items:center;gap:9px}
-  .logo .mk{width:32px;height:32px}
-  .logo .wm{height:30px;width:auto}
-  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--purple-700);
-    background:var(--purple-50);padding:7px 12px;border-radius:99px}
-  .badge svg{width:12px;height:12px}
-
-  h1{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.25;margin-top:22px}
-
-  /* Prediction card */
-  .pred{margin-top:16px;padding:20px 18px;border-radius:22px;background:var(--purple-700);color:#fff}
-  .pred .k{font-size:12.5px;font-weight:600;opacity:.8}
-  .pred .big{font-size:30px;font-weight:700;letter-spacing:-.6px;line-height:1.15;margin-top:6px}
-  .pred .sub{font-size:14px;line-height:1.5;margin-top:6px;opacity:.92}
-  .pred .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-  .pred .chip{font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.16)}
-  .pred.none{background:var(--purple-50);color:var(--ink)}
-  .pred.none .k{color:var(--purple-700);opacity:1}
-  .pred.none .big{font-size:22px}
-  .pred.none .sub{color:var(--body);opacity:1}
-
-  .flags{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-  .flag{display:flex;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;font-size:12.5px;line-height:1.5;color:var(--body)}
-  .flag svg{flex:none;width:15px;height:15px;margin-top:2px;color:var(--purple-700)}
-  .how{font-size:12px;line-height:1.5;color:var(--muted);margin-top:12px}
-
-  h2{font-size:15px;font-weight:700;margin-top:26px}
-  .hist{list-style:none;margin-top:10px;border:1px solid var(--line);border-radius:18px;overflow:hidden}
-  .hist li{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;font-size:14px;font-variant-numeric:tabular-nums}
-  .hist li + li{border-top:1px solid var(--line)}
-  .hist li span{color:var(--muted);font-size:13px}
-  .hist .empty{color:var(--muted);font-size:13px}
-
-  .acts{display:flex;flex-direction:column;gap:8px;margin-top:22px}
-  .btn{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:50px;padding:12px 16px;
-    border-radius:14px;background:var(--purple-50);font-size:14px;font-weight:600;color:var(--ink);transition:background .15s}
-  .btn:hover{background:var(--purple-100)}
-  .btn svg{width:16px;height:16px;color:var(--purple-700)}
-  .wipe{margin-top:6px;min-height:44px;font-size:13.5px;font-weight:600;color:var(--purple-700);border-radius:14px;width:100%}
-  .wipe:hover{background:var(--purple-50)}
-  .saved{font-size:12px;line-height:1.5;color:var(--muted);text-align:center;margin-top:10px}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
   :focus-visible{outline:2px solid var(--purple-500);outline-offset:2px}
+  .screen{width:390px;margin:0 auto;padding:28px 22px 120px;background:var(--white);min-height:100vh;position:relative}
+  [hidden]{display:none!important}
+  .empty-card{margin-top:22px}
+  a.btn{text-decoration:none}
+
+  /* Brand */
+  .brand{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .brand .lock{display:flex;align-items:center;gap:8px}
+  .brand .mk{width:28px;height:28px}
+  .brand .wm{height:26px;width:auto}
+  .avatar{width:40px;height:40px;border-radius:50%;background:var(--purple-100);color:var(--purple-700);display:grid;place-items:center}
+  .avatar svg{width:20px;height:20px}
+
+  /* Header */
+  .hello{font-size:13px;color:var(--muted);font-weight:500}
+  .name{font-size:22px;font-weight:700;letter-spacing:-.3px;margin-top:2px}
+  .local{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--purple-700);font-weight:600;margin-top:6px}
+  .local svg{width:12px;height:12px}
+
+  /* Ring */
+  .ring-wrap{display:flex;justify-content:center;margin:22px 0 8px;position:relative}
+  .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+  .ring-center .lbl{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.4px;text-transform:uppercase}
+  .ring-center .day{font-size:56px;font-weight:700;color:var(--purple-900);line-height:1;margin:4px 0 6px;letter-spacing:-1.5px}
+  .ring-center .phase{font-size:13px;font-weight:600;color:var(--purple-700);background:var(--purple-50);padding:5px 12px;border-radius:99px}
+  .legend{display:flex;justify-content:center;gap:18px;font-size:12px;color:var(--muted);margin-bottom:22px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+  /* Key dates + confidence */
+  .dates-card{border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  .dates{display:grid;grid-template-columns:1fr 1fr 1fr}
+  .dates>div{padding:14px 8px;text-align:center}
+  .dates>div+div{border-left:1px solid var(--line)}
+  .dates .k{font-size:11px;color:var(--muted);font-weight:500}
+  .dates .v{font-size:15px;font-weight:700;margin-top:4px;white-space:nowrap}
+  .dates .v.na{font-size:13px;color:var(--muted);font-weight:600;white-space:normal}
+  .dates .s{font-size:11px;color:var(--purple-700);margin-top:2px;font-weight:500}
+  .conf{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--purple-50);border-top:1px solid var(--line);width:100%;text-align:left}
+  .meter{display:flex;gap:3px;align-items:flex-end}
+  .meter i{width:5px;height:14px;border-radius:2px;background:var(--purple-100)}
+  .meter i:nth-child(1){height:6px}
+  .meter i:nth-child(2){height:10px}
+  .meter i.on{background:var(--purple-700)}
+  .conf .txt{flex:1;font-size:12px;color:var(--body);line-height:1.4}
+  .conf .txt b{color:var(--purple-900)}
+  .conf .chev{color:var(--muted);transition:transform .2s;flex:none}
+  .conf[aria-expanded="true"] .chev{transform:rotate(180deg)}
+  .why{padding:0 14px 14px;background:var(--purple-50);font-size:12px;color:var(--body);line-height:1.55}
+  .why ul{padding-left:16px;margin-top:2px}
+
+  h2{font-size:15px;font-weight:700;margin:28px 0 12px;display:flex;justify-content:space-between;align-items:baseline}
+  h2 small{font-size:12px;font-weight:500;color:var(--muted)}
+
+  /* Log */
+  .log{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .chip{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:12px;font-weight:500}
+  .chip .ic{width:54px;height:54px;border-radius:16px;background:var(--purple-50);display:grid;place-items:center;color:var(--purple-700);transition:all .15s}
+  .chip[aria-pressed="true"] .ic{background:var(--purple-700);color:#fff}
+  .chip svg{width:22px;height:22px}
+
+  /* Phase card */
+  .phase-card{background:var(--purple-50);border-radius:18px;padding:16px 18px}
+  .phase-card .t{font-size:14px;font-weight:700;color:var(--purple-900)}
+  .phase-card p{font-size:13px;line-height:1.55;color:var(--body);margin-top:6px}
+  .bar{height:6px;background:#fff;border-radius:99px;margin-top:14px;display:flex;position:relative}
+  .bar b{display:block;height:100%}
+  .bar b:first-child{border-radius:99px 0 0 99px}
+  .bar b:nth-child(4){border-radius:0 99px 99px 0}
+  .bar .mark{position:absolute;width:3px;top:-3px;height:12px;background:var(--purple-900);border-radius:2px}
+  .bar-l{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:6px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;padding:12px;border-radius:14px;
+    background:var(--purple-700);color:#fff;font-size:13px;font-weight:600}
+  .btn.ghost{background:#fff;color:var(--purple-700);border:1px solid var(--purple-300);margin-top:8px}
+  .btn[disabled]{opacity:.4;cursor:not-allowed}
+  .btn svg{width:16px;height:16px}
+  .confirmed{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--purple-900);font-weight:600}
+  .confirmed .undo{margin-left:auto;font-size:12px;color:var(--purple-700);font-weight:600;text-decoration:underline}
+
+  /* Health flags */
+  .flag{border:1px solid var(--flag-line);background:var(--flag-bg);border-radius:18px;padding:14px 16px}
+  .flag+.flag{margin-top:10px}
+  .flag .row{display:flex;gap:12px;align-items:flex-start}
+  .flag .dot{flex:none;width:30px;height:30px;border-radius:10px;background:var(--purple-100);color:var(--flag);display:grid;place-items:center}
+  .flag .dot svg{width:16px;height:16px}
+  .flag .t{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .flag p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:3px}
+  .flag .acts{display:flex;gap:8px;margin-top:12px;padding-left:42px}
+  .pill{font-size:12px;font-weight:600;padding:7px 12px;border-radius:99px;background:#fff;color:var(--flag);border:1px solid var(--flag-line)}
+  .pill.solid{background:var(--flag);color:#fff;border-color:var(--flag)}
+  .pill[disabled]{opacity:.75;cursor:default}
+  .flag-ok{border:1px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.5}
+  .disclaimer{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5}
+
+  /* Trends */
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .stat{border:1px solid var(--line);border-radius:16px;padding:12px}
+  .stat .v{font-size:20px;font-weight:700;color:var(--purple-900)}
+  .stat .v small{font-size:12px;font-weight:500;color:var(--muted);margin-left:2px}
+  .stat .k{font-size:11px;color:var(--muted);margin-top:2px}
+  .history{border:1px solid var(--line);border-radius:18px;padding:16px 16px 12px;margin-top:10px}
+  .history .head{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:12px}
+  .history .head b{color:var(--ink);font-weight:600}
+  .bars{display:flex;align-items:flex-end;gap:12px;height:96px;position:relative}
+  .bars .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;position:relative;z-index:1}
+  .bars .col i{width:100%;max-width:26px;border-radius:8px 8px 4px 4px;background:var(--purple-300)}
+  .bars .col.cur i{background:var(--purple-700)}
+  .bars .col.out i{background:repeating-linear-gradient(135deg,var(--purple-300) 0 4px,#E6D6FA 4px 8px);outline:1.5px solid var(--flag);outline-offset:1px}
+  .bars .col span{font-size:11px;font-weight:600}
+  .bars .col.out span{color:var(--flag)}
+  .bars .empty{align-self:center;margin:0 auto;font-size:12.5px;color:var(--muted);text-align:center;line-height:1.5}
+  .normal-band{position:absolute;left:0;right:0;border-top:1px dashed var(--purple-300);border-bottom:1px dashed var(--purple-300);background:rgba(241,232,253,.45)}
+  .band-l{display:flex;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--muted);margin-top:8px}
+  .band-l .out{color:var(--flag);flex:none}
+
+  /* Confirm ovulation sheet */
+  .scrim{position:fixed;inset:0;background:rgba(30,20,48,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
+  .scrim.show{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;left:50%;bottom:0;width:390px;transform:translate(-50%,100%);background:#fff;border-radius:24px 24px 0 0;
+    padding:10px 22px calc(26px + env(safe-area-inset-bottom,0px));transition:transform .25s ease;z-index:11;visibility:hidden}
+  .sheet.show{transform:translate(-50%,0);visibility:visible}
+  .grab{width:38px;height:4px;border-radius:99px;background:var(--line);margin:0 auto 16px}
+  .sheet h3{font-size:17px;font-weight:700}
+  .sheet .sub{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5}
+  .opts{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+  .opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;text-align:left}
+  .opt .box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--purple-300);display:grid;place-items:center;flex:none}
+  .opt[aria-checked="true"]{border-color:var(--purple-700);background:var(--purple-50)}
+  .opt[aria-checked="true"] .box{background:var(--purple-700);border-color:var(--purple-700)}
+  .opt[aria-checked="true"] .box::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+  .opt b{font-size:13.5px;display:block}
+  .opt small{font-size:12px;color:var(--muted)}
+  .daypick{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--purple-50);font-size:13px}
+  .daypick .stp{display:flex;align-items:center;gap:12px;font-weight:700;color:var(--purple-900)}
+  .daypick .stp span{min-width:96px;text-align:center}
+  .daypick button{width:28px;height:28px;border-radius:50%;background:#fff;color:var(--purple-700);font-size:16px;font-weight:700}
+  .daypick button[disabled]{opacity:.35;cursor:not-allowed}
 </style>
 <link rel="stylesheet" href="assets/shared.css">
+<style>
+  :root{ --flag:#6A2BB0; --flag-bg:#FAF6FF; --flag-line:#E3D3F8; }  /* accent for health flags */
+</style>
 <script src="assets/js/boot.js"></script>
 <script type="module" src="assets/js/home.js"></script>
 </head>
 <body>
 <main class="screen">
 
-  <header class="head">
-  <div class="top">
-    <div class="logo"><svg class="mk" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="116" fill="#6A2BB0"/><g transform="translate(0 -12)" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"><path d="M182 410C164 348 180 292 216 264C196 246 188 216 196 190L194 124L238 160Q256 154 274 160L318 124L316 190C324 216 316 246 296 264C332 292 348 348 330 410Q256 422 182 410Z"/><path d="M322 402C384 406 400 350 366 316" fill="none" stroke-width="26" stroke-linecap="round"/></g></svg><svg class="wm" aria-label="SikLo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 2742 921"><g fill="#3B1466" transform="translate(0 861) scale(1 -1)"><path transform="translate(0 0)" d="M42 210H224Q228 171 251.0 150.5Q274 130 311 130Q349 130 371.0 147.5Q393 165 393 196Q393 222 375.5 239.0Q358 256 332.5 267.0Q307 278 260 292Q192 313 149.0 334.0Q106 355 75.0 396.0Q44 437 44 503Q44 601 115.0 656.5Q186 712 300 712Q416 712 487.0 656.5Q558 601 563 502H378Q376 536 353.0 555.5Q330 575 294 575Q263 575 244.0 558.5Q225 542 225 511Q225 477 257.0 458.0Q289 439 357 417Q425 394 467.5 373.0Q510 352 541.0 312.0Q572 272 572 209Q572 149 541.5 100.0Q511 51 453.0 22.0Q395 -7 316 -7Q239 -7 178.0 18.0Q117 43 80.5 92.0Q44 141 42 210Z"/><path transform="translate(615 0)" d="M46 708Q46 748 74.5 774.5Q103 801 148 801Q192 801 220.5 774.5Q249 748 249 708Q249 669 220.5 642.5Q192 616 148 616Q103 616 74.5 642.5Q46 669 46 708ZM233 558V0H62V558Z"/><path transform="translate(910 0)" d="M403 0 233 234V0H62V740H233V331L402 558H613L381 278L615 0Z"/></g><path d="M1703.5 241.5L1798.5 775.5L1998.5 561.0" fill="none" stroke="#6A2BB0" stroke-width="171" stroke-linecap="round" stroke-linejoin="round"/><path d="M2595.4 561.8 L2596.0 568.5 L2596.4 575.2 L2596.5 582.0 L2596.4 588.8 L2596.0 595.5 L2595.4 602.2 L2594.6 608.9 L2593.6 615.6 L2592.3 622.2 L2590.8 628.8 L2589.0 635.3 L2587.0 641.8 L2584.8 648.2 L2582.4 654.5 L2579.8 660.7 L2576.9 666.8 L2573.9 672.8 L2570.6 678.8 L2567.1 684.5 L2563.4 690.2 L2559.5 695.7 L2555.5 701.1 L2551.2 706.4 L2546.8 711.5 L2542.2 716.4 L2537.4 721.2 L2532.5 725.8 L2527.4 730.2 L2522.1 734.5 L2516.7 738.5 L2511.2 742.4 L2505.5 746.1 L2499.8 749.6 L2493.8 752.9 L2487.8 755.9 L2481.7 758.8 L2475.5 761.4 L2469.2 763.8 L2462.8 766.0 L2456.3 768.0 L2449.8 769.8 L2443.2 771.3 L2436.6 772.6 L2429.9 773.6 L2423.2 774.4 L2416.5 775.0 L2409.8 775.4 L2403.0 775.5 L2396.2 775.4 L2389.5 775.0 L2382.8 774.4 L2376.1 773.6 L2369.4 772.6 L2362.8 771.3 L2356.2 769.8 L2349.7 768.0 L2343.2 766.0 L2336.8 763.8 L2330.5 761.4 L2324.3 758.8 L2318.2 755.9 L2312.2 752.9 L2306.2 749.6 L2300.5 746.1 L2294.8 742.4 L2289.3 738.5 L2283.9 734.5 L2278.6 730.2 L2273.5 725.8 L2268.6 721.2 L2263.8 716.4 L2259.2 711.5 L2254.8 706.4 L2250.5 701.1 L2246.5 695.7 L2242.6 690.2 L2238.9 684.5 L2235.4 678.8 L2232.1 672.8 L2229.1 666.8 L2226.2 660.7 L2223.6 654.5 L2221.2 648.2 L2219.0 641.8 L2217.0 635.3 L2215.2 628.8 L2213.7 622.2 L2212.4 615.6 L2211.4 608.9 L2210.6 602.2 L2210.0 595.5 L2209.6 588.8 L2209.5 582.0 L2209.6 575.2 L2210.0 568.5 L2210.6 561.8 L2211.4 555.1 L2212.4 548.4 L2213.7 541.8 L2215.2 535.2 L2217.0 528.7 L2219.0 522.2 L2221.2 515.8 L2223.6 509.5 L2226.2 503.3 L2229.1 497.2 L2232.1 491.2 L2235.4 485.2 L2238.9 479.5 L2242.6 473.8 L2246.5 468.3 L2250.5 462.9 L2254.8 457.6 L2259.2 452.5 L2263.8 447.6 L2268.6 442.8 L2273.5 438.2 L2278.6 433.8 L2283.9 429.5 L2289.3 425.5 L2294.8 421.6 L2300.5 417.9 L2306.2 414.4 L2312.2 411.1 L2318.2 408.1 L2324.3 405.2 L2330.5 402.6 L2336.8 400.2 L2343.2 398.0 L2349.7 396.0 L2356.2 394.2 L2362.8 392.7 L2369.4 391.4 L2376.1 390.4" fill="none" stroke="#6A2BB0" stroke-width="171" stroke-linecap="round"/><circle cx="2522.1" cy="429.5" r="58.1" fill="#9B5DE5"/></svg></div>
-    <div class="badge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-      Local profile
-    </div>
+  <div class="brand">
+    <div class="lock"><svg class="mk" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="116" fill="#6A2BB0"/><g transform="translate(0 -12)" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"><path d="M182 410C164 348 180 292 216 264C196 246 188 216 196 190L194 124L238 160Q256 154 274 160L318 124L316 190C324 216 316 246 296 264C332 292 348 348 330 410Q256 422 182 410Z"/><path d="M322 402C384 406 400 350 366 316" fill="none" stroke-width="26" stroke-linecap="round"/></g></svg><svg class="wm" aria-label="SikLo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 2742 921"><g fill="#3B1466" transform="translate(0 861) scale(1 -1)"><path transform="translate(0 0)" d="M42 210H224Q228 171 251.0 150.5Q274 130 311 130Q349 130 371.0 147.5Q393 165 393 196Q393 222 375.5 239.0Q358 256 332.5 267.0Q307 278 260 292Q192 313 149.0 334.0Q106 355 75.0 396.0Q44 437 44 503Q44 601 115.0 656.5Q186 712 300 712Q416 712 487.0 656.5Q558 601 563 502H378Q376 536 353.0 555.5Q330 575 294 575Q263 575 244.0 558.5Q225 542 225 511Q225 477 257.0 458.0Q289 439 357 417Q425 394 467.5 373.0Q510 352 541.0 312.0Q572 272 572 209Q572 149 541.5 100.0Q511 51 453.0 22.0Q395 -7 316 -7Q239 -7 178.0 18.0Q117 43 80.5 92.0Q44 141 42 210Z"/><path transform="translate(615 0)" d="M46 708Q46 748 74.5 774.5Q103 801 148 801Q192 801 220.5 774.5Q249 748 249 708Q249 669 220.5 642.5Q192 616 148 616Q103 616 74.5 642.5Q46 669 46 708ZM233 558V0H62V558Z"/><path transform="translate(910 0)" d="M403 0 233 234V0H62V740H233V331L402 558H613L381 278L615 0Z"/></g><path d="M1703.5 241.5L1798.5 775.5L1998.5 561.0" fill="none" stroke="#6A2BB0" stroke-width="171" stroke-linecap="round" stroke-linejoin="round"/><path d="M2595.4 561.8 L2596.0 568.5 L2596.4 575.2 L2596.5 582.0 L2596.4 588.8 L2596.0 595.5 L2595.4 602.2 L2594.6 608.9 L2593.6 615.6 L2592.3 622.2 L2590.8 628.8 L2589.0 635.3 L2587.0 641.8 L2584.8 648.2 L2582.4 654.5 L2579.8 660.7 L2576.9 666.8 L2573.9 672.8 L2570.6 678.8 L2567.1 684.5 L2563.4 690.2 L2559.5 695.7 L2555.5 701.1 L2551.2 706.4 L2546.8 711.5 L2542.2 716.4 L2537.4 721.2 L2532.5 725.8 L2527.4 730.2 L2522.1 734.5 L2516.7 738.5 L2511.2 742.4 L2505.5 746.1 L2499.8 749.6 L2493.8 752.9 L2487.8 755.9 L2481.7 758.8 L2475.5 761.4 L2469.2 763.8 L2462.8 766.0 L2456.3 768.0 L2449.8 769.8 L2443.2 771.3 L2436.6 772.6 L2429.9 773.6 L2423.2 774.4 L2416.5 775.0 L2409.8 775.4 L2403.0 775.5 L2396.2 775.4 L2389.5 775.0 L2382.8 774.4 L2376.1 773.6 L2369.4 772.6 L2362.8 771.3 L2356.2 769.8 L2349.7 768.0 L2343.2 766.0 L2336.8 763.8 L2330.5 761.4 L2324.3 758.8 L2318.2 755.9 L2312.2 752.9 L2306.2 749.6 L2300.5 746.1 L2294.8 742.4 L2289.3 738.5 L2283.9 734.5 L2278.6 730.2 L2273.5 725.8 L2268.6 721.2 L2263.8 716.4 L2259.2 711.5 L2254.8 706.4 L2250.5 701.1 L2246.5 695.7 L2242.6 690.2 L2238.9 684.5 L2235.4 678.8 L2232.1 672.8 L2229.1 666.8 L2226.2 660.7 L2223.6 654.5 L2221.2 648.2 L2219.0 641.8 L2217.0 635.3 L2215.2 628.8 L2213.7 622.2 L2212.4 615.6 L2211.4 608.9 L2210.6 602.2 L2210.0 595.5 L2209.6 588.8 L2209.5 582.0 L2209.6 575.2 L2210.0 568.5 L2210.6 561.8 L2211.4 555.1 L2212.4 548.4 L2213.7 541.8 L2215.2 535.2 L2217.0 528.7 L2219.0 522.2 L2221.2 515.8 L2223.6 509.5 L2226.2 503.3 L2229.1 497.2 L2232.1 491.2 L2235.4 485.2 L2238.9 479.5 L2242.6 473.8 L2246.5 468.3 L2250.5 462.9 L2254.8 457.6 L2259.2 452.5 L2263.8 447.6 L2268.6 442.8 L2273.5 438.2 L2278.6 433.8 L2283.9 429.5 L2289.3 425.5 L2294.8 421.6 L2300.5 417.9 L2306.2 414.4 L2312.2 411.1 L2318.2 408.1 L2324.3 405.2 L2330.5 402.6 L2336.8 400.2 L2343.2 398.0 L2349.7 396.0 L2356.2 394.2 L2362.8 392.7 L2369.4 391.4 L2376.1 390.4" fill="none" stroke="#6A2BB0" stroke-width="171" stroke-linecap="round"/><circle cx="2522.1" cy="429.5" r="58.1" fill="#9B5DE5"/></svg></div>
+    <a class="avatar" href="profile.html" id="avatar" aria-label="Your profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M5 20c1.2-3.5 4-5 7-5s5.8 1.5 7 5"/></svg></a>
   </div>
+
+  <header>
+    <div class="hello" id="todayLabel"></div>
+    <div class="name">Hi there</div>
+    <div class="local">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      Stored on this device only
+    </div>
   </header>
 
-  <section class="body">
-    <h1>Your cycle</h1>
-    <div class="pred" id="pred"></div>
-    <div class="flags" id="flags"></div>
-    <p class="how" id="how"></p>
-
-    <h2>Your periods</h2>
-    <ul class="hist" id="hist"></ul>
-
-    <div class="acts">
-      <button class="btn" type="button" id="editDates">Add or edit dates
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
-      <button class="btn" type="button" id="editSetup">Change setup answers
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
-    </div>
-    <button class="wipe" type="button" id="wipeBtn">Delete my data from this device</button>
-    <p class="saved" id="saved"></p>
+  <!-- Shown when no period date has been saved yet -->
+  <section class="phase-card empty-card" id="empty" hidden>
+    <div class="t">Add a period date to see your cycle</div>
+    <p>Your cycle day, phase and trends start from the first day of your most recent period. Nothing else is needed to begin.</p>
+    <a class="btn" href="setup/step-4.html">Add period dates</a>
   </section>
 
+  <div id="cycleContent">
+  <!-- Ring -->
+  <div class="ring-wrap">
+    <svg id="ring" width="250" height="250" viewBox="0 0 250 250" role="img" aria-labelledby="dayNum"></svg>
+    <div class="ring-center">
+      <div class="lbl">Cycle day</div>
+      <div class="day" id="dayNum"></div>
+      <div class="phase" id="phaseName"></div>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--purple-300)"></i>Period</span>
+    <span id="legendFertile"><i style="background:var(--purple-700)"></i>Fertile window</span>
+    <span><i style="background:#fff;border:2px solid var(--purple-900)"></i>Today</span>
+  </div>
+
+  <!-- Key dates as ranges + confidence -->
+  <div class="dates-card">
+    <div class="dates">
+      <div><div class="k">Next period</div><div class="v" id="dPeriod"></div><div class="s" id="dPeriodS"></div></div>
+      <div><div class="k">Fertile window</div><div class="v" id="dFertile"></div><div class="s" id="dFertileS"></div></div>
+      <div><div class="k">Ovulation</div><div class="v" id="dOv"></div><div class="s" id="dOvS"></div></div>
+    </div>
+    <button class="conf" id="confBtn" type="button" aria-expanded="false" aria-controls="why">
+      <div class="meter" id="meter" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="txt" id="confTxt"></div>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div class="why" id="why" hidden></div>
+  </div>
+
+  <!-- Log -->
+  <h2>Log today <small id="logCount"></small></h2>
+  <div class="log" id="log"></div>
+
+  <!-- Phase card with Confirm ovulation -->
+  <h2>Your phase</h2>
+  <div class="phase-card">
+    <div class="t" id="phaseTitle"></div>
+    <p id="phaseCopy"></p>
+    <div id="phaseBarWrap">
+      <div class="bar" id="phaseBar"></div>
+      <div class="bar-l"><span>Period</span><span>Follicular</span><span>Ovulation</span><span>Luteal</span></div>
+    </div>
+    <button class="btn" id="openSheet" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      Confirm ovulation
+    </button>
+    <div class="confirmed" id="confirmedNote" hidden>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+      <span id="confirmedTxt"></span>
+      <button class="undo" type="button" id="undoOv">Undo</button>
+    </div>
+  </div>
+
+  <!-- Health flags -->
+  <h2>Worth a look <small>Based on your logs</small></h2>
+  <div id="flags"></div>
+  <div class="disclaimer">These are patterns, not a diagnosis. A doctor can tell you what they mean for you.</div>
+
+  <!-- Trends -->
+  <h2>Cycle trends <small id="trendLabel"></small></h2>
+  <div class="stats">
+    <div class="stat"><div class="v" id="sAvg"></div><div class="k">Avg. cycle</div></div>
+    <div class="stat"><div class="v" id="sPer"></div><div class="k">Avg. period</div></div>
+    <div class="stat"><div class="v" id="sVar"></div><div class="k">Variation</div></div>
+  </div>
+  <div class="history">
+    <div class="head"><span>Cycle length</span><b id="rangeTxt"></b></div>
+    <div class="bars" id="bars"></div>
+    <div class="band-l"><span id="bandTxt"></span><span class="out">▨ outside range</span></div>
+  </div>
+  </div>
+
 </main>
+
+<nav class="tabbar" id="tabbar" data-current="today" aria-label="Main"></nav>
+
+<!-- Confirm ovulation sheet -->
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="grab"></div>
+  <h3 id="sheetTitle">Confirm ovulation</h3>
+  <div class="sub">What signs did you notice? Your next period and fertile window will update to match.</div>
+  <div class="opts" id="opts" role="group" aria-label="Signs you noticed"></div>
+  <div class="daypick">
+    <span>Ovulation day</span>
+    <div class="stp"><button id="dMinus" type="button" aria-label="Earlier day">−</button><span id="dVal" aria-live="polite"></span><button id="dPlus" type="button" aria-label="Later day">+</button></div>
+  </div>
+  <button class="btn" id="saveOv" type="button" disabled>Update my predictions</button>
+  <button class="btn ghost" id="cancelOv" type="button">Cancel</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

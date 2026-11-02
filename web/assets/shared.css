@@ -30,3 +30,15 @@ html[data-dir="back"] .screen.leaving{animation-name:pageOutBack}
 ::-webkit-scrollbar-thumb{background:var(--purple-100);border-radius:99px}
 ::-webkit-scrollbar-thumb:hover{background:var(--purple-300)}
 ::-webkit-scrollbar-button{display:none;height:0;width:0}
+
+/* Bottom tab bar (Today, Calendar, Insights, Profile) */
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:rgba(255,255,255,.96);
+  border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 0 calc(22px + env(safe-area-inset-bottom,0px));z-index:5}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;font-size:11px;color:var(--muted);text-decoration:none;font-weight:500}
+.tabbar a[aria-current="page"]{color:var(--purple-700);font-weight:600}
+.tabbar svg{width:22px;height:22px}
+
+/* Small confirmation message above the tab bar */
+.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--purple-900);color:#fff;font-size:12.5px;font-weight:500;
+  padding:10px 16px;border-radius:12px;opacity:0;transition:all .25s;z-index:12;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
