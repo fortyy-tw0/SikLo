@@ -23,6 +23,25 @@ html[data-dir="back"] .screen.leaving{animation-name:pageOutBack}
 @keyframes pageOutBack{to{transform:translateX(60px);opacity:0}}
 @media (prefers-reduced-motion:reduce){.screen,.screen.leaving{animation:none}}
 
+/* Cross-page view transitions (html.vt, set in boot.ts): the browser keeps the
+   old page on screen until the new one is ready, then slides between them in
+   one motion. The fallback animations above are switched off for these. */
+@view-transition{navigation:auto}
+html.vt .screen,html.vt .screen.leaving{animation:none}
+.screen{view-transition-name:screen}
+.tabbar{view-transition-name:tabbar}              /* the tab bar stays put */
+::view-transition-group(screen){animation-duration:.28s}
+::view-transition-old(screen){animation:vtOut .22s ease both}
+::view-transition-new(screen){animation:vtIn .28s cubic-bezier(.22,.8,.24,1) both}
+html[data-dir="back"]::view-transition-old(screen){animation-name:vtOutBack}
+html[data-dir="back"]::view-transition-new(screen){animation-name:vtInBack}
+::view-transition-old(root),::view-transition-new(root){animation:none}
+@keyframes vtOut{to{transform:translateX(-48px);opacity:0}}
+@keyframes vtIn{from{transform:translateX(48px);opacity:0}}
+@keyframes vtOutBack{to{transform:translateX(48px);opacity:0}}
+@keyframes vtInBack{from{transform:translateX(-48px);opacity:0}}
+@media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}
+
 /* Thin, light scrollbar (no dark default) */
 *{scrollbar-width:thin;scrollbar-color:var(--purple-100) transparent}
 ::-webkit-scrollbar{width:4px;height:4px}

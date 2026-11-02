@@ -22,8 +22,10 @@ export function goTo(url: string, dir: Direction): void {
   } catch {
     /* storage blocked: animation direction just defaults to forward */
   }
-  document.documentElement.dataset.dir = dir;
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const root = document.documentElement;
+  root.dataset.dir = dir;
+  // With view transitions the browser animates the swap itself; otherwise fade this page out.
+  if (!root.classList.contains('vt') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelector('.screen')?.classList.add('leaving');
   }
   location.href = url;

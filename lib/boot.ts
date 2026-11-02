@@ -1,20 +1,34 @@
 /**
  * Runs in <head> as a classic script, before the page paints:
  * - scales the 390 x 844 design to the screen
- * - sets the slide direction for this page's entrance animation
+ * - sets the slide direction for this page's entrance
+ * - turns on smooth cross-page transitions where the browser supports them
  */
 import { readDirection } from './nav';
 import { zoomFor } from './zoom';
 
+const root = document.documentElement;
+
 function fit(): void {
   const z = zoomFor(window.innerWidth, window.innerHeight);
-  document.documentElement.style.setProperty('zoom', String(z));
-  document.documentElement.style.setProperty('--z', String(z));
+  root.style.setProperty('zoom', String(z));
+  root.style.setProperty('--z', String(z));
 }
 
 fit();
 window.addEventListener('resize', fit);
-document.documentElement.dataset.dir = readDirection();
+root.dataset.dir = readDirection();
+
+// Browsers with cross-document view transitions (Chrome, Edge, Safari 18.2+) animate
+// straight from the old page to the new one; shared.css then skips the fallback animation.
+if ('onpagereveal' in window) {
+  root.classList.add('vt');
+  // Fires right before the page is shown, including when it was pre-loaded in the
+  // background earlier: read the direction now, not when the page was prepared.
+  window.addEventListener('pagereveal', () => {
+    root.dataset.dir = readDirection();
+  });
+}
 
 // Browser Back can restore this page exactly as it was left, mid exit animation; show it again.
 window.addEventListener('pageshow', (e) => {
