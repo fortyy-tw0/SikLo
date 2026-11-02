@@ -7,7 +7,7 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:#F4F1F8;color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+    background:var(--page-bg);color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
   button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
   :focus-visible{outline:2px solid var(--purple-500);outline-offset:2px}
   .screen{width:390px;margin:0 auto;padding:28px 22px 120px;background:var(--white);min-height:calc(100dvh / var(--z,1));position:relative}
@@ -68,22 +68,22 @@
   .log{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
   .chip{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:12px;font-weight:500}
   .chip .ic{width:54px;height:54px;border-radius:16px;background:var(--purple-50);display:grid;place-items:center;color:var(--purple-700);transition:all .15s}
-  .chip[aria-pressed="true"] .ic{background:var(--purple-700);color:#fff}
+  .chip[aria-pressed="true"] .ic{background:var(--button);color:#fff}
   .chip svg{width:22px;height:22px}
 
   /* Phase card */
   .phase-card{background:var(--purple-50);border-radius:18px;padding:16px 18px}
   .phase-card .t{font-size:14px;font-weight:700;color:var(--purple-900)}
   .phase-card p{font-size:13px;line-height:1.55;color:var(--body);margin-top:6px}
-  .bar{height:6px;background:#fff;border-radius:99px;margin-top:14px;display:flex;position:relative}
+  .bar{height:6px;background:var(--white);border-radius:99px;margin-top:14px;display:flex;position:relative}
   .bar b{display:block;height:100%}
   .bar b:first-child{border-radius:99px 0 0 99px}
   .bar b:nth-child(4){border-radius:0 99px 99px 0}
   .bar .mark{position:absolute;width:3px;top:-3px;height:12px;background:var(--purple-900);border-radius:2px}
   .bar-l{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:6px}
   .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;padding:12px;border-radius:14px;
-    background:var(--purple-700);color:#fff;font-size:13px;font-weight:600}
-  .btn.ghost{background:#fff;color:var(--purple-700);border:1px solid var(--purple-300);margin-top:8px}
+    background:var(--button);color:#fff;font-size:13px;font-weight:600}
+  .btn.ghost{background:var(--white);color:var(--purple-700);border:1px solid var(--purple-300);margin-top:8px}
   .btn[disabled]{opacity:.4;cursor:not-allowed}
   .btn svg{width:16px;height:16px}
   .confirmed{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--purple-900);font-weight:600}
@@ -98,8 +98,8 @@
   .flag .t{font-size:13.5px;font-weight:700;color:var(--ink)}
   .flag p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:3px}
   .flag .acts{display:flex;gap:8px;margin-top:12px;padding-left:42px}
-  .pill{font-size:12px;font-weight:600;padding:7px 12px;border-radius:99px;background:#fff;color:var(--flag);border:1px solid var(--flag-line)}
-  .pill.solid{background:var(--flag);color:#fff;border-color:var(--flag)}
+  .pill{font-size:12px;font-weight:600;padding:7px 12px;border-radius:99px;background:var(--white);color:var(--flag);border:1px solid var(--flag-line)}
+  .pill.solid{background:var(--button);color:#fff;border-color:var(--button)}
   .pill[disabled]{opacity:.75;cursor:default}
   .flag-ok{border:1px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.5}
   .disclaimer{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5}
@@ -117,18 +117,18 @@
   .bars .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;position:relative;z-index:1}
   .bars .col i{width:100%;max-width:26px;border-radius:8px 8px 4px 4px;background:var(--purple-300)}
   .bars .col.cur i{background:var(--purple-700)}
-  .bars .col.out i{background:repeating-linear-gradient(135deg,var(--purple-300) 0 4px,#E6D6FA 4px 8px);outline:1.5px solid var(--flag);outline-offset:1px}
+  .bars .col.out i{background:repeating-linear-gradient(135deg,var(--purple-300) 0 4px,var(--stripe) 4px 8px);outline:1.5px solid var(--flag);outline-offset:1px}
   .bars .col span{font-size:11px;font-weight:600}
   .bars .col.out span{color:var(--flag)}
   .bars .empty{align-self:center;margin:0 auto;font-size:12.5px;color:var(--muted);text-align:center;line-height:1.5}
-  .normal-band{position:absolute;left:0;right:0;border-top:1px dashed var(--purple-300);border-bottom:1px dashed var(--purple-300);background:rgba(241,232,253,.45)}
+  .normal-band{position:absolute;left:0;right:0;border-top:1px dashed var(--purple-300);border-bottom:1px dashed var(--purple-300);background:var(--band)}
   .band-l{display:flex;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--muted);margin-top:8px}
   .band-l .out{color:var(--flag);flex:none}
 
   /* Confirm ovulation sheet */
-  .scrim{position:fixed;inset:0;background:rgba(30,20,48,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
+  .scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
   .scrim.show{opacity:1;pointer-events:auto}
-  .sheet{position:fixed;left:50%;bottom:0;width:390px;transform:translate(-50%,100%);background:#fff;border-radius:24px 24px 0 0;
+  .sheet{position:fixed;left:50%;bottom:0;width:390px;transform:translate(-50%,100%);background:var(--white);border-radius:24px 24px 0 0;
     padding:10px 22px calc(26px + env(safe-area-inset-bottom,0px));transition:transform .25s ease;z-index:11;visibility:hidden}
   .sheet.show{transform:translate(-50%,0);visibility:visible}
   .grab{width:38px;height:4px;border-radius:99px;background:var(--line);margin:0 auto 16px}
@@ -138,22 +138,19 @@
   .opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;text-align:left}
   .opt .box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--purple-300);display:grid;place-items:center;flex:none}
   .opt[aria-checked="true"]{border-color:var(--purple-700);background:var(--purple-50)}
-  .opt[aria-checked="true"] .box{background:var(--purple-700);border-color:var(--purple-700)}
+  .opt[aria-checked="true"] .box{background:var(--button);border-color:var(--button)}
   .opt[aria-checked="true"] .box::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
   .opt b{font-size:13.5px;display:block}
   .opt small{font-size:12px;color:var(--muted)}
   .daypick{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--purple-50);font-size:13px}
   .daypick .stp{display:flex;align-items:center;gap:12px;font-weight:700;color:var(--purple-900)}
   .daypick .stp span{min-width:96px;text-align:center}
-  .daypick button{width:28px;height:28px;border-radius:50%;background:#fff;color:var(--purple-700);font-size:16px;font-weight:700}
+  .daypick button{width:28px;height:28px;border-radius:50%;background:var(--white);color:var(--purple-700);font-size:16px;font-weight:700}
   .daypick button[disabled]{opacity:.35;cursor:not-allowed}
 </style>
 <link rel="prefetch" href="profile.html">
 <script type="speculationrules">{"prefetch": [{"urls": ["profile.html"], "eagerness": "immediate"}]}</script>
 <link rel="stylesheet" href="assets/shared.css">
-<style>
-  :root{ --flag:#6A2BB0; --flag-bg:#FAF6FF; --flag-line:#E3D3F8; }  /* accent for health flags */
-</style>
 <script src="assets/js/boot.js"></script>
 <script type="module" src="assets/js/home.js"></script>
 </head>
@@ -194,7 +191,7 @@
   <div class="legend">
     <span><i style="background:var(--purple-300)"></i>Period</span>
     <span id="legendFertile"><i style="background:var(--purple-700)"></i>Fertile window</span>
-    <span><i style="background:#fff;border:2px solid var(--purple-900)"></i>Today</span>
+    <span><i style="background:var(--white);border:2px solid var(--purple-900)"></i>Today</span>
   </div>
 
   <!-- Key dates as ranges + confidence -->

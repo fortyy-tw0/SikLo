@@ -7,7 +7,7 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:#F4F1F8;color:var(--ink);-webkit-font-smoothing:antialiased}
+    background:var(--page-bg);color:var(--ink);-webkit-font-smoothing:antialiased}
   button{font:inherit;cursor:pointer;border:0}
 
   .screen{width:390px;min-height:calc(100dvh / var(--z,1));margin:0 auto;background:var(--white);
@@ -44,13 +44,14 @@
   .spacer{flex:1;min-height:20px}
 
   /* CTA */
-  .cta{width:100%;padding:16px;border-radius:16px;background:var(--purple-700);color:#fff;font-size:15px;font-weight:600;
+  .cta{width:100%;padding:16px;border-radius:16px;background:var(--button);color:#fff;font-size:15px;font-weight:600;
     display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
-  .cta:hover{background:var(--purple-900)}
+  .cta:hover{background:var(--button-hover)}
   .cta svg{width:16px;height:16px;flex:none;transform:translateY(1.5px)}
   .resume{width:100%;min-height:48px;margin-top:8px;border-radius:16px;background:var(--purple-50);color:var(--purple-700);font-size:14px;font-weight:600}
   .resume:hover{background:var(--purple-100)}
   .resume[hidden]{display:none}
+  .appearance{display:flex;justify-content:center;margin-top:6px}
   .foot{font-size:12px;color:var(--muted);line-height:1.55;text-align:center;margin-top:12px}
 
 </style>
@@ -98,6 +99,7 @@
   </button>
   <button class="resume" type="button" id="resumeBtn" hidden>Open my saved profile</button>
   <p class="foot">Four short steps. Optional questions can be skipped.<br>Changes persist only when you choose Save.</p>
+  <div class="appearance"><button class="theme-switch" id="themeSwitch"></button></div>
 
 </main>
 </body>

@@ -8,7 +8,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{font-family:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:#F4F1F8;color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+    background:var(--page-bg);color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
   button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 
   .screen{width:390px;height:calc(100dvh / var(--z,1));max-height:844px;margin:0 auto;background:var(--white);
@@ -40,6 +40,7 @@
     border-radius:14px;background:var(--purple-50);font-size:14px;font-weight:600;color:var(--ink);transition:background .15s}
   .btn:hover{background:var(--purple-100)}
   .btn svg{width:16px;height:16px;color:var(--purple-700)}
+  .appearance{display:flex;justify-content:center;margin-top:10px}
   .wipe{margin-top:6px;min-height:44px;font-size:13.5px;font-weight:600;color:var(--purple-700);border-radius:14px;width:100%}
   .wipe:hover{background:var(--purple-50)}
   .saved{font-size:12px;line-height:1.5;color:var(--muted);text-align:center;margin-top:10px}
@@ -77,6 +78,7 @@
       <button class="btn" type="button" id="editSetup">Change setup answers
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
+    <div class="appearance"><button class="theme-switch" id="themeSwitch"></button></div>
     <button class="wipe" type="button" id="wipeBtn">Delete my data from this device</button>
     <p class="saved" id="saved"></p>
   </section>

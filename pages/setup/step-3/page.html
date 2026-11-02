@@ -8,7 +8,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{font-family:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:#F4F1F8;color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+    background:var(--page-bg);color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
   button,textarea{font:inherit;color:inherit}
   button{cursor:pointer;border:0;background:none}
 
@@ -59,7 +59,7 @@
   .field label span{color:var(--muted);font-weight:500}
   textarea{width:100%;min-height:84px;resize:none;padding:13px 14px;border:1px solid var(--line);border-radius:14px;
     font-size:14.5px;line-height:1.5;background:var(--white);outline:none;transition:border-color .15s,box-shadow .15s}
-  textarea::placeholder{color:#B3A9C4}
+  textarea::placeholder{color:var(--placeholder)}
   textarea:focus{border-color:var(--purple-500);box-shadow:0 0 0 3px var(--purple-100)}
   .meta{display:flex;justify-content:space-between;gap:12px;margin-top:6px;font-size:12px;color:var(--muted);line-height:1.45}
   .meta .count{flex:none;font-variant-numeric:tabular-nums}
@@ -74,12 +74,12 @@
   .check .plus{flex:none;width:24px;height:24px;border-radius:8px;background:var(--white);color:var(--purple-700);display:grid;place-items:center;transition:all .15s}
   .check .plus svg{width:14px;height:14px;transition:transform .2s}
   .check[aria-pressed="true"]{background:var(--purple-100)}
-  .check[aria-pressed="true"] .plus{background:var(--purple-700);color:#fff}
+  .check[aria-pressed="true"] .plus{background:var(--button);color:#fff}
   .check[aria-pressed="true"] .plus svg{transform:rotate(45deg)}
   .note{font-size:12px;line-height:1.5;color:var(--muted);margin-top:14px}
 
   /* Actions */
-  .cta{width:100%;min-height:52px;padding:15px;border-radius:16px;background:var(--purple-700);color:#fff;font-size:15px;font-weight:600;
+  .cta{width:100%;min-height:52px;padding:15px;border-radius:16px;background:var(--button);color:#fff;font-size:15px;font-weight:600;
     display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s}
   .cta:active{transform:scale(.98)}
   .cta svg{width:16px;height:16px;flex:none;transform:translateY(1.5px)}

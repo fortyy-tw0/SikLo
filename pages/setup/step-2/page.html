@@ -7,7 +7,7 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:#F4F1F8;color:var(--ink);-webkit-font-smoothing:antialiased}
+    background:var(--page-bg);color:var(--ink);-webkit-font-smoothing:antialiased}
   button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
   .screen{width:390px;min-height:calc(100dvh / var(--z,1));margin:0 auto;background:var(--white);padding:28px 22px;display:flex;flex-direction:column}
 
@@ -56,10 +56,10 @@
   .spacer{flex:1;min-height:24px}
 
   /* Actions */
-  .cta{width:100%;padding:16px;border-radius:16px;background:var(--purple-700);color:#fff;font-size:15px;font-weight:600;
+  .cta{width:100%;padding:16px;border-radius:16px;background:var(--button);color:#fff;font-size:15px;font-weight:600;
     display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s,opacity .15s}
-  .cta:hover{background:var(--purple-900)}
-  .cta[disabled]{opacity:.4;cursor:not-allowed;background:var(--purple-700)}
+  .cta:hover{background:var(--button-hover)}
+  .cta[disabled]{opacity:.4;cursor:not-allowed;background:var(--button)}
   .cta svg{width:16px;height:16px}
   .skip{width:100%;padding:14px;margin-top:8px;font-size:14px;font-weight:600;color:var(--purple-700);border-radius:16px}
   .skip:hover{background:var(--purple-50)}

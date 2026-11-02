@@ -29,6 +29,7 @@ lib/
   cycleView.ts      Everything the Today screen shows
   tracking.ts       Daily logs, confirmed ovulation, flag choices
   tabbar.ts         Bottom tab bar;  toast.ts  confirmation messages
+  theme.ts          Light / dark mode: saved choice, applied before the page draws
   dom.ts            Typed element lookup, escaping, today's date
   *.test.ts         Automated checks for the file of the same name
   backend/          Copied unchanged from siklo-backend-ts (prediction.ts, dates.ts)
@@ -76,6 +77,14 @@ Built from the saved periods, never from sample data:
   days, periods over 7 days, plus the engine's missing-data and change flags).
   They are not diagnoses. Report and dismiss choices are saved on the device.
 - Calendar and Insights tabs are placeholders for now.
+
+## Light and dark mode
+
+"Switch to dark mode" is on the landing page and in Profile. The choice is
+saved in the browser (light until someone picks dark) and every page follows
+it. Colours come from tokens in `lib/shared.css`: `:root` holds the light
+values and `html[data-theme="dark"]` the dark ones, so new styles should use
+the tokens (`var(--white)`, `var(--button)`, ...) rather than fixed colours.
 
 ## Prediction engine
 

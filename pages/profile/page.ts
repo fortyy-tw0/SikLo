@@ -4,6 +4,7 @@ import { byId } from '@lib/dom';
 import { goTo } from '@lib/nav';
 import { load, wipe } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
+import { mountThemeSwitch } from '@lib/theme';
 
 const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
   parseDate(iso).toLocaleDateString('en-US', { timeZone: 'UTC', ...opts });
@@ -14,6 +15,7 @@ if (!saved) {
   location.replace('index.html'); // nothing saved yet: start setup
 } else {
   mountTabbar(byId('tabbar'));
+  mountThemeSwitch(byId<HTMLButtonElement>('themeSwitch'));
 
   const hist = [...saved.periods].sort((a, b) => (a.start_date < b.start_date ? 1 : -1));
   byId('hist').innerHTML = hist.length

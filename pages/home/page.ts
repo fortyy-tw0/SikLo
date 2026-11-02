@@ -107,8 +107,8 @@ function drawRing(v: CycleView): void {
   arc(1, L, cssVar('--purple-100'));
   arc(1, Math.min(v.periodDays, L), cssVar('--purple-300'));
   if (v.fertile) arc(v.fertile[0], Math.min(v.fertile[1], L), cssVar('--purple-700'));
-  if (v.ovulationDay) dot(v.ovulationDay, 3, '#fff');
-  dot(Math.min(v.cycleDay, L), 10, '#fff', cssVar('--purple-900'), 3.5);
+  if (v.ovulationDay) dot(v.ovulationDay, 3, cssVar('--white'));
+  dot(Math.min(v.cycleDay, L), 10, cssVar('--white'), cssVar('--purple-900'), 3.5);
 
   byId('dayNum').textContent = String(v.cycleDay);
   byId('phaseName').textContent = PHASE_LABEL[v.phase];

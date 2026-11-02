@@ -1,5 +1,6 @@
-/* SikLo shared styles: brand tokens, page transitions, scrollbar */
+/* SikLo shared styles: colour tokens (light + dark), page transitions, scrollbar, tab bar, toast */
 :root{
+  color-scheme:light;
   --purple-900:#3B1466;
   --purple-700:#6A2BB0;
   --purple-500:#9B5DE5;
@@ -10,8 +11,55 @@
   --body:#4A3F5E;
   --muted:#8A7FA0;
   --line:#ECE6F5;
-  --white:#FFFFFF;
+  --white:#FFFFFF;           /* surface colour of cards and screens */
+  --page-bg:#F4F1F8;         /* around the app on wide screens */
+  --button:#6A2BB0;          /* filled buttons with white text */
+  --button-hover:#3B1466;
+  --placeholder:#B3A9C4;
+  --flag:#6A2BB0; --flag-bg:#FAF6FF; --flag-line:#E3D3F8;   /* health flags */
+  --stripe:#E6D6FA;          /* out-of-range bars */
+  --band:rgba(241,232,253,.45);
+  --scrim:rgba(30,20,48,.35);
+  --tabbar-bg:rgba(255,255,255,.96);
+  --toast-bg:#3B1466; --toast-fg:#FFFFFF;
+  --logo-ink:#3B1466; --logo-accent:#6A2BB0;
 }
+
+/* Dark mode: chosen on the landing page or in Profile (lib/theme.ts sets data-theme) */
+html[data-theme="dark"]{
+  color-scheme:dark;         /* dark date pickers, dropdowns and scrollbars */
+  --purple-900:#EDE2FC;      /* strong text and marks */
+  --purple-700:#BC98F5;      /* accent text, active states */
+  --purple-500:#A27BE6;
+  --purple-300:#7656AE;
+  --purple-100:#2E2440;
+  --purple-50:#221A2E;
+  --ink:#F4EFFB;
+  --body:#D4CBE2;
+  --muted:#A397B6;
+  --line:#2E2640;
+  --white:#17121F;
+  --page-bg:#0D0912;
+  --button:#7A43CC;
+  --button-hover:#8E5BDB;
+  --placeholder:#75698A;
+  --flag:#BC98F5; --flag-bg:#1C1527; --flag-line:#3B2E55;
+  --stripe:#3A2D52;
+  --band:rgba(118,86,174,.18);
+  --scrim:rgba(0,0,0,.6);
+  --tabbar-bg:rgba(23,18,31,.96);
+  --toast-bg:#EDE2FC; --toast-fg:#1E1430;
+  --logo-ink:#F1E8FD; --logo-accent:#BC98F5;
+}
+/* The SikLo wordmark follows the theme */
+.wm g[fill]{fill:var(--logo-ink)}
+.wm path[stroke]{stroke:var(--logo-accent)}
+
+/* "Switch to dark mode" link */
+.theme-switch{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:0 14px;border-radius:99px;
+  font:inherit;font-size:13px;font-weight:600;color:var(--purple-700);background:none;border:0;cursor:pointer}
+.theme-switch:hover{background:var(--purple-50)}
+.theme-switch svg{width:16px;height:16px;flex:none}
 /* Page transition */
 .screen{animation:pageIn .3s cubic-bezier(.22,.8,.24,1) both}
 html[data-dir="back"] .screen{animation-name:pageInBack}
@@ -51,13 +99,13 @@ html[data-dir="back"]::view-transition-new(screen){animation-name:vtInBack}
 ::-webkit-scrollbar-button{display:none;height:0;width:0}
 
 /* Bottom tab bar (Today, Calendar, Insights, Profile) */
-.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:rgba(255,255,255,.96);
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:var(--tabbar-bg);
   border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 0 calc(22px + env(safe-area-inset-bottom,0px));z-index:5}
 .tabbar a{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;font-size:11px;color:var(--muted);text-decoration:none;font-weight:500}
 .tabbar a[aria-current="page"]{color:var(--purple-700);font-weight:600}
 .tabbar svg{width:22px;height:22px}
 
 /* Small confirmation message above the tab bar */
-.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--purple-900);color:#fff;font-size:12.5px;font-weight:500;
+.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--toast-bg);color:var(--toast-fg);font-size:12.5px;font-weight:500;
   padding:10px 16px;border-radius:12px;opacity:0;transition:all .25s;z-index:12;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
