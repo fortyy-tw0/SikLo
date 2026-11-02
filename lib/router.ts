@@ -44,7 +44,6 @@ function swapIn(id: ScreenId): void {
   wrap.dataset.screen = id;
   wrap.append(template.content.cloneNode(true));
   document.getElementById('app')!.replaceChildren(wrap);
-  document.title = template.dataset.title ?? 'SikLo';
   window.scrollTo(0, 0);
 
   const controller = new AbortController();

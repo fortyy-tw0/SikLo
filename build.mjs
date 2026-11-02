@@ -48,10 +48,9 @@ const hash = (data) => createHash('sha256').update(data).digest('hex').slice(0, 
 const screens = walk('pages').filter((f) => basename(f) === 'page.html').sort().map((file) => {
   const src = readFileSync(file, 'utf8');
   const name = basename(dirname(file));
-  const title = src.match(/<title>(.*?)<\/title>/)?.[1] ?? 'SikLo';
   const css = [...src.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join('\n');
-  const markup = src.replace(/<!--[\s\S]*?-->/g, '').replace(/<title>.*?<\/title>/, '').replace(/<style>[\s\S]*?<\/style>/g, '').trim();
-  return { name, title, css, markup };
+  const markup = src.replace(/<!--[\s\S]*?-->/g, '').replace(/<style>[\s\S]*?<\/style>/g, '').trim();
+  return { name, css, markup };
 });
 
 // Scope each screen's styles to it, then flatten the nesting for older browsers.
@@ -60,7 +59,7 @@ const scoped = screens.map((s) => `:where([data-screen="${s.name}"]){\n${s.css}\
 const screensCss = (await esbuild.transform(scoped, { loader: 'css', target: BROWSERS, minify: !serve })).code;
 
 const templates = screens
-  .map((s) => `<template id="screen-${s.name}" data-title="${s.title}">\n${s.markup}\n</template>`)
+  .map((s) => `<template id="screen-${s.name}">\n${s.markup}\n</template>`)
   .join('\n');
 
 // ---------- Scripts ----------

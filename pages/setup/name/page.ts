@@ -1,4 +1,4 @@
-// Setup step 1: preferred name or nickname (optional). Shown as "Hi there, <name>" on Today.
+// Setup step 1: preferred name or nickname (optional). Today greets the person with it.
 import { byId } from '@lib/dom';
 import { goTo } from '@lib/nav';
 import { cleanName, draft, MAX_NAME_LENGTH, update } from '@lib/store';
@@ -8,12 +8,10 @@ export default function mount(_signal: AbortSignal): void {
   const input = byId<HTMLInputElement>('nameInput');
   const next = byId<HTMLButtonElement>('next');
   const count = byId('count');
-  const preview = byId('preview');
 
   const refresh = () => {
     const name = cleanName(input.value);
     count.textContent = `${input.value.length}/${MAX_NAME_LENGTH}`;
-    preview.textContent = name ? `Hi there, ${name}` : 'Hi there';
     next.disabled = !name;
   };
 

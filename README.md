@@ -38,6 +38,7 @@ lib/
   cycleView.ts      Everything the Today screen shows
   tracking.ts       Daily logs, confirmed ovulation, flag choices
   tabbar.ts         Bottom tab bar;  toast.ts  confirmation messages
+  greeting.ts       Random greeting on Today, once per app open
   dom.ts            Typed element lookup, escaping, today's date
   *.test.ts         Automated checks for the file of the same name
   backend/          Copied unchanged from siklo-backend-ts (prediction.ts, dates.ts)
@@ -77,8 +78,10 @@ can be handed to `siklo-backend-ts` in the React Native app.
 
 Built from the saved periods, never from sample data:
 
-- **Greeting**: "Hi there, <name>" with their initial as the profile button, or
-  "Hi there" if they skipped the name step.
+- **Greeting**: picked at random each time the app is opened (never the same
+  twice in a row; "Good morning" etc. only at the right time; English and
+  Filipino), followed by their name if they gave one. Their initial is the
+  profile button. List in `lib/greeting.ts`.
 - **Cycle ring**: with an estimate it shows the predicted cycle. Before that it
   shows their average cycle, or a typical 28-day guide, with a caption saying
   so. A current period without an end date is drawn as the days so far (up to 7).

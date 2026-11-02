@@ -5,6 +5,7 @@ import {
   type CycleView, type Phase,
 } from '@lib/cycleView';
 import { byId, esc, todayIso } from '@lib/dom';
+import { greetingForThisVisit, withName } from '@lib/greeting';
 import { load, savedName } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
 import { toast } from '@lib/toast';
@@ -77,7 +78,7 @@ export default function mount(signal: AbortSignal): void {
   // ---------- Rendering ----------
   function renderHeader(): void {
     const name = savedName();
-    byId('greeting').textContent = name ? `Hi there, ${name}` : 'Hi there';
+    byId('greeting').textContent = withName(greetingForThisVisit(), name);
     if (name) {
       const avatar = byId('avatar');
       avatar.textContent = [...name][0].toUpperCase(); // first character, emoji-safe
