@@ -3,7 +3,6 @@
 export type Direction = 'forward' | 'back';
 
 const DIR_KEY = 'siklo-dir';
-const LEAVE_MS = 280;
 
 export function readDirection(): Direction {
   try {
@@ -13,6 +12,10 @@ export function readDirection(): Direction {
   }
 }
 
+/**
+ * Starts loading the next page immediately; the exit animation plays while it
+ * loads, and the browser swaps pages as soon as the new one is ready.
+ */
 export function goTo(url: string, dir: Direction): void {
   try {
     sessionStorage.setItem(DIR_KEY, dir);
@@ -20,12 +23,8 @@ export function goTo(url: string, dir: Direction): void {
     /* storage blocked: animation direction just defaults to forward */
   }
   document.documentElement.dataset.dir = dir;
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    location.href = url;
-    return;
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelector('.screen')?.classList.add('leaving');
   }
-  document.querySelector('.screen')?.classList.add('leaving');
-  setTimeout(() => {
-    location.href = url;
-  }, LEAVE_MS);
+  location.href = url;
 }

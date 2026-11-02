@@ -10,7 +10,7 @@
     background:#F4F1F8;color:var(--ink);-webkit-font-smoothing:antialiased}
   button{font:inherit;cursor:pointer;border:0}
 
-  .screen{width:390px;min-height:844px;margin:0 auto;background:var(--white);
+  .screen{width:390px;min-height:calc(100dvh / var(--z,1));margin:0 auto;background:var(--white);
     padding:28px 22px 28px;display:flex;flex-direction:column}
 
   /* Top bar */
@@ -54,6 +54,8 @@
   .foot{font-size:12px;color:var(--muted);line-height:1.55;text-align:center;margin-top:12px}
 
 </style>
+<link rel="prefetch" href="setup/step-1.html">
+<link rel="prefetch" href="home.html">
 <link rel="stylesheet" href="assets/shared.css">
 <script src="assets/js/boot.js"></script>
 <script type="module" src="assets/js/landing.js"></script>

@@ -9,7 +9,7 @@
   body{font-family:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:#F4F1F8;color:var(--ink);-webkit-font-smoothing:antialiased}
   button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
-  .screen{width:390px;min-height:844px;margin:0 auto;background:var(--white);padding:28px 22px;display:flex;flex-direction:column}
+  .screen{width:390px;min-height:calc(100dvh / var(--z,1));margin:0 auto;background:var(--white);padding:28px 22px;display:flex;flex-direction:column}
 
   /* Top bar (same as landing) */
   .top{display:flex;justify-content:space-between;align-items:center}
@@ -65,6 +65,7 @@
   .skip:hover{background:var(--purple-50)}
 
 </style>
+<link rel="prefetch" href="step-3.html">
 <link rel="stylesheet" href="../assets/shared.css">
 <script src="../assets/js/boot.js"></script>
 <script type="module" src="../assets/js/step-2.js"></script>

@@ -13,9 +13,9 @@
   --white:#FFFFFF;
 }
 /* Page transition */
-.screen{animation:pageIn .45s cubic-bezier(.22,.8,.24,1) both}
+.screen{animation:pageIn .3s cubic-bezier(.22,.8,.24,1) both}
 html[data-dir="back"] .screen{animation-name:pageInBack}
-.screen.leaving{animation:pageOut .3s ease both}
+.screen.leaving{animation:pageOut .2s ease both}
 html[data-dir="back"] .screen.leaving{animation-name:pageOutBack}
 @keyframes pageIn{from{transform:translateX(60px);opacity:0}to{transform:none;opacity:1}}
 @keyframes pageInBack{from{transform:translateX(-60px);opacity:0}to{transform:none;opacity:1}}

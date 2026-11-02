@@ -10,7 +10,7 @@
     background:#F4F1F8;color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
   button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
   :focus-visible{outline:2px solid var(--purple-500);outline-offset:2px}
-  .screen{width:390px;margin:0 auto;padding:28px 22px 120px;background:var(--white);min-height:100vh;position:relative}
+  .screen{width:390px;margin:0 auto;padding:28px 22px 120px;background:var(--white);min-height:calc(100dvh / var(--z,1));position:relative}
   [hidden]{display:none!important}
   .empty-card{margin-top:22px}
   a.btn{text-decoration:none}
@@ -148,6 +148,7 @@
   .daypick button{width:28px;height:28px;border-radius:50%;background:#fff;color:var(--purple-700);font-size:16px;font-weight:700}
   .daypick button[disabled]{opacity:.35;cursor:not-allowed}
 </style>
+<link rel="prefetch" href="profile.html">
 <link rel="stylesheet" href="assets/shared.css">
 <style>
   :root{ --flag:#6A2BB0; --flag-bg:#FAF6FF; --flag-line:#E3D3F8; }  /* accent for health flags */
