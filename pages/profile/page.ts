@@ -5,36 +5,40 @@ import { goTo } from '@lib/nav';
 import { load, wipe } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
 import { mountThemeSwitch } from '@lib/theme';
+import { redirect } from '@lib/router';
 
-const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
-  parseDate(iso).toLocaleDateString('en-US', { timeZone: 'UTC', ...opts });
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+/** Called by the router each time this screen is shown. */
+export default function mount(_signal: AbortSignal): void {
+  const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
+    parseDate(iso).toLocaleDateString('en-US', { timeZone: 'UTC', ...opts });
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
-const saved = load();
-if (!saved) {
-  location.replace('index.html'); // nothing saved yet: start setup
-} else {
-  mountTabbar(byId('tabbar'));
-  mountThemeSwitch(byId<HTMLButtonElement>('themeSwitch'));
+  const saved = load();
+  if (!saved) {
+    redirect('index'); // nothing saved yet: start setup
+  } else {
+    mountTabbar(byId('tabbar'));
+    mountThemeSwitch(byId<HTMLButtonElement>('themeSwitch'));
 
-  const hist = [...saved.periods].sort((a, b) => (a.start_date < b.start_date ? 1 : -1));
-  byId('hist').innerHTML = hist.length
-    ? hist
-        .map((p) => {
-          const len = p.end_date ? diffDays(parseDate(p.start_date), parseDate(p.end_date)) + 1 : null;
-          return `<li>${fmt(p.start_date, { month: 'short', day: 'numeric', year: 'numeric' })}<span>${len ? plural(len, 'day') : 'End not recorded'}</span></li>`;
-        })
-        .join('')
-    : '<li class="empty">No dates yet.</li>';
+    const hist = [...saved.periods].sort((a, b) => (a.start_date < b.start_date ? 1 : -1));
+    byId('hist').innerHTML = hist.length
+      ? hist
+          .map((p) => {
+            const len = p.end_date ? diffDays(parseDate(p.start_date), parseDate(p.end_date)) + 1 : null;
+            return `<li>${fmt(p.start_date, { month: 'short', day: 'numeric', year: 'numeric' })}<span>${len ? plural(len, 'day') : 'End not recorded'}</span></li>`;
+          })
+          .join('')
+      : '<li class="empty">No dates yet.</li>';
 
-  byId('saved').textContent =
-    `Setup saved in this browser on ${new Date(saved.saved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}. Nothing was sent anywhere.`;
+    byId('saved').textContent =
+      `Setup saved in this browser on ${new Date(saved.saved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}. Nothing was sent anywhere.`;
 
-  byId('editDates').addEventListener('click', () => goTo('setup/step-4.html', 'forward'));
-  byId('editSetup').addEventListener('click', () => goTo('setup/step-1.html', 'forward'));
-  byId('wipeBtn').addEventListener('click', () => {
-    if (!confirm('Delete your SikLo profile, dates and logs from this browser? This cannot be undone.')) return;
-    wipe();
-    goTo('index.html', 'back');
-  });
+    byId('editDates').addEventListener('click', () => goTo('step-4', 'forward'));
+    byId('editSetup').addEventListener('click', () => goTo('step-1', 'forward'));
+    byId('wipeBtn').addEventListener('click', () => {
+      if (!confirm('Delete your SikLo profile, dates and logs from this browser? This cannot be undone.')) return;
+      wipe();
+      goTo('index', 'back');
+    });
+  }
 }

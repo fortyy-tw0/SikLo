@@ -1,50 +1,60 @@
-# SikLo — onboarding screens (web)
+# SikLo — web app
 
-The SikLo onboarding flow as a website, written in TypeScript and deployed on
-Vercel. Everything a visitor enters stays in their own browser.
+The SikLo app as a single-page web app, written in TypeScript and deployed on
+Vercel at https://siklo-ph.vercel.app/. Every screen lives at that one address:
+screens swap in place without reloading, browser Back/Forward move between
+them, and a refresh reopens the screen you were on. Everything a visitor
+enters stays in their own browser.
 
 ## Structure
 
-One folder per page: each holds that page's layout (`page.html`) and its
-TypeScript (`page.ts`). Code and styles shared by several pages live in `lib/`,
+One folder per screen: each holds that screen's layout and styles (`page.html`)
+and its TypeScript (`page.ts`, which exports the `mount()` the router calls when
+the screen is shown). Code and styles shared by several screens live in `lib/`,
 with each automated check (`*.test.ts`) next to the code it checks.
 
 ```
 pages/
-  index/            Landing ("A little space for you.")        -> /index.html
-  setup/step-1/     Birthday                                    -> /setup/step-1.html
-  setup/step-2/     Cycle description                           -> /setup/step-2.html
-  setup/step-3/     Optional context                            -> /setup/step-3.html
-  setup/step-4/     Period dates + Save                         -> /setup/step-4.html
-  home/             Today: ring, key dates, log, phase, flags   -> /home.html
-  profile/          Saved periods, edit, delete my data         -> /profile.html
+  index/            Landing ("A little space for you.")
+  setup/step-1/     Birthday
+  setup/step-2/     Cycle description
+  setup/step-3/     Optional context
+  setup/step-4/     Period dates + Save
+  home/             Today: ring, key dates, log, phase, flags
+  profile/          Saved periods, edit, light/dark, delete my data
 lib/
-  shared.css        Brand colour tokens, page transitions, tab bar, toast
-  boot.ts           Runs in <head>: screen scaling, slide direction
+  shell.html        The one HTML page; the build adds every screen to it
+  app.ts            Entry point: registers the screens, starts the router
+  router.ts         Shows screens at "/", Back/Forward, refresh
+  nav.ts            goTo(screen, direction)
+  boot.ts           Runs in <head>: screen scaling, theme, transitions
+  shared.css        Colour tokens (light + dark), basics, transitions, tab bar, toast
+  theme.ts          Light / dark mode: saved choice, switch control
   zoom.ts           How much to scale the 390x844 design
-  nav.ts            goTo() with the slide transition
   store.ts          On-device storage (draft until Save, then this browser only)
   types.ts          Profile and period shapes (backend API contract values)
   cycle.ts          predict() and helpers on top of the backend engine
   cycleView.ts      Everything the Today screen shows
   tracking.ts       Daily logs, confirmed ovulation, flag choices
   tabbar.ts         Bottom tab bar;  toast.ts  confirmation messages
-  theme.ts          Light / dark mode: saved choice, applied before the page draws
   dom.ts            Typed element lookup, escaping, today's date
   *.test.ts         Automated checks for the file of the same name
   backend/          Copied unchanged from siklo-backend-ts (prediction.ts, dates.ts)
-build.mjs           Builds pages/ + lib/ into dist/; also runs the checks
-vercel.json         Install, build, output dir, caching, old-link rewrites
+build.mjs           Builds the one page into dist/; also runs the checks
+vercel.json         Install, build, output dir, caching, old addresses -> /
 ```
 
-Pages import shared code as `@lib/<file>`. To add a page, create
-`pages/<path>/page.html` and `page.ts`; it is published at `/<path>.html`.
+Screens import shared code as `@lib/<file>`. Each screen's styles only apply
+to that screen, so screens can reuse class names. To add a screen, create
+`pages/<path>/page.html` and `page.ts`, add its name to `ScreenId` in
+`lib/router.ts`, and register it in `lib/app.ts`. Links in a layout can use
+`<a href="/" data-go="profile">`.
 
 ## Commands
 
 ```bash
 npm install
-npm run dev         # build, watch and serve dist/ at http://localhost:8000
+npm run dev         # build, watch and serve the app at http://localhost:8000
 npm run build       # production build into dist/
 npm run typecheck   # strict TypeScript checks
 npm test            # automated checks (prediction, Today screen, scaling)
@@ -98,4 +108,5 @@ the rules, change them in the backend, then copy the two files here and run
 ## Deploy
 
 Vercel builds `main` with `npm run build` and serves `dist/`. Every push to
-`main` redeploys.
+`main` redeploys. Old page addresses (`/index.html`, `/setup/...`, `/home.html`,
+`/profile.html`) redirect to `/`.

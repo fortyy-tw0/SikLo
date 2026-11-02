@@ -6,22 +6,12 @@
   "headers": [
     {
       "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/setup/:step(step-[1-4])",
-      "destination": "/setup/:step.html"
-    },
-    {
-      "source": "/:page(index|home|profile)",
-      "destination": "/:page.html"
-    }
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/:page(home|profile)(.html)?", "destination": "/", "permanent": true },
+    { "source": "/setup/:path*", "destination": "/", "permanent": true }
   ]
 }

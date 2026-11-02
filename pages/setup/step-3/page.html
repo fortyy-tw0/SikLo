@@ -1,14 +1,8 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Screen "step-3": its layout and styles. build.mjs puts it in the one-page app and
+     limits these styles to this screen, so screens can reuse class names safely. -->
 <title>SikLo Setup Step 3</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{font-family:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--page-bg);color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
   button,textarea{font:inherit;color:inherit}
   button{cursor:pointer;border:0;background:none}
 
@@ -25,9 +19,6 @@
   .logo{display:flex;align-items:center;gap:9px}
   .logo .mk{width:32px;height:32px}
   .logo .wm{height:30px;width:auto}
-  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--purple-700);
-    background:var(--purple-50);padding:7px 12px;border-radius:99px}
-  .badge svg{width:12px;height:12px}
 
   /* Progress */
   .nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
@@ -85,25 +76,13 @@
   .cta svg{width:16px;height:16px;flex:none;transform:translateY(1.5px)}
   .skip{width:100%;min-height:44px;margin-top:4px;font-size:14px;font-weight:600;color:var(--purple-700);border-radius:14px}
   :focus-visible{outline:2px solid var(--purple-500);outline-offset:2px}
-
 </style>
-<link rel="prefetch" href="step-4.html">
-<link rel="prefetch" href="step-2.html">
-<script type="speculationrules">{"prerender": [{"urls": ["step-4.html", "step-2.html"], "eagerness": "immediate"}]}</script>
-<link rel="stylesheet" href="../assets/shared.css">
-<script src="../assets/js/boot.js"></script>
-<script type="module" src="../assets/js/step-3.js"></script>
-</head>
-<body>
+
 <main class="screen">
 
   <header class="head">
   <div class="top">
     <div class="logo"><svg class="mk" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="116" fill="#6A2BB0"/><g transform="translate(0 -12)" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"><path d="M182 410C164 348 180 292 216 264C196 246 188 216 196 190L194 124L238 160Q256 154 274 160L318 124L316 190C324 216 316 246 296 264C332 292 348 348 330 410Q256 422 182 410Z"/><path d="M322 402C384 406 400 350 366 316" fill="none" stroke-width="26" stroke-linecap="round"/></g></svg><svg class="wm" aria-label="SikLo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 2742 921"><g fill="#3B1466" transform="translate(0 861) scale(1 -1)"><path transform="translate(0 0)" d="M42 210H224Q228 171 251.0 150.5Q274 130 311 130Q349 130 371.0 147.5Q393 165 393 196Q393 222 375.5 239.0Q358 256 332.5 267.0Q307 278 260 292Q192 313 149.0 334.0Q106 355 75.0 396.0Q44 437 44 503Q44 601 115.0 656.5Q186 712 300 712Q416 712 487.0 656.5Q558 601 563 502H378Q376 536 353.0 555.5Q330 575 294 575Q263 575 244.0 558.5Q225 542 225 511Q225 477 257.0 458.0Q289 439 357 417Q425 394 467.5 373.0Q510 352 541.0 312.0Q572 272 572 209Q572 149 541.5 100.0Q511 51 453.0 22.0Q395 -7 316 -7Q239 -7 178.0 18.0Q117 43 80.5 92.0Q44 141 42 210Z"/><path transform="translate(615 0)" d="M46 708Q46 748 74.5 774.5Q103 801 148 801Q192 801 220.5 774.5Q249 748 249 708Q249 669 220.5 642.5Q192 616 148 616Q103 616 74.5 642.5Q46 669 46 708ZM233 558V0H62V558Z"/><path transform="translate(910 0)" d="M403 0 233 234V0H62V740H233V331L402 558H613L381 278L615 0Z"/></g><path d="M1703.5 241.5L1798.5 775.5L1998.5 561.0" fill="none" stroke="#6A2BB0" stroke-width="171" stroke-linecap="round" stroke-linejoin="round"/><path d="M2595.4 561.8 L2596.0 568.5 L2596.4 575.2 L2596.5 582.0 L2596.4 588.8 L2596.0 595.5 L2595.4 602.2 L2594.6 608.9 L2593.6 615.6 L2592.3 622.2 L2590.8 628.8 L2589.0 635.3 L2587.0 641.8 L2584.8 648.2 L2582.4 654.5 L2579.8 660.7 L2576.9 666.8 L2573.9 672.8 L2570.6 678.8 L2567.1 684.5 L2563.4 690.2 L2559.5 695.7 L2555.5 701.1 L2551.2 706.4 L2546.8 711.5 L2542.2 716.4 L2537.4 721.2 L2532.5 725.8 L2527.4 730.2 L2522.1 734.5 L2516.7 738.5 L2511.2 742.4 L2505.5 746.1 L2499.8 749.6 L2493.8 752.9 L2487.8 755.9 L2481.7 758.8 L2475.5 761.4 L2469.2 763.8 L2462.8 766.0 L2456.3 768.0 L2449.8 769.8 L2443.2 771.3 L2436.6 772.6 L2429.9 773.6 L2423.2 774.4 L2416.5 775.0 L2409.8 775.4 L2403.0 775.5 L2396.2 775.4 L2389.5 775.0 L2382.8 774.4 L2376.1 773.6 L2369.4 772.6 L2362.8 771.3 L2356.2 769.8 L2349.7 768.0 L2343.2 766.0 L2336.8 763.8 L2330.5 761.4 L2324.3 758.8 L2318.2 755.9 L2312.2 752.9 L2306.2 749.6 L2300.5 746.1 L2294.8 742.4 L2289.3 738.5 L2283.9 734.5 L2278.6 730.2 L2273.5 725.8 L2268.6 721.2 L2263.8 716.4 L2259.2 711.5 L2254.8 706.4 L2250.5 701.1 L2246.5 695.7 L2242.6 690.2 L2238.9 684.5 L2235.4 678.8 L2232.1 672.8 L2229.1 666.8 L2226.2 660.7 L2223.6 654.5 L2221.2 648.2 L2219.0 641.8 L2217.0 635.3 L2215.2 628.8 L2213.7 622.2 L2212.4 615.6 L2211.4 608.9 L2210.6 602.2 L2210.0 595.5 L2209.6 588.8 L2209.5 582.0 L2209.6 575.2 L2210.0 568.5 L2210.6 561.8 L2211.4 555.1 L2212.4 548.4 L2213.7 541.8 L2215.2 535.2 L2217.0 528.7 L2219.0 522.2 L2221.2 515.8 L2223.6 509.5 L2226.2 503.3 L2229.1 497.2 L2232.1 491.2 L2235.4 485.2 L2238.9 479.5 L2242.6 473.8 L2246.5 468.3 L2250.5 462.9 L2254.8 457.6 L2259.2 452.5 L2263.8 447.6 L2268.6 442.8 L2273.5 438.2 L2278.6 433.8 L2283.9 429.5 L2289.3 425.5 L2294.8 421.6 L2300.5 417.9 L2306.2 414.4 L2312.2 411.1 L2318.2 408.1 L2324.3 405.2 L2330.5 402.6 L2336.8 400.2 L2343.2 398.0 L2349.7 396.0 L2356.2 394.2 L2362.8 392.7 L2369.4 391.4 L2376.1 390.4" fill="none" stroke="#6A2BB0" stroke-width="171" stroke-linecap="round"/><circle cx="2522.1" cy="429.5" r="58.1" fill="#9B5DE5"/></svg></div>
-    <div class="badge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-      Local profile
-    </div>
   </div>
   <div class="nav">
     <button class="back" type="button" id="backBtn">
@@ -161,5 +140,3 @@
   </footer>
 
 </main>
-</body>
-</html>
