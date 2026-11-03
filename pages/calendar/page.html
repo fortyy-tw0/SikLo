@@ -24,16 +24,16 @@
   .dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:14px}
   .dow span{text-align:center;font-size:11px;font-weight:600;color:var(--muted)}
   .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:4px}
-  .cell{position:relative;aspect-ratio:1;border-radius:12px;display:grid;place-items:center;
+  /* The number and its markers are one stack, centred in the square */
+  .cell{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
     font-size:13.5px;font-weight:600;color:var(--ink);background:none;font-variant-numeric:tabular-nums}
   .cell.blank{visibility:hidden}
   .cell.future{color:var(--muted)}
   .cell .n{line-height:1;display:block}
-  /* Markers float under the number so they never shift it off centre */
-  .cell .dots{position:absolute;left:0;right:0;bottom:3px;display:flex;justify-content:center;align-items:center;gap:3px;
-    height:12px;pointer-events:none}
+  .cell .dots{display:flex;justify-content:center;align-items:center;gap:3px;height:11px;pointer-events:none}
+  .cell .dots:empty{display:none}
   .cell .dots i{width:4px;height:4px;border-radius:50%;background:var(--purple-700)}
-  .cell .dots svg{width:12px;height:12px;color:var(--purple-700)}
+  .cell .dots svg{width:11px;height:11px;color:var(--purple-700)}
   .cell.period-start .dots i,.cell.period-start .dots svg{color:#fff;background:#fff}
   .cell.period-start .dots svg{background:none}
 
@@ -48,9 +48,11 @@
   .cell.ovulation{box-shadow:inset 0 0 0 2px var(--purple-700)}
   .cell.today{outline:2px solid var(--purple-900);outline-offset:-2px}
 
-  .legend{display:grid;grid-template-columns:1fr 1fr;gap:7px 12px;margin-top:18px}
-  .legend span{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--body);line-height:1.3}
-  .legend i{flex:none;width:14px;height:14px;border-radius:5px;background:var(--purple-100)}
+  .legend{display:flex;flex-wrap:wrap;gap:7px 14px;margin-top:16px}
+  .legend span{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--body);line-height:1.2}
+  .legend i{flex:none;width:13px;height:13px;border-radius:4px;background:var(--purple-100)}
+  .legend i.dot{width:5px;height:5px;border-radius:50%;background:var(--purple-700);margin:0 4px}
+  .legend svg{flex:none;width:12px;height:12px;color:var(--purple-700)}
   .legend i.start{background:var(--purple-700)}
   .legend i.period{background:var(--purple-300)}
   .legend i.predicted{background:var(--purple-50);box-shadow:inset 0 0 0 1.5px var(--purple-300)}
@@ -59,13 +61,9 @@
   .note{font-size:11.5px;line-height:1.5;color:var(--muted);margin-top:14px}
 
   /* Record intercourse */
-  .record{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;margin-top:16px;padding:12px 14px;
-    border-radius:16px;background:var(--purple-50);text-align:left}
-  .record .ic{flex:none;width:34px;height:34px;border-radius:11px;background:var(--white);color:var(--purple-700);display:grid;place-items:center}
-  .record .ic svg{width:17px;height:17px}
-  .record b{display:block;font-size:14px;font-weight:700}
-  .record small{display:block;font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:1px}
-  .record .chev{flex:none;width:16px;height:16px;margin-left:auto;color:var(--purple-700)}
+  .record{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;margin-top:16px;
+    padding:0 14px;border-radius:14px;background:var(--purple-50);color:var(--purple-700);font-size:13.5px;font-weight:700}
+  .record svg{flex:none;width:16px;height:16px}
 
   /* This month */
   h2{font-size:14px;font-weight:700;margin:24px 0 10px}
@@ -140,19 +138,19 @@
   <div class="grid" id="grid" role="grid" aria-label="Days"></div>
 
   <div class="legend">
-    <span><i class="start"></i>Period started</span>
-    <span><i class="period"></i>Period day</span>
-    <span><i class="predicted"></i>Period expected</span>
-    <span><i></i>Fertile window (estimated)</span>
-    <span><i class="ovulation"></i>Ovulation (estimated)</span>
+    <span><i class="period"></i>Period</span>
+    <span><i class="predicted"></i>Expected</span>
+    <span><i></i>Fertile</span>
+    <span><i class="ovulation"></i>Ovulation</span>
     <span><i class="today"></i>Today</span>
+    <span><i class="dot"></i>Logged</span>
+    <span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.3-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.7-7 9-7 9z"/></svg>Intercourse</span>
   </div>
   <p class="note" id="estimateNote"></p>
 
   <button class="record" type="button" id="recordBtn">
-    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.3-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.7-7 9-7 9z"/></svg></span>
-    <span><b>Record intercourse</b><small id="recordHint">For today, or pick another day</small></span>
-    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.3-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.7-7 9-7 9z"/></svg>
+    <span id="recordLabel">Record intercourse</span>
   </button>
 
   <h2 id="summaryHeading">This month</h2>

@@ -71,6 +71,7 @@ export default function mount(signal: AbortSignal): void {
         : 'Estimates appear once you have three complete cycles recorded.';
 
     renderMonth(grid.cells, grid.label);
+    recordLabel();
   }
 
   /** The counts and the list of entries under the grid, so the tab has no dead space. */
@@ -126,9 +127,11 @@ export default function mount(signal: AbortSignal): void {
   byId('nextBtn').addEventListener('click', () => step(1));
 
   // ---------- Record intercourse, straight from the tab ----------
-  byId('recordHint').textContent = loadTracking().intimacy[today]
-    ? 'Already logged for today. Tap to change it.'
-    : `For ${fmtLong(today).replace(/^[A-Za-z]+, /, '')}, or tap a date above`;
+  const recordLabel = () => {
+    byId('recordLabel').textContent = loadTracking().intimacy[today]
+      ? "Edit today's intercourse log" : 'Record intercourse';
+  };
+  recordLabel();
   byId('recordBtn').addEventListener('click', () => {
     const d = parseDate(today);
     if (shown[0] !== d.getUTCFullYear() || shown[1] !== d.getUTCMonth()) {
