@@ -23,6 +23,7 @@
   --tabbar-bg:rgba(255,255,255,.96);
   --toast-bg:#3B1466; --toast-fg:#FFFFFF;
   --logo-ink:#3B1466; --logo-accent:#6A2BB0;
+  --glow:rgba(122,67,204,.34); --glow-soft:rgba(122,67,204,.16);   /* halo on the Ask button */
 }
 
 /* Dark mode: chosen on the landing page or in Profile (lib/theme.ts sets data-theme) */
@@ -50,6 +51,7 @@ html[data-theme="dark"]{
   --tabbar-bg:rgba(23,18,31,.96);
   --toast-bg:#EDE2FC; --toast-fg:#1E1430;
   --logo-ink:#F1E8FD; --logo-accent:#BC98F5;
+  --glow:rgba(188,152,245,.5); --glow-soft:rgba(188,152,245,.22);
 }
 /* The SikLo wordmark follows the theme */
 .wm g[fill]{fill:var(--logo-ink)}
@@ -172,6 +174,15 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
   background:var(--button);color:#fff;border:3px solid var(--white);
   box-shadow:0 6px 16px rgba(58,20,102,.3)}
 html[data-theme="dark"] .ai-ring{box-shadow:0 6px 18px rgba(0,0,0,.55)}
+/* Coming towards the button: it lights up, so it is clear what is about to be tapped */
+.ai-ring{transition:box-shadow .22s ease,background-color .22s ease,scale .14s ease}
+.tabbar .tab-ask:hover .ai-ring,
+.tabbar .tab-ask:focus-visible .ai-ring{background:var(--button-hover);
+  box-shadow:0 8px 22px rgba(58,20,102,.4),0 0 0 7px var(--glow-soft),0 0 22px 3px var(--glow)}
+html[data-theme="dark"] .tabbar .tab-ask:hover .ai-ring,
+html[data-theme="dark"] .tabbar .tab-ask:focus-visible .ai-ring{box-shadow:0 8px 22px rgba(0,0,0,.6),0 0 0 7px var(--glow-soft),0 0 24px 4px var(--glow)}
+.tabbar .tab-ask:active .ai-ring{box-shadow:0 4px 12px rgba(58,20,102,.45),0 0 0 10px var(--glow-soft),0 0 26px 5px var(--glow)}
+.tabbar .tab-ask:hover,.tabbar .tab-ask:focus-visible{color:var(--purple-700)}
 .ai-ring::after{content:"";position:absolute;width:47px;height:47px;border-radius:50%;
   border:1.5px solid rgba(255,255,255,.55)}            /* inner circle: this is the AI */
 .ai-ring .ai-mark{width:28px;height:28px}
