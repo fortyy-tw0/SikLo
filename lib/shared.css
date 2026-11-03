@@ -114,6 +114,8 @@ html:has(.sheet.show) .toast.show{transform:translate(-50%,0)}
 /* The raised Ask button steps aside while someone is typing a question */
 .tabbar .tab-ask{transition:opacity .18s ease,transform .18s ease}
 html.typing .tabbar .tab-ask{opacity:0;transform:translateY(14px) scale(.8);pointer-events:none}
+/* On the Ask screen the middle tab is flat, so it stays put and keeps its label */
+.tabbar .tab-ask-flat{opacity:1;transform:none;pointer-events:auto}
 
 /* ---------- Motion ----------
    Small, quick animations that make the app feel responsive. All of them are

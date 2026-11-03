@@ -74,6 +74,19 @@ export default function mount(signal: AbortSignal): void {
   /** Her own numbers and learned patterns, for the model to work from. */
   const facts = () => (memory ? memoryFacts(memory, view) : undefined);
 
+  /** The arrow flies off and the field settles, so sending a question is felt. */
+  const askRow = document.querySelector<HTMLElement>('.ask')!;
+  let flashTimer: ReturnType<typeof setTimeout> | undefined;
+  function flash(): void {
+    sendBtn.classList.remove('sent');
+    askRow.classList.remove('sent');
+    void sendBtn.offsetWidth;            // restart the animation on a second send
+    sendBtn.classList.add('sent');
+    askRow.classList.add('sent');
+    clearTimeout(flashTimer);
+    flashTimer = setTimeout(() => { sendBtn.classList.remove('sent'); askRow.classList.remove('sent'); }, 460);
+  }
+
   let busy = false;
   async function ask(question: string, spoken = false): Promise<void> {
     const text = question.trim();
@@ -81,6 +94,7 @@ export default function mount(signal: AbortSignal): void {
     busy = true;
     stopSpeaking();
     suggestions.hidden = true;
+    flash();
     addYou(text);
     input.value = '';
     resize();
@@ -88,6 +102,7 @@ export default function mount(signal: AbortSignal): void {
 
     const base = answerQuestion(text, { view, memory, name: saved?.profile.name });
     const dots = addThinking();
+    const started = Date.now();
 
     // The model only ever rephrases a library answer, and never touches safety replies
     let answer = base;
@@ -95,6 +110,10 @@ export default function mount(signal: AbortSignal): void {
       const worded = await generate(text, retrieve(text, 3).map((s) => s.article), facts());
       if (worded) answer = { ...base, text: worded };
     }
+    // A library answer is ready at once; a beat of thinking makes the exchange
+    // readable rather than a flash. Anything urgent skips the wait.
+    const beat = 420 - (Date.now() - started);
+    if (!base.crisis && beat > 0) await new Promise((r) => setTimeout(r, beat));
     dots.remove();
     addSikLo(answer);
     if (spoken && canSpeak()) speak(answer.text);
