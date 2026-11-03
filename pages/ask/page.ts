@@ -57,6 +57,10 @@ export default function mount(signal: AbortSignal): void {
 
   const stillMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /** Set while an answer is being written out; shows the rest of it at once. */
+  let skip: (() => void) | null = null;
+  thread.addEventListener('click', () => skip?.(), { signal });
+
   function addSikLo(answer: Answer, written = true): HTMLElement {
     const el = document.createElement('div');
     el.className = `msg siklo${answer.crisis ? ' crisis' : ''}`;
@@ -84,21 +88,37 @@ export default function mount(signal: AbortSignal): void {
     return el;
   }
 
-  /** Writes text out at a readable pace: longer answers take longer, up to a point. */
+  /**
+   * Writes the answer out a word at a time, at a steady pace, with a breath at
+   * the end of a sentence. Whole words rather than letters: nothing breaks
+   * mid-word, so it can be read as it arrives instead of racing past.
+   */
   function type(into: HTMLElement, text: string, done: () => void): void {
-    const span = Math.min(2800, Math.max(900, text.length * 16));
-    const start = performance.now();
-    const atBottom = () => thread.scrollHeight - thread.scrollTop - thread.clientHeight < 40;
-    const step = (now: number) => {
-      if (!into.isConnected) return;                 // the screen was left, or the thread cleared
-      const through = Math.min(1, (now - start) / span);
-      const keep = atBottom();
-      into.textContent = text.slice(0, Math.ceil(text.length * through));
-      if (keep) scroll();
-      if (through < 1) requestAnimationFrame(step);
-      else done();
+    const words = text.match(/\S+\s*/g) ?? [text];
+    const each = words.length > 110 ? 34 : 48;       // a long answer moves a little quicker
+    const atBottom = () => thread.scrollHeight - thread.scrollTop - thread.clientHeight < 60;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let i = 0;
+    const finish = () => {
+      clearTimeout(timer);
+      skip = null;
+      into.textContent = text;
+      done();
+      scroll();
     };
-    requestAnimationFrame(step);
+    skip = finish;                                   // a tap anywhere shows the rest at once
+    const tick = () => {
+      if (!into.isConnected) { skip = null; return; } // the screen was left, or the thread cleared
+      const keep = atBottom();
+      const word = words[i++];
+      into.textContent += word;
+      if (keep) scroll();
+      if (i >= words.length) { skip = null; done(); return; }
+      // Punctuation gets a pause, the way someone writing would stop for breath
+      const wait = /[.!?][")]?\s*$/.test(word) ? each + 220 : /[,;:]\s*$/.test(word) ? each + 90 : each;
+      timer = setTimeout(tick, wait);
+    };
+    timer = setTimeout(tick, each);
   }
 
   function addThinking(): HTMLElement {
@@ -132,6 +152,7 @@ export default function mount(signal: AbortSignal): void {
     const text = question.trim();
     if (!text || busy) return;
     busy = true;
+    skip?.();                 // finish the answer before this one, rather than racing it
     stopSpeaking();
     suggestions.hidden = true;
     flash();
