@@ -16,7 +16,7 @@
   /* Conversation */
   .body{flex:1;overflow-y:auto;padding:16px 22px 10px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
     display:flex;flex-direction:column;gap:10px}
-  .msg{max-width:88%;padding:12px 14px;border-radius:18px;font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+  .msg{position:relative;max-width:88%;padding:12px 14px;border-radius:18px;font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
   @media (prefers-reduced-motion:no-preference){
     .msg.you{animation:askOut .34s cubic-bezier(.22,.9,.26,1) both}
     .msg.siklo{animation:askIn .38s cubic-bezier(.22,.9,.26,1) both}
@@ -41,6 +41,14 @@
   .msg.you{align-self:flex-end;background:var(--button);color:#fff;border-bottom-right-radius:6px}
   .msg.siklo{align-self:flex-start;background:var(--purple-50);color:var(--ink);border-bottom-left-radius:6px}
   .msg.siklo.crisis{background:var(--flag-bg);border:1px solid var(--flag-line)}
+  /* An answer being written out, with a caret while it runs */
+  .msg .read{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .msg .said.typing::after{content:"";display:inline-block;width:2px;height:1em;margin-left:2px;vertical-align:-2px;
+    background:currentColor;opacity:.75}
+  @media (prefers-reduced-motion:no-preference){
+    .msg .said.typing::after{animation:caret .85s steps(1,end) infinite}
+  }
+  @keyframes caret{0%,50%{opacity:.75}51%,100%{opacity:0}}
   .msg .src{display:block;font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.45}
   .msg .mine{display:block;margin-top:9px;padding:9px 11px;border-radius:12px;background:var(--white);font-size:12.5px;line-height:1.5}
   .msg .mine b{display:block;font-size:11.5px;font-weight:700;color:var(--purple-700);margin-bottom:3px}

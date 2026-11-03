@@ -47,18 +47,58 @@ export default function mount(signal: AbortSignal): void {
     scroll();
   }
 
-  function addSikLo(answer: Answer): HTMLElement {
+  /** Everything that follows the answer itself: her own logs, sources, the note. */
+  const extras = (answer: Answer) =>
+    (answer.personal.length
+      ? `<span class="mine"><b>From your own logs</b>${answer.personal.map((line) => `<em>${esc(line)}</em>`).join('')}</span>`
+      : '')
+    + (answer.sources.length ? `<span class="src">From the SikLo health library: ${esc(answer.sources.join(' · '))}</span>` : '')
+    + (answer.showMedicalNote ? `<span class="note">${esc(MEDICAL_NOTE)}</span>` : '');
+
+  const stillMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function addSikLo(answer: Answer, written = true): HTMLElement {
     const el = document.createElement('div');
     el.className = `msg siklo${answer.crisis ? ' crisis' : ''}`;
-    el.innerHTML = esc(answer.text).replace(/\n/g, '<br>')
-      + (answer.personal.length
-        ? `<span class="mine"><b>From your own logs</b>${answer.personal.map((line) => `<em>${esc(line)}</em>`).join('')}</span>`
-        : '')
-      + (answer.sources.length ? `<span class="src">From the SikLo health library: ${esc(answer.sources.join(' · '))}</span>` : '')
-      + (answer.showMedicalNote ? `<span class="note">${esc(MEDICAL_NOTE)}</span>` : '');
+    // Anything urgent appears at once; so does a reply for someone who asked
+    // their device for less motion.
+    if (!written || answer.crisis || stillMotion()) {
+      el.innerHTML = esc(answer.text).replace(/\n/g, '<br>') + extras(answer);
+      thread.append(el);
+      scroll();
+      return el;
+    }
+    // Otherwise it is written out, the way someone typing would.
+    el.innerHTML = '<span class="said typing" aria-hidden="true"></span><span class="read"></span><span class="rest" hidden></span>';
+    const said = el.querySelector<HTMLElement>('.said')!;
+    const rest = el.querySelector<HTMLElement>('.rest')!;
     thread.append(el);
     scroll();
+    type(said, answer.text, () => {
+      said.classList.remove('typing');
+      el.querySelector<HTMLElement>('.read')!.textContent = answer.text;  // for a screen reader, once
+      rest.innerHTML = extras(answer);
+      rest.hidden = false;
+      scroll();
+    });
     return el;
+  }
+
+  /** Writes text out over about a second, however long it is. */
+  function type(into: HTMLElement, text: string, done: () => void): void {
+    const span = Math.min(1100, Math.max(320, text.length * 7));
+    const start = performance.now();
+    const atBottom = () => thread.scrollHeight - thread.scrollTop - thread.clientHeight < 40;
+    const step = (now: number) => {
+      if (!into.isConnected) return;                 // the screen was left, or the thread cleared
+      const through = Math.min(1, (now - start) / span);
+      const keep = atBottom();
+      into.textContent = text.slice(0, Math.ceil(text.length * through));
+      if (keep) scroll();
+      if (through < 1) requestAnimationFrame(step);
+      else done();
+    };
+    requestAnimationFrame(step);
   }
 
   function addThinking(): HTMLElement {
@@ -112,7 +152,7 @@ export default function mount(signal: AbortSignal): void {
     }
     // A library answer is ready at once; a beat of thinking makes the exchange
     // readable rather than a flash. Anything urgent skips the wait.
-    const beat = 420 - (Date.now() - started);
+    const beat = 750 - (Date.now() - started);
     if (!base.crisis && beat > 0) await new Promise((r) => setTimeout(r, beat));
     dots.remove();
     addSikLo(answer);
@@ -156,7 +196,7 @@ export default function mount(signal: AbortSignal): void {
     kind: 'library',
     text: `${greeting}Ask me about cycles, symptoms, or anything you have logged. I work offline and nothing you type leaves this device.${known}`,
     sources: [], personal: [], crisis: false, showMedicalNote: true,
-  });
+  }, false);   // the greeting is not a reply to anything, so it is simply there
   thread.append(suggestions, tools);
 
   // ---------- Voice ----------
