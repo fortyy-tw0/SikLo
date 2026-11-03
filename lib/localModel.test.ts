@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chooseModel, downloadWithoutAsking, modelStatus, sizeInB, usableRewrite, wholeSentences } from './localModel';
+import {
+  chooseModel, deviceCanRunModel, downloadWithoutAsking, FULL_AI, generate, loadModel,
+  modelStatus, sizeInB, usableRewrite, wholeSentences,
+} from './localModel';
 
 test('picks the smallest small instruction model available', () => {
   const list = [
@@ -76,6 +79,13 @@ test('an empty list is handled rather than throwing', () => {
 
 test('the model starts out not loaded, so the article engine answers', () => {
   assert.equal(modelStatus(), 'not-loaded');
+});
+
+test('the full AI is off, so nothing tries to download or generate', async () => {
+  assert.equal(FULL_AI, false);
+  assert.equal(deviceCanRunModel(), false);
+  assert.equal(await loadModel(), false);
+  assert.equal(await generate('why do I get cramps', 'Cramps are common.', []), null);
 });
 
 test('a large download is never started unasked on metered or slow connections', () => {

@@ -22,6 +22,13 @@ import type { Article } from './library/articles';
 /** Pinned so a new release cannot change behaviour without us choosing it. */
 const WEBLLM_URL = 'https://esm.run/@mlc-ai/web-llm@0.2.79';
 
+/**
+ * Turned off for now, while the model side is worked out. Everything below is
+ * kept intact: the library answers every question on its own, which is what
+ * ships today. Set this to true to offer the model again.
+ */
+export const FULL_AI = false;
+
 export type ModelStatus = 'unsupported' | 'not-loaded' | 'loading' | 'ready' | 'failed';
 
 interface Engine {
@@ -41,6 +48,7 @@ export const loadedModelName = () => modelName;
 
 /** WebGPU is what makes a local model possible in a browser. */
 export function deviceCanRunModel(): boolean {
+  if (!FULL_AI) return false;
   return typeof navigator !== 'undefined' && 'gpu' in navigator;
 }
 
@@ -88,6 +96,7 @@ export function chooseModel(list: { model_id: string; vram_required_MB?: number 
 
 /** Download and start the model. Reports progress from 0 to 1. */
 export async function loadModel(onProgress?: (fraction: number, text: string) => void): Promise<boolean> {
+  if (!FULL_AI) return false;
   if (status === 'ready') return true;
   if (!deviceCanRunModel()) { status = 'unsupported'; return false; }
   status = 'loading';
@@ -164,7 +173,7 @@ export function usableRewrite(text: string | undefined, draft: string): boolean 
  * and which leaves it no room to invent medical claims.
  */
 export async function generate(question: string, draft: string, passages: readonly Article[], facts?: string): Promise<string | null> {
-  if (status !== 'ready' || !engine || !draft) return null;
+  if (!FULL_AI || status !== 'ready' || !engine || !draft) return null;
   const reference = passages.map((a) => `${a.title}: ${a.text}`).join('\n\n');
   const user = [
     `Question: ${question}`,

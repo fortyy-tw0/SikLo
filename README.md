@@ -77,10 +77,11 @@ check-up. It never says what a pattern means, because that is a clinician's job.
 symptoms are, and what your own log shows, drawing on a library of short health
 summaries written for this app. You can type, or say "Hey SikLo" and ask out
 loud. It answers questions about periods and reproductive health and declines
-everything else, rather than reaching for the nearest article. On devices that
-can run one, a language model downloads in the background and words the answers
-more freely, still entirely on the device; the library answers cover the wait,
-and on a metered connection it waits to be asked.
+everything else, rather than reaching for the nearest article. Every answer
+comes from the library, so it is the same on every device and needs no
+download. (There is also an on-device language model that rewords those
+answers, kept behind a switch in `lib/localModel.ts` and turned off for now
+while its quality is worked out.)
 
 **Learns your patterns, without learning about you.** The more you log, the more
 of an answer comes from your own record: how long your cycles run, which

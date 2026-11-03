@@ -4,7 +4,7 @@ import { answerQuestion, MEDICAL_NOTE, retrieve, SUGGESTIONS, type Answer } from
 import { estimateUnsuitable } from '@lib/context';
 import { buildCycleView, type CycleView } from '@lib/cycleView';
 import { byId, esc, todayIso } from '@lib/dom';
-import { deviceCanRunModel, downloadWithoutAsking, generate, loadModel, modelStatus } from '@lib/localModel';
+import { deviceCanRunModel, downloadWithoutAsking, FULL_AI, generate, loadModel, modelStatus } from '@lib/localModel';
 import { buildMemory, memoryFacts, type Memory } from '@lib/memory';
 import { load } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
@@ -307,13 +307,16 @@ export default function mount(signal: AbortSignal): void {
     toast(ok ? 'Full AI ready, and it stays on this device' : 'Could not load the full AI');
   });
 
-  tools.append(wakeBtn, modelBtn);
+  // While the model is turned off (lib/localModel.ts), the row is left out
+  // altogether rather than offering something that cannot be switched on.
+  tools.append(wakeBtn);
+  if (FULL_AI) tools.append(modelBtn);
   renderWake();
-  renderModel();
+  if (FULL_AI) renderModel();
 
   // Not optional where the device can run it and the connection is not metered:
   // start it in the background, with the library answering until it is ready.
-  if (modelStatus() === 'not-loaded' && downloadWithoutAsking()) {
+  if (FULL_AI && modelStatus() === 'not-loaded' && downloadWithoutAsking()) {
     renderModel(0, 'Starting');
     void loadModel((f, text) => renderModel(f, text)).then((ok) => {
       renderModel();
