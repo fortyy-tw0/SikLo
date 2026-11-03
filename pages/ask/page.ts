@@ -84,9 +84,9 @@ export default function mount(signal: AbortSignal): void {
     return el;
   }
 
-  /** Writes text out over about a second, however long it is. */
+  /** Writes text out at a readable pace: longer answers take longer, up to a point. */
   function type(into: HTMLElement, text: string, done: () => void): void {
-    const span = Math.min(1100, Math.max(320, text.length * 7));
+    const span = Math.min(2800, Math.max(900, text.length * 16));
     const start = performance.now();
     const atBottom = () => thread.scrollHeight - thread.scrollTop - thread.clientHeight < 40;
     const step = (now: number) => {
@@ -152,7 +152,7 @@ export default function mount(signal: AbortSignal): void {
     }
     // A library answer is ready at once; a beat of thinking makes the exchange
     // readable rather than a flash. Anything urgent skips the wait.
-    const beat = 750 - (Date.now() - started);
+    const beat = 1200 - (Date.now() - started);
     if (!base.crisis && beat > 0) await new Promise((r) => setTimeout(r, beat));
     dots.remove();
     addSikLo(answer);

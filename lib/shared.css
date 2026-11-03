@@ -130,8 +130,16 @@ html.typing .tabbar .tab-ask{opacity:0;transform:translateY(14px) scale(.8);poin
 @keyframes pillIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
 
 /* Every tappable control: smooth colour changes and a gentle press */
-html :is(.cta,.btn,.opt,.copt,.check,.chip,.pill,.skip,.back,.theme-switch,.resume,.avatar,.rm,.add,.wipe,.tabbar a,.conf,.daypick button){
-  transition:scale .14s ease,transform .14s ease,background-color .2s,border-color .2s,color .2s,opacity .2s,box-shadow .2s}
+html :is(.cta,.btn,.opt,.copt,.check,.chip,.pill,.skip,.back,.theme-switch,.resume,.avatar,.rm,.add,.wipe,.tabbar a,.conf,.record,a.ask,.daypick button){
+  transition:scale .14s ease,transform .14s ease,background-color .2s,border-color .2s,color .2s,opacity .2s,box-shadow .22s ease}
+
+/* Buttons light up as they are approached, the same as the tab bar.
+   (a.ask is the Insights link, not the Ask screen's composer row.) */
+html :is(.cta,.btn,.conf,.record,a.ask,.resume):hover:not([disabled]),
+html :is(.cta,.btn,.conf,.record,a.ask,.resume):focus-visible:not([disabled]){
+  box-shadow:0 0 0 4px var(--glow-soft),0 0 20px 2px var(--glow)}
+html :is(.cta,.btn,.conf,.record,a.ask,.resume):active:not([disabled]){
+  box-shadow:0 0 0 7px var(--glow-soft),0 0 26px 4px var(--glow)}
 
 /* Tab bar: a soft highlight behind the current tab. */
 .tabbar a{position:relative}
