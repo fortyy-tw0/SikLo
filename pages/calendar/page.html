@@ -24,16 +24,17 @@
   .dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:14px}
   .dow span{text-align:center;font-size:11px;font-weight:600;color:var(--muted)}
   .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:4px}
-  /* The number and its markers are one stack, centred in the square */
-  .cell{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  /* The number is centred in the square and keeps the same place in every cell;
+     the markers sit under it without moving it. */
+  .cell{position:relative;aspect-ratio:1;border-radius:12px;display:grid;place-items:center;
     font-size:13.5px;font-weight:600;color:var(--ink);background:none;font-variant-numeric:tabular-nums}
   .cell.blank{visibility:hidden}
   .cell.future{color:var(--muted)}
   .cell .n{line-height:1;display:block}
-  .cell .dots{display:flex;justify-content:center;align-items:center;gap:3px;height:11px;pointer-events:none}
-  .cell .dots:empty{display:none}
-  .cell .dots i{width:4px;height:4px;border-radius:50%;background:var(--purple-700)}
-  .cell .dots svg{width:11px;height:11px;color:var(--purple-700)}
+  .cell .dots{position:absolute;left:0;right:0;bottom:5px;display:flex;justify-content:center;align-items:center;gap:3px;
+    height:8px;pointer-events:none}
+  .cell .dots i{width:3.5px;height:3.5px;border-radius:50%;background:var(--purple-700)}
+  .cell .dots svg{width:8px;height:8px;color:var(--purple-700)}
   .cell.period-start .dots i,.cell.period-start .dots svg{color:#fff;background:#fff}
   .cell.period-start .dots svg{background:none}
 
@@ -45,7 +46,9 @@
   /* Estimated: outlined, never filled, so it reads as a guess */
   .cell.predicted{box-shadow:inset 0 0 0 1.5px var(--purple-300);background:var(--purple-50)}
   .cell.fertile{background:var(--purple-100)}
-  .cell.ovulation{box-shadow:inset 0 0 0 2px var(--purple-700)}
+  .cell.ovulation{box-shadow:none}
+  .cell.ovulation::before{content:"";position:absolute;inset:0;border-radius:12px;border:2px dashed var(--purple-700)}
+  .cell.ovulation .n{color:var(--purple-700);font-weight:800}
   .cell.today{outline:2px solid var(--purple-900);outline-offset:-2px}
 
   .legend{display:flex;flex-wrap:wrap;gap:7px 14px;margin-top:16px}
@@ -56,7 +59,7 @@
   .legend i.start{background:var(--purple-700)}
   .legend i.period{background:var(--purple-300)}
   .legend i.predicted{background:var(--purple-50);box-shadow:inset 0 0 0 1.5px var(--purple-300)}
-  .legend i.ovulation{box-shadow:inset 0 0 0 2px var(--purple-700)}
+  .legend i.ovulation{width:14px;height:14px;border:1.5px dashed var(--purple-700);background:none}
   .legend i.today{outline:2px solid var(--purple-900);outline-offset:-2px;background:none}
   .note{font-size:11.5px;line-height:1.5;color:var(--muted);margin-top:14px}
 
