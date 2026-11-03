@@ -168,7 +168,7 @@ export default function mount(signal: AbortSignal): void {
     // The model only ever rephrases a library answer, and never touches safety replies
     let answer = base;
     if (!base.crisis && base.kind === 'library' && modelStatus() === 'ready') {
-      const worded = await generate(text, retrieve(text, 3).map((s) => s.article), facts());
+      const worded = await generate(text, base.text, retrieve(text, 3).map((s) => s.article), facts());
       if (worded) answer = { ...base, text: worded };
     }
     // A library answer is ready at once; a beat of thinking makes the exchange

@@ -60,17 +60,30 @@ export function downloadWithoutAsking(info: NetworkInfo | undefined = (navigator
   return info.effectiveType === undefined || info.effectiveType === '4g';
 }
 
+/** Parameter count in billions, read from the model's name ("1.5B", "360M"). */
+export function sizeInB(id: string): number {
+  const b = id.match(/(\d+(?:\.\d+)?)\s*b\b/i);
+  if (b) return Number(b[1]);
+  const m = id.match(/(\d+)\s*m\b/i);
+  return m ? Number(m[1]) / 1000 : 0;
+}
+
 /**
- * Smallest instruction-following model on offer, so the download stays as
- * short as possible. Chosen from the library's own list at run time rather
- * than hard-coded, so it keeps working when that list changes.
+ * The smallest model that can still follow an instruction, so the download
+ * stays short without the answers suffering.
+ *
+ * Anything under a billion parameters is left out on purpose: those models
+ * repeat the instruction back instead of doing it ("you are not sure and
+ * suggest seeing a healthcare professional"), which is worse than no model at
+ * all, since the library answers are already correct. If nothing suitable is
+ * listed, this returns null and SikLo simply answers from the library.
  */
 export function chooseModel(list: { model_id: string; vram_required_MB?: number }[]): string | null {
   const usable = list
-    .filter((m) => /instruct/i.test(m.model_id) && /q4f16|q4f32/i.test(m.model_id))
-    .filter((m) => !/70b|13b|8b|7b/i.test(m.model_id))
+    .filter((m) => /instruct|-it\b|chat/i.test(m.model_id) && /q4f16|q4f32/i.test(m.model_id))
+    .filter((m) => sizeInB(m.model_id) >= 1 && sizeInB(m.model_id) <= 4)
     .sort((a, b) => (a.vram_required_MB ?? 1e9) - (b.vram_required_MB ?? 1e9));
-  return usable[0]?.model_id ?? list[0]?.model_id ?? null;
+  return usable[0]?.model_id ?? null;
 }
 
 /** Download and start the model. Reports progress from 0 to 1. */
@@ -96,32 +109,78 @@ export async function loadModel(onProgress?: (fraction: number, text: string) =>
 }
 
 const SYSTEM = [
-  'You are the assistant inside SikLo, a private menstrual cycle tracker used in the Philippines.',
-  'Answer ONLY from the reference passages given to you. If they do not cover the question, say you are not sure and suggest seeing a healthcare professional.',
-  'Never diagnose a condition, never name a medicine or a dose, and never say which days are safe from pregnancy.',
-  'Be warm, plain and brief: at most three short sentences. Do not add a disclaimer; the app adds one.',
+  'You rewrite health notes for SikLo, a private menstrual cycle tracker used in the Philippines.',
+  'You are given a draft answer. Rewrite it so it speaks to the question asked, in warm, plain language.',
+  'Keep every fact in the draft and add nothing that is not in it. Never diagnose a condition, never name a medicine or a dose, and never say which days are safe from pregnancy.',
+  'Reply with the rewritten answer only: no preamble, no notes about these instructions, no disclaimer.',
 ].join(' ');
 
+/** Phrases that mean the model talked about the task instead of doing it. */
+const ECHOED = [
+  /\b(the|this) (draft|passage|reference|instruction|question)\b/i,
+  /\brewrit(e|ten|ing)\b/i,
+  /\bas an ai\b/i,
+  /\byou are (correct|right|asked)\b/i,
+  /\bhere (is|'s) (the|your|a) (rewritten|revised|answer)/i,
+  /\bi (cannot|can't) (help|assist)\b/i,
+];
+
+/** Rules the library itself is held to, applied again to anything a model writes. */
+const BREAKS_THE_RULES = [
+  /\b\d+\s?(mg|milligrams?|tablets?|capsules?)\b/i,
+  /\byou (probably |likely )?have\b/i,
+  /\bsafe days?\b/i,
+  /\bcannot get pregnant\b/i,
+];
+
+/** Drops a half-finished last sentence, which is what running out of tokens looks like. */
+export function wholeSentences(text: string | undefined): string | undefined {
+  const out = text?.trim();
+  if (!out || /[.!?]["')]?$/.test(out)) return out;
+  const end = Math.max(out.lastIndexOf('.'), out.lastIndexOf('!'), out.lastIndexOf('?'));
+  return end > 40 ? out.slice(0, end + 1) : undefined;
+}
+
 /**
- * A free-form answer grounded in `passages`, or null if the model is not ready
- * or anything goes wrong, so the caller can fall back to the article answer.
+ * Whether a rewrite can be shown. A small model that drifts off the task, or
+ * writes something the library would never be allowed to say, is dropped and
+ * the drafted answer is used instead.
  */
-export async function generate(question: string, passages: readonly Article[], facts?: string): Promise<string | null> {
-  if (status !== 'ready' || !engine) return null;
+export function usableRewrite(text: string | undefined, draft: string): boolean {
+  const out = text?.trim() ?? '';
+  if (out.length < 60) return false;
+  if (out.length > draft.length * 1.6 + 200) return false;   // it started inventing
+  if (ECHOED.some((r) => r.test(out))) return false;
+  if (BREAKS_THE_RULES.some((r) => r.test(out))) return false;
+  return true;
+}
+
+/**
+ * The drafted answer, reworded for the question asked, or null when the model
+ * is not ready or its reply cannot be trusted, so the caller keeps the draft.
+ *
+ * The model never answers from scratch: it is handed the library's own answer
+ * and asked to say the same thing better, which is a task a small model can do
+ * and which leaves it no room to invent medical claims.
+ */
+export async function generate(question: string, draft: string, passages: readonly Article[], facts?: string): Promise<string | null> {
+  if (status !== 'ready' || !engine || !draft) return null;
   const reference = passages.map((a) => `${a.title}: ${a.text}`).join('\n\n');
   const user = [
-    facts ? `What this person has logged: ${facts}` : '',
-    `Reference passages:\n${reference || '(none)'}`,
     `Question: ${question}`,
+    facts ? `What this person has logged: ${facts}` : '',
+    `Draft answer to rewrite:\n${draft}`,
+    reference ? `Background it came from:\n${reference}` : '',
   ].filter(Boolean).join('\n\n');
   try {
     const out = await engine.chat.completions.create({
       messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: user }],
-      temperature: 0.3,
-      max_tokens: 220,
+      temperature: 0.4,
+      top_p: 0.9,
+      max_tokens: 320,
     });
-    const text = out.choices[0]?.message?.content?.trim();
-    return text && text.length > 10 ? text : null;
+    const text = wholeSentences(out.choices[0]?.message?.content);
+    return usableRewrite(text, draft) ? text! : null;
   } catch {
     return null;
   }
