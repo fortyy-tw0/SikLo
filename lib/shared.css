@@ -95,13 +95,15 @@ html[data-dir="back"]::view-transition-new(screen){animation-name:vtInBack}
 ::-webkit-scrollbar-thumb:hover{background:var(--purple-300)}
 ::-webkit-scrollbar-button{display:none;height:0;width:0}
 
-/* Bottom tab bar (Today, Calendar, Insights, Profile) */
+/* Bottom tab bar: five equal slots, every icon and label on the same line */
 .tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:var(--tabbar-bg);
-  border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;
+  border-top:1px solid var(--line);display:flex;align-items:stretch;
   min-height:68px;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
-.tabbar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:64px;min-height:52px;font-size:11px;color:var(--muted);text-decoration:none;font-weight:500}
+.tabbar a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  min-height:52px;font-size:11px;line-height:1;color:var(--muted);text-decoration:none;font-weight:500}
 .tabbar a[aria-current="page"]{color:var(--purple-700);font-weight:600}
 .tabbar svg{width:22px;height:22px}
+.tabbar .slot{display:block;width:22px;height:22px}   /* holds the raised button's place */
 
 /* Small confirmation message above the tab bar */
 .toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--toast-bg);color:var(--toast-fg);font-size:12.5px;font-weight:500;
@@ -162,15 +164,17 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
   transition:background-color .35s ease,color .35s ease,border-color .35s ease,fill .35s ease,stroke .35s ease,box-shadow .35s ease!important}
 
 /* ---------- Ask SikLo button (middle of the tab bar) ----------
-   A circular take on the app logo: purple disc, white ring, white mark. */
-.tabbar .tab-ask{min-width:64px;align-self:flex-start;margin-top:-26px}
-.ai-ring{position:relative;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;
+   A circular take on the app logo: purple disc, white ring, white mark.
+   It is lifted above the bar but keeps its label in line with the others. */
+.tabbar .tab-ask{position:relative}
+.ai-ring{position:absolute;left:50%;bottom:28px;margin-left:-31px;display:grid;place-items:center;
+  width:62px;height:62px;border-radius:50%;
   background:var(--button);color:#fff;border:3px solid var(--white);
   box-shadow:0 6px 16px rgba(58,20,102,.3)}
 html[data-theme="dark"] .ai-ring{box-shadow:0 6px 18px rgba(0,0,0,.55)}
-.ai-ring::after{content:"";position:absolute;width:44px;height:44px;border-radius:50%;
+.ai-ring::after{content:"";position:absolute;width:47px;height:47px;border-radius:50%;
   border:1.5px solid rgba(255,255,255,.55)}            /* inner circle: this is the AI */
-.ai-ring .ai-mark{width:26px;height:26px}
+.ai-ring .ai-mark{width:28px;height:28px}
 .tabbar .tab-ask[aria-current="page"]::before{display:none}
 .tabbar .tab-ask[aria-current="page"] .ai-ring{background:var(--button-hover)}
 @media (prefers-reduced-motion:no-preference){
