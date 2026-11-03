@@ -197,7 +197,8 @@ export default function mount(signal: AbortSignal): void {
     sheet.classList.add('show');
   }
 
-  const HEART = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.3-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.7-7 9-7 9z"/></svg>';
+  // viewBox cropped to the heart itself, so it centres on the same line as the logged dot
+  const HEART = '<svg viewBox="5 6.4 14 13.6" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.3-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.7-7 9-7 9z"/></svg>';
 
   const ICON = {
     drop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
