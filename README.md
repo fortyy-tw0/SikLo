@@ -73,15 +73,18 @@ language — cycles outside the typical range, variation of more than a week,
 periods longer than seven days, bleeding after sex — and says what to raise at a
 check-up. It never says what a pattern means, because that is a clinician's job.
 
-**Answers questions, offline.** Ask SikLo explains how cycles work, what common
-symptoms are, and what your own log shows, drawing on a library of short health
-summaries written for this app. You can type, or say "Hey SikLo" and ask out
-loud. It answers questions about periods and reproductive health and declines
-everything else, rather than reaching for the nearest article. Every answer
-comes from the library, so it is the same on every device and needs no
-download. (There is also an on-device language model that rewords those
-answers, kept behind a switch in `lib/localModel.ts` and turned off for now
-while its quality is worked out.)
+**Answers questions, offline** *(turned off for now).* Ask SikLo explains how
+cycles work, what common symptoms are, and what your own log shows, drawing on
+a library of short health summaries written for this app. You can type, or say
+"Hey SikLo" and ask out loud. It answers questions about periods and
+reproductive health and declines everything else, rather than reaching for the
+nearest article.
+
+The whole screen is switched off while the model side is worked out, so the
+app currently ships with four tabs and no assistant. Nothing has been removed:
+`ASSISTANT` in `lib/features.ts` brings back the tab, the screen and the link
+to it from Insights, and `FULL_AI` in `lib/localModel.ts` separately controls
+the on-device model that rewords library answers.
 
 **Learns your patterns, without learning about you.** The more you log, the more
 of an answer comes from your own record: how long your cycles run, which
@@ -121,10 +124,10 @@ add, and the dates of recent periods. Only the last of these does much work, and
 every optional question can be skipped. Nothing is written to your device until
 you tap **Save**.
 
-After that the five tabs are: **Today** for where you are now, **Calendar** for
-the month, **Ask SikLo** in the middle for questions, **Insights** for patterns,
-and **Profile** to edit your dates, switch between light and dark, or delete
-everything.
+After that the tabs are: **Today** for where you are now, **Calendar** for the
+month, **Insights** for patterns, and **Profile** to edit your dates, switch
+between light and dark, or delete everything. (A fifth tab, **Ask SikLo**, sits
+in the middle when the assistant is switched on.)
 
 To stop using it, open Profile and tap **Delete my data from this device**. That
 is the whole process: there is no account to close, because there was never one

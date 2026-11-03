@@ -2,6 +2,7 @@
 import { estimateUnsuitable } from '@lib/context';
 import { buildCycleView } from '@lib/cycleView';
 import { byId, esc, todayIso } from '@lib/dom';
+import { ASSISTANT } from '@lib/features';
 import { buildInsights, NOT_A_DIAGNOSIS, type Insight } from '@lib/insights';
 import { load } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
@@ -16,6 +17,8 @@ const GROUPS: { tone: Insight['tone']; heading: string }[] = [
 const WARN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 8v5M12 16.5h.01"/><circle cx="12" cy="12" r="9"/></svg>';
 
 export default function mount(_signal: AbortSignal): void {
+  // The link to Ask SikLo goes while the assistant is off (lib/features.ts)
+  if (!ASSISTANT) document.querySelector<HTMLElement>('a.ask')?.remove();
   const saved = load();
   if (!saved) { location.reload(); return; }
   mountTabbar(byId('tabbar'));

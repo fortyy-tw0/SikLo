@@ -1,4 +1,5 @@
 /** Bottom tab bar, rendered into <nav class="tabbar" data-current="..."> on pages that have it. */
+import { ASSISTANT } from './features';
 import { navigate, type ScreenId } from './router';
 import { toast } from './toast';
 
@@ -26,7 +27,8 @@ const TABS: { id: Tab; label: string; short?: string; screen: ScreenId | null; i
 
 export function mountTabbar(nav: HTMLElement): void {
   const current = nav.dataset.current as Tab | undefined;
-  nav.innerHTML = TABS.map((t) => (t.center && t.id !== current
+  const tabs = TABS.filter((t) => ASSISTANT || t.id !== 'ask');
+  nav.innerHTML = tabs.map((t) => (t.center && t.id !== current
     // Raised: the ring sits over the icon's place, so the label stays on the
     // same line as every other tab's.
     ? `<a href="/" class="tab-ask" data-tab="${t.id}" aria-label="${t.label}">
@@ -40,7 +42,7 @@ export function mountTabbar(nav: HTMLElement): void {
     const a = (e.target as Element).closest<HTMLAnchorElement>('a[data-tab]');
     if (!a) return;
     e.preventDefault();
-    const tab = TABS.find((t) => t.id === a.dataset.tab)!;
+    const tab = tabs.find((t) => t.id === a.dataset.tab)!;
     if (!tab.screen) toast(`${tab.label} is coming soon`);
     else if (tab.id !== current) navigate(tab.screen, tab.id === 'today' ? 'back' : 'forward');
   });

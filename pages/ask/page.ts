@@ -4,8 +4,10 @@ import { answerQuestion, MEDICAL_NOTE, retrieve, SUGGESTIONS, type Answer } from
 import { estimateUnsuitable } from '@lib/context';
 import { buildCycleView, type CycleView } from '@lib/cycleView';
 import { byId, esc, todayIso } from '@lib/dom';
+import { ASSISTANT } from '@lib/features';
 import { deviceCanRunModel, downloadWithoutAsking, FULL_AI, generate, loadModel, modelStatus } from '@lib/localModel';
 import { buildMemory, memoryFacts, type Memory } from '@lib/memory';
+import { redirect } from '@lib/router';
 import { load } from '@lib/store';
 import { mountTabbar } from '@lib/tabbar';
 import { toast } from '@lib/toast';
@@ -17,6 +19,7 @@ import { canListen, canSpeak, createListener, matchWake, recognitionIsLocal, spe
  * screen, matching the backend's default chat retention of "off".
  */
 export default function mount(signal: AbortSignal): void {
+  if (!ASSISTANT) { redirect('home'); return; }   // turned off in lib/features.ts
   mountTabbar(byId('tabbar'));
 
   const thread = byId('thread');
