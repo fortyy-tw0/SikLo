@@ -133,10 +133,19 @@ html.typing .tabbar .tab-ask{opacity:0;transform:translateY(14px) scale(.8);poin
 html :is(.cta,.btn,.opt,.copt,.check,.chip,.pill,.skip,.back,.theme-switch,.resume,.avatar,.rm,.add,.wipe,.tabbar a,.conf,.daypick button){
   transition:scale .14s ease,transform .14s ease,background-color .2s,border-color .2s,color .2s,opacity .2s,box-shadow .2s}
 
-/* Tab bar: soft highlight behind the current tab */
+/* Tab bar: a soft highlight behind the current tab, and the same shape lighting
+   up under any tab being approached, so it is clear what is about to be tapped. */
 .tabbar a{position:relative}
-.tabbar a[aria-current="page"]::before{content:"";position:absolute;top:2px;left:50%;width:48px;height:30px;margin-left:-24px;
-  border-radius:99px;background:var(--purple-50);z-index:-1}
+.tabbar a::before{content:"";position:absolute;top:2px;left:50%;width:48px;height:30px;margin-left:-24px;
+  border-radius:99px;background:var(--purple-50);z-index:-1;opacity:0;
+  transition:opacity .2s ease,box-shadow .22s ease}
+.tabbar a[aria-current="page"]::before{opacity:1}
+.tabbar a:hover::before,.tabbar a:focus-visible::before{opacity:1;
+  box-shadow:0 0 0 5px var(--glow-soft),0 0 16px 2px var(--glow)}
+.tabbar a:active::before{opacity:1;box-shadow:0 0 0 8px var(--glow-soft),0 0 20px 3px var(--glow)}
+.tabbar a:hover,.tabbar a:focus-visible{color:var(--purple-700)}
+/* The raised button has a glow of its own and needs no pill behind it */
+.tabbar .tab-ask::before{display:none}
 
 @media (prefers-reduced-motion:no-preference){
   html :is(.cta,.btn,.opt,.copt,.check,.chip,.pill,.skip,.back,.theme-switch,.resume,.avatar,.rm,.add,.wipe,.tabbar a,.daypick button):active:not([disabled]){scale:.96}
@@ -158,7 +167,7 @@ html :is(.cta,.btn,.opt,.copt,.check,.chip,.pill,.skip,.back,.theme-switch,.resu
 
   /* Log chips and the current tab give a little bounce */
   .chip.pop .ic{animation:pop .36s ease}
-  .tabbar a[aria-current="page"]::before{animation:pillIn .3s cubic-bezier(.22,.8,.24,1) both}
+  .tabbar a[aria-current="page"]:not(:hover)::before{animation:pillIn .3s cubic-bezier(.22,.8,.24,1) both}
 }
 
 /* Light/dark switch: colours fade instead of snapping (class set briefly by theme.ts) */
@@ -186,7 +195,6 @@ html[data-theme="dark"] .tabbar .tab-ask:focus-visible .ai-ring{box-shadow:0 8px
 .ai-ring::after{content:"";position:absolute;width:47px;height:47px;border-radius:50%;
   border:1.5px solid rgba(255,255,255,.55)}            /* inner circle: this is the AI */
 .ai-ring .ai-mark{width:28px;height:28px}
-.tabbar .tab-ask[aria-current="page"]::before{display:none}
 .tabbar .tab-ask[aria-current="page"] .ai-ring{background:var(--button-hover)}
 @media (prefers-reduced-motion:no-preference){
   .tabbar .tab-ask:active .ai-ring{scale:.94}
